@@ -360,6 +360,57 @@
       .section-head p { margin-top: 12px; }
       .screen { min-height: auto; }
     }
+  .social-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .social-tile {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.065);
+      border: 1px solid var(--line);
+      font-weight: 900;
+      color: var(--text);
+    }
+    .social-tile span { display:block; color:var(--muted); font-size:.82rem; margin-top:6px; font-weight:700; }
+    .offer-hook {
+      padding: 28px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, rgba(39,242,138,.22), rgba(255,200,87,.16));
+      border: 1px solid rgba(39,242,138,.35);
+      box-shadow: var(--shadow);
+    }
+    .offer-hook strong { font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.06em; display:block; }
+    .compare { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .compare-card, .review-card, .referral-card {
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid var(--line);
+    }
+    .compare-card.private { border-color: rgba(39,242,138,.35); background: rgba(39,242,138,.08); }
+    .review-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:18px; }
+    .review-card p { color:var(--muted); line-height:1.6; }
+    .stars { color: var(--gold); letter-spacing: .08em; }
+    .tiny-note { color: var(--muted); font-size:.82rem; margin-top:12px; line-height:1.5; }
+    .fake-toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(7,16,29,.92);
+      border: 1px solid rgba(39,242,138,.32);
+      box-shadow: var(--shadow);
+      animation: toast 7s ease-in-out infinite;
+      max-width: 310px;
+    }
+    .fake-toast small { color:var(--muted); display:block; margin-top:4px; }
+    @keyframes toast { 0%,100% { opacity:0; transform:translateY(14px); } 12%,78% { opacity:1; transform:translateY(0); } }
+    @media (max-width: 900px) { .social-strip, .compare, .review-grid { grid-template-columns:1fr; } .fake-toast { left: 18px; right: 18px; } }
   </style>
 </head>
 <body>
@@ -385,10 +436,10 @@
         <div>
           <span class="eyebrow">🏆 Communauté sport betting • 18+</span>
           <h1>Des analyses sportives. <span class="gradient-text">Une communauté premium.</span></h1>
-          <p class="lead">AokBet partage des tickets, analyses et suivis de résultats autour des paris sportifs. Accède au canal Telegram, consulte les derniers tickets et choisis une formule d’accès adaptée.</p>
+          <p class="lead">AokBet partage des tickets, analyses et suivis de résultats autour des paris sportifs. Offre de lancement : <strong>1er mois gratuit</strong> pour découvrir le groupe privé avant de choisir une formule.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">🚀 Accéder au Telegram</a>
-            <a class="btn btn-ghost" href="#abonnements">Voir les offres</a>
+            <a class="btn btn-primary" href="#offre-gratuite">🎁 Profiter du 1er mois gratuit</a>
+            <a class="btn btn-ghost" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">🚀 Accéder au Telegram</a>
           </div>
           <div class="trust">
             <div class="trust-card"><strong>Tickets</strong><span>Partagés régulièrement</span></div>
@@ -427,6 +478,77 @@
       </div>
     </section>
 
+    <section id="offre-gratuite">
+      <div class="container offer-hook">
+        <span class="eyebrow">🎁 Offre de lancement</span>
+        <strong>Ton 1er mois est gratuit</strong>
+        <p class="lead">Découvre le groupe privé AokBet, les analyses, les tickets et le suivi des résultats pendant 1 mois. Ensuite, tu peux rester avec la formule mensuelle, 3 mois ou 6 mois.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">Demander mon accès gratuit</a>
+          <a class="btn btn-ghost" href="#abonnements">Voir les prix dégressifs</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="reseaux-sociaux">
+      <div class="container">
+        <div class="section-head">
+          <h2>Rejoins AokBet partout</h2>
+          <p>Suis les annonces, les résultats, les contenus gratuits et les accès au groupe privé depuis nos réseaux.</p>
+        </div>
+        <div class="social-strip">
+          <a class="social-tile" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">Telegram privé<span>Accès VIP</span></a>
+          <a class="social-tile" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">Telegram gratuit<span>Annonces & extraits</span></a>
+          <a class="social-tile" href="https://www.instagram.com/TONCOMPTE" target="_blank" rel="noopener">Instagram<span>Résultats & stories</span></a>
+          <a class="social-tile" href="https://www.tiktok.com/@TONCOMPTE" target="_blank" rel="noopener">TikTok<span>Clips & highlights</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="avis">
+      <div class="container">
+        <div class="section-head">
+          <h2>Avis de membres</h2>
+          <p>Zone prévue pour tes vrais retours clients. Les textes ci-dessous sont des exemples à remplacer par de vrais témoignages vérifiables.</p>
+        </div>
+        <div class="review-grid">
+          <article class="review-card"><div class="stars">★★★★★</div><h3>Lucas M.</h3><p>Exemple : “Je suis dans le groupe depuis quelques semaines, les analyses sont claires et le suivi est sérieux.”</p></article>
+          <article class="review-card"><div class="stars">★★★★★</div><h3>Mathis R.</h3><p>Exemple : “Bonne ambiance, tickets bien expliqués et transparence sur les résultats.”</p></article>
+          <article class="review-card"><div class="stars">★★★★★</div><h3>Enzo L.</h3><p>Exemple : “Je découvre une approche plus posée des paris sportifs, avec des conseils de gestion.”</p></article>
+        </div>
+        <p class="tiny-note">Important : utilise uniquement de vrais avis ou indique clairement qu’il s’agit d’exemples. Évite les faux témoignages présentés comme réels.</p>
+      </div>
+    </section>
+
+    <section id="public-prive">
+      <div class="container">
+        <div class="section-head">
+          <h2>Groupe public vs groupe privé</h2>
+          <p>Le public donne un aperçu. Le privé permet de suivre l’expérience AokBet complète.</p>
+        </div>
+        <div class="compare">
+          <div class="compare-card">
+            <h3>Groupe public</h3>
+            <ul class="features">
+              <li>Quelques annonces</li>
+              <li>Extraits de contenus</li>
+              <li>Accès limité aux tickets</li>
+              <li>Pas de suivi complet</li>
+            </ul>
+          </div>
+          <div class="compare-card private">
+            <h3>Groupe privé</h3>
+            <ul class="features">
+              <li>Tickets et analyses plus réguliers</li>
+              <li>Explications avant match</li>
+              <li>Suivi des résultats</li>
+              <li>Conseils de gestion de bankroll</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="tickets">
       <div class="container">
         <div class="section-head">
@@ -445,6 +567,16 @@
             <article class="bet-card"><span class="sport">Football</span><h3>Arsenal — Chelsea</h3><p>Paris : Les deux équipes marquent</p><div class="bet-meta"><div class="meta">Cote<strong>1.84</strong></div><div class="meta">Gain<strong>92€</strong></div></div><span class="status">✅ Validé</span></article>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="equipe">
+      <div class="container telegram-box">
+        <div>
+          <h2>Notre équipe</h2>
+          <p>Nous sommes deux passionnés de sport et de paris sportifs depuis plus de 10 ans. AokBet est né d’une envie simple : partager notre passion du sport, notre expérience et une approche plus structurée avec une communauté motivée.</p>
+        </div>
+        <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">Parler avec nous</a>
       </div>
     </section>
 
@@ -512,6 +644,20 @@
       </div>
     </section>
 
+    <section id="parrainage">
+      <div class="container referral-card">
+        <span class="eyebrow">🎁 Parrainage</span>
+        <h2>Invite un ami, gagne des bonus</h2>
+        <p class="lead">Si un ami s’inscrit sur un site partenaire via ton lien, tu peux recevoir jusqu’à 20€ de récompense et même obtenir ton prochain mois gratuit selon l’offre en cours.</p>
+        <ul class="features">
+          <li>20€ possibles par inscription validée</li>
+          <li>1 mois gratuit possible sur ton abonnement AokBet</li>
+          <li>Bonus réservés aux membres actifs</li>
+        </ul>
+        <p class="tiny-note">Les conditions exactes doivent être précisées selon tes partenaires : pays acceptés, dépôt minimum, validation, délais et restrictions 18+.</p>
+      </div>
+    </section>
+
     <section id="telegram">
       <div class="container telegram-box">
         <div>
@@ -537,5 +683,9 @@
       <p class="legal">© 2026 AokBet. Site réservé aux personnes majeures. Les paris sportifs comportent des risques : pertes d’argent, addiction, endettement. Aucun résultat ou gain n’est garanti. Respecte la législation de ton pays et joue avec modération.</p>
     </div>
   </footer>
+  <div class="fake-toast">
+    👋 Démo : un nouveau membre vient de rejoindre AokBet
+    <small>Remplace cette notification par de vraies données ou laisse-la comme animation illustrative.</small>
+  </div>
 </body>
 </html>
