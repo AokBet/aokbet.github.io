@@ -411,6 +411,88 @@
     .fake-toast small { color:var(--muted); display:block; margin-top:4px; }
     @keyframes toast { 0%,100% { opacity:0; transform:translateY(14px); } 12%,78% { opacity:1; transform:translateY(0); } }
     @media (max-width: 900px) { .social-strip, .compare, .review-grid { grid-template-columns:1fr; } .fake-toast { left: 18px; right: 18px; } }
+  .telegram-chat {
+      max-width: 860px;
+      margin: 0 auto;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
+      box-shadow: var(--shadow);
+    }
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      background: rgba(7,16,29,.92);
+      border-bottom: 1px solid var(--line);
+    }
+    .chat-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(39,242,138,.35);
+    }
+    .chat-header strong { display:block; }
+    .chat-header span { color: var(--green); font-size:.86rem; font-weight:800; }
+    .chat-body {
+      padding: 22px;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(39,242,138,.08), transparent 30%),
+        radial-gradient(circle at 90% 20%, rgba(69,163,255,.08), transparent 30%),
+        rgba(5,7,13,.68);
+      display: grid;
+      gap: 18px;
+    }
+    .chat-date {
+      justify-self: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      color: var(--muted);
+      font-size:.78rem;
+      font-weight:800;
+    }
+    .chat-bubble {
+      max-width: 72%;
+      padding: 10px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.09);
+      border: 1px solid var(--line);
+      animation: bubbleIn .7s ease both;
+    }
+    .chat-bubble.right {
+      justify-self: end;
+      background: rgba(39,242,138,.11);
+      border-color: rgba(39,242,138,.25);
+    }
+    .chat-name { color: var(--green); font-weight:900; font-size:.86rem; margin: 0 0 6px; }
+    .chat-bubble p { margin: 0; color: #eef3f8; line-height:1.45; }
+    .chat-bubble img {
+      width: 100%;
+      display:block;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      margin-top: 8px;
+    }
+    .chat-time { display:block; text-align:right; color:var(--muted); font-size:.74rem; margin-top:6px; }
+    .typing {
+      width: max-content;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.09);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      animation: bubbleIn .7s ease both;
+    }
+    .typing span { display:inline-block; width:7px; height:7px; margin:0 2px; border-radius:50%; background:var(--muted); animation: dots 1s infinite ease-in-out; }
+    .typing span:nth-child(2) { animation-delay:.15s; }
+    .typing span:nth-child(3) { animation-delay:.3s; }
+    @keyframes dots { 0%,80%,100% { transform: translateY(0); opacity:.45; } 40% { transform: translateY(-4px); opacity:1; } }
+    @keyframes bubbleIn { from { opacity:0; transform: translateY(14px) scale(.98); } to { opacity:1; transform: translateY(0) scale(1); } }
+    @media (max-width: 700px) { .chat-bubble { max-width: 92%; } .chat-body { padding: 14px; } }
   </style>
 </head>
 <body>
@@ -442,11 +524,7 @@
             <a class="btn btn-ghost" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">🚀 Accéder au Telegram</a>
           </div>
 
-          <div class="big-ticket" style="margin: 0 0 24px; max-width: 620px;">
-            <div class="ticket-top">
-              <span class="pill pill-live">⚽ Pari du jour</span>
-              <span class="pill pill-premium">Vote gratuit</span>
-            </div>
+          
             <div class="match">
               <span>PSG</span><span class="versus">vs</span><span>Marseille</span>
             </div>
@@ -537,19 +615,59 @@
     <section id="screenshots">
       <div class="container">
         <div class="section-head">
-          <h2>Messages de membres</h2>
-          <p>Exemples de retours réels de la communauté AokBet.</p>
+          <h2>Dans le Telegram privé</h2>
+          <p>Un aperçu plus immersif des retours membres et des tickets partagés dans la communauté AokBet.</p>
         </div>
-        <div class="review-grid">
-          <article class="review-card">
-            <img src="screen-2.jpg" alt="Message membre 1" style="width:100%;border-radius:18px;border:1px solid var(--line);object-fit:cover;">
-          </article>
-          <article class="review-card">
-            <img src="screen-3.jpg" alt="Message membre 2" style="width:100%;border-radius:18px;border:1px solid var(--line);object-fit:cover;">
-          </article>
-          <article class="review-card">
-            <img src="screen-4.jpg" alt="Message membre 3" style="width:100%;border-radius:18px;border:1px solid var(--line);object-fit:cover;">
-          </article>
+        <div class="telegram-chat">
+          <div class="chat-header">
+            <img src="logo.png" alt="AokBet" class="chat-avatar">
+            <div>
+              <strong>VIP AOK BET</strong>
+              <span>en ligne • groupe privé</span>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="chat-date">Aujourd’hui</div>
+
+            <div class="chat-bubble right">
+              <div class="chat-name">AokBet</div>
+              <p>Ticket partagé dans le VIP ✅</p>
+              <img src="screen-2.jpg" alt="Capture Telegram membre AokBet 1">
+              <span class="chat-time">13:53 ✓✓</span>
+            </div>
+
+            <div class="chat-bubble">
+              <div class="chat-name">Membre VIP</div>
+              <p>Merci pour la cote, ça fait plaisir 🤝</p>
+              <span class="chat-time">00:01</span>
+            </div>
+
+            <div class="chat-date">Hier</div>
+
+            <div class="chat-bubble right">
+              <div class="chat-name">AokBet</div>
+              <p>Nouvelle validation dans le groupe 🔥</p>
+              <img src="screen-3.jpg" alt="Capture Telegram membre AokBet 2">
+              <span class="chat-time">19:49 ✓✓</span>
+            </div>
+
+            <div class="chat-bubble">
+              <div class="chat-name">Membre VIP</div>
+              <p>Merci le VIP, ça régale comme toujours sur les safes 🔥🔥🔥</p>
+              <span class="chat-time">19:50</span>
+            </div>
+
+            <div class="chat-date">Cette semaine</div>
+
+            <div class="chat-bubble">
+              <div class="chat-name">Tom</div>
+              <p>Vraiment forttt, pas déçu du VIP. J’étais à 40€ de bankroll je suis à 230.</p>
+              <img src="screen-4.jpg" alt="Capture Telegram membre AokBet 3">
+              <span class="chat-time">23:15</span>
+            </div>
+
+            <div class="typing"><span></span><span></span><span></span></div>
+          </div>
         </div>
       </div>
     </section>
