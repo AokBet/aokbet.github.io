@@ -402,7 +402,36 @@
     }
 
     @media (max-width: 520px) {
-      .daily-card .odds { grid-template-columns: 1fr; }
+      body { overflow-x: hidden; }
+      .container { width: min(100% - 24px, 1120px); }
+      .nav { min-height: 64px; }
+      .brand span { font-size: 1.15rem; }
+      .brand img { width: 36px !important; height: 36px !important; }
+      .topbar .btn { padding: 10px 13px; font-size: .85rem; }
+      .hero { padding: 28px 0 20px; }
+      .hero-grid { padding: 22px 0 24px; gap: 24px; }
+      h1 { font-size: clamp(2.35rem, 13vw, 3.7rem); line-height: .95; letter-spacing: -.06em; }
+      h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
+      .lead { font-size: 1rem; line-height: 1.55; }
+      .offer-stack { gap: 24px !important; margin-top: 22px !important; }
+      .offer-hook { padding: 20px !important; border-radius: 24px !important; }
+      .offer-hook strong { font-size: clamp(2.1rem, 11vw, 3rem) !important; line-height: 1.05 !important; }
+      .features { gap: 10px; font-size: .98rem; }
+      .hero-actions, .pay-buttons { width: 100%; }
+      .btn { width: 100%; padding: 14px 16px; text-align: center; white-space: normal; }
+      .daily-card .odds, .odds, .plans, .about-grid, .compare, .review-grid { grid-template-columns: 1fr !important; }
+      .match { align-items: flex-start; }
+      .slider-wrap { border-radius: 22px; }
+      .bet-card { width: 280px; margin: 10px; }
+      section { padding: 46px 0; }
+      .telegram-box { padding: 22px; border-radius: 24px; }
+      .price { font-size: 2.4rem; }
+      .badge { position: static; display: inline-flex; margin-bottom: 12px; }
+      footer .brand { width: 100%; }
+      .socials { width: 100%; }
+      .socials a { flex: 1 1 45%; text-align: center; }
+      body > a.btn[style*="position:fixed"] { left: 12px; right: 12px; bottom: 12px; width: auto; }
+    }
       .match { align-items: flex-start; }
     }
   .social-strip {
@@ -617,7 +646,24 @@
         
       </div>
     </section>
-   
+
+    <section id="offre-gratuite">
+      <div class="container offer-hook">
+        <span class="eyebrow">🎁 Accès VIP AokBet</span>
+        <strong>7 jours d’essai → 1€</strong>
+        <ul class="features">
+          <li>Accès immédiat au groupe privé</li>
+          <li>Tickets + analyses + suivi</li>
+          <li>Bonus : derniers tickets VIP</li>
+        </ul>
+        <p class="tiny-note">⚠️ Places limitées chaque semaine</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" rel="noopener">👉 Accéder au VIP maintenant</a>
+        </div>
+      </div>
+    </section>
+
+    
 
     <section id="avis">
       <div class="container">
