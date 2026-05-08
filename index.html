@@ -289,7 +289,7 @@ background:rgba(255,255,255,.03);
 .track{
 display:flex;
 width:max-content;
-animation:slide 26s linear infinite;
+animation:slide 28s linear infinite;
 }
 
 @keyframes slide{
@@ -298,35 +298,20 @@ transform:translateX(-50%);
 }
 }
 
-.ticket{
-width:320px;
+.ticket-img{
+width:280px;
 margin:14px;
+padding:10px;
 border-radius:26px;
-padding:22px;
 background:rgba(255,255,255,.06);
 border:1px solid var(--line);
+flex:0 0 auto;
 }
 
-.ticket span{
-color:var(--gold);
-font-weight:900;
-font-size:.8rem;
-text-transform:uppercase;
-}
-
-.ticket h3{
-margin:12px 0;
-}
-
-.ticket p{
-color:var(--muted);
-line-height:1.5;
-}
-
-.gain{
-margin-top:18px;
-color:var(--green);
-font-weight:900;
+.ticket-img img{
+width:100%;
+display:block;
+border-radius:18px;
 }
 
 .plans{
@@ -459,8 +444,8 @@ font-size:2.3rem;
 width:100%;
 }
 
-.ticket{
-width:280px;
+.ticket-img{
+width:240px;
 }
 }
 
@@ -480,7 +465,7 @@ width:280px;
 
 <nav class="navlinks">
 <a href="#top">Accueil</a>
-<a href="#tickets">Derniers paris</a>
+<a href="#tickets">Tickets</a>
 <a href="#abonnements">Abonnements</a>
 <a href="#telegram">Telegram</a>
 <a href="#reseaux">Réseaux</a>
@@ -582,25 +567,19 @@ Profiter de l’offre
 <div class="review">
 <div class="stars">★★★★★</div>
 <h3>Lucas M.</h3>
-<p>
-“Tous les bets sont passés cette semaine, j’ai jamais vu une telle régularité.”
-</p>
+<p>“Tous les bets sont passés cette semaine, j’ai jamais vu une telle régularité.”</p>
 </div>
 
 <div class="review">
 <div class="stars">★★★★★</div>
 <h3>Sofiane R.</h3>
-<p>
-“Dès le premier pari, j’ai remboursé l’abonnement.”
-</p>
+<p>“Dès le premier pari, j’ai remboursé l’abonnement.”</p>
 </div>
 
 <div class="review">
 <div class="stars">★★★★★</div>
 <h3>Enzo L.</h3>
-<p>
-“Honnêtement, tout est passé, c’était carré du début à la fin.”
-</p>
+<p>“Honnêtement, tout est passé, c’était carré du début à la fin.”</p>
 </div>
 
 </div>
@@ -637,39 +616,40 @@ Profiter de l’offre
 
 <div class="track">
 
-<div class="ticket">
-<span>Football</span>
-<h3>PSG — Marseille</h3>
-<p>PSG ou nul + plus de 1,5 buts</p>
-<div class="gain">+88€</div>
+<div class="ticket-img">
+<img src="tickets/ticket-1.jpg" alt="">
 </div>
 
-<div class="ticket">
-<span>NBA</span>
-<h3>Lakers — Warriors</h3>
-<p>LeBron James +25 points</p>
-<div class="gain">+97€</div>
+<div class="ticket-img">
+<img src="tickets/ticket-2.jpg" alt="">
 </div>
 
-<div class="ticket">
-<span>Tennis</span>
-<h3>Sinner — Medvedev</h3>
-<p>Sinner gagne le match</p>
-<div class="gain">+67€</div>
+<div class="ticket-img">
+<img src="tickets/ticket-3.jpg" alt="">
 </div>
 
-<div class="ticket">
-<span>Football</span>
-<h3>Arsenal — Chelsea</h3>
-<p>Les deux équipes marquent</p>
-<div class="gain">+92€</div>
+<div class="ticket-img">
+<img src="tickets/ticket-4.jpg" alt="">
 </div>
 
-<div class="ticket">
-<span>Football</span>
-<h3>PSG — Marseille</h3>
-<p>PSG ou nul + plus de 1,5 buts</p>
-<div class="gain">+88€</div>
+<div class="ticket-img">
+<img src="tickets/ticket-5.jpg" alt="">
+</div>
+
+<div class="ticket-img">
+<img src="tickets/ticket-6.jpg" alt="">
+</div>
+
+<div class="ticket-img">
+<img src="tickets/ticket-1.jpg" alt="">
+</div>
+
+<div class="ticket-img">
+<img src="tickets/ticket-2.jpg" alt="">
+</div>
+
+<div class="ticket-img">
+<img src="tickets/ticket-3.jpg" alt="">
 </div>
 
 </div>
