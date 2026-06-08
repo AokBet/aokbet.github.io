@@ -138,6 +138,42 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 .socials a{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-weight:800;}
 .legal{margin-top:22px;color:var(--muted);line-height:1.7;font-size:.85rem;}
 
+/* ── MEMBERS COUNTER ── */
+.members-counter{
+  background:linear-gradient(135deg,rgba(39,242,138,.1),rgba(69,163,255,.08));
+  border:1px solid rgba(39,242,138,.25);
+  border-radius:24px;
+  padding:28px 32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.counter-left{display:flex;align-items:center;gap:18px;}
+.counter-avatars{display:flex;}
+.avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),#45a3ff);
+  border:2px solid #05070d;
+  display:grid;place-items:center;
+  font-weight:900;font-size:.85rem;color:#04110a;
+  margin-left:-10px;
+}
+.avatar:first-child{margin-left:0;}
+.counter-num{
+  font-size:2.4rem;font-weight:900;
+  color:var(--green);line-height:1;
+}
+.counter-label{color:var(--muted);font-size:.85rem;margin-top:4px;font-weight:600;}
+.counter-right{display:flex;flex-wrap:wrap;gap:10px;}
+.counter-badge{
+  padding:8px 14px;border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  font-size:.8rem;font-weight:700;color:var(--text);
+}
+
 /* ── PROCESS STEPS ── */
 .process-steps{
   display:flex;
@@ -437,64 +473,36 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 
 <section id="avis">
 <div class="container">
-  <h2>Avis membres</h2>
-  <div class="review-grid">
-    <div class="review">
-      <div class="stars">★★★★★</div>
-      <h3>Lucas M.</h3>
-      <p>"Tous les bets sont passés cette semaine, j'ai jamais vu une telle régularité."</p>
+  <div class="members-counter">
+    <div class="counter-left">
+      <div class="counter-avatars">
+        <div class="avatar">A</div>
+        <div class="avatar">K</div>
+        <div class="avatar">M</div>
+        <div class="avatar">+</div>
+      </div>
+      <div>
+        <div class="counter-num" id="counter-num">11</div>
+        <div class="counter-label">membres actifs en VIP</div>
+      </div>
     </div>
-    <div class="review">
-      <div class="stars">★★★★★</div>
-      <h3>Sofiane R.</h3>
-      <p>"Dès le premier pari, j'ai remboursé l'abonnement."</p>
-    </div>
-    <div class="review">
-      <div class="stars">★★★★★</div>
-      <h3>Enzo L.</h3>
-      <p>"Honnêtement, tout est passé, c'était carré du début à la fin."</p>
-    </div>
-  </div>
-</div>
-</section>
-
-<section id="screenshots">
-<div class="container">
-  <h2>Messages Telegram</h2>
-  <div class="screens">
-    <img src="screen-2.jpg" alt="">
-    <img src="screen-3.jpg" alt="">
-    <img src="screen-4.jpg" alt="">
-  </div>
-</div>
-</section>
-
-<section id="tickets">
-<div class="container">
-  <h2>Tickets récents</h2>
-  <div class="slider">
-    <div class="track">
-      <div class="ticket-img"><img src="tickets/ticket-1.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-2.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-3.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-4.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-5.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-6.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-1.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-2.jpg" alt=""></div>
-      <div class="ticket-img"><img src="tickets/ticket-3.jpg" alt=""></div>
+    <div class="counter-right">
+      <span class="counter-badge">🔒 Groupe privé</span>
+      <span class="counter-badge">✅ Accès immédiat</span>
+      <span class="counter-badge">📲 2 paris / jour</span>
     </div>
   </div>
 </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     SECTION PERFORMANCES
+     SECTION PERFORMANCES (remontée)
 ═══════════════════════════════════════════ -->
 <section id="performances">
 <div class="container">
 
-  <h2>📈 Performances</h2>
+  <h2>📈 Performances en direct</h2>
+  <p style="color:var(--muted);margin-top:-16px;margin-bottom:28px;font-size:1rem;">Chargées en temps réel depuis nos résultats — rien n'est modifiable a posteriori.</p>
 
   <div class="perf-stats">
     <div class="perf-stat">
@@ -540,6 +548,36 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
     </table>
   </div>
 
+</div>
+</section>
+
+<section id="screenshots">
+<div class="container">
+  <h2>Messages Telegram</h2>
+  <div class="screens">
+    <img src="screen-2.jpg" alt="">
+    <img src="screen-3.jpg" alt="">
+    <img src="screen-4.jpg" alt="">
+  </div>
+</div>
+</section>
+
+<section id="tickets">
+<div class="container">
+  <h2>Tickets récents</h2>
+  <div class="slider">
+    <div class="track">
+      <div class="ticket-img"><img src="tickets/ticket-1.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-2.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-3.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-4.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-5.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-6.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-1.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-2.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-3.jpg" alt=""></div>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -699,8 +737,6 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
     </a>
     <div class="socials">
       <a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Telegram</a>
-      <a href="#">Instagram</a>
-      <a href="#">TikTok</a>
     </div>
   </div>
   <p class="legal">
