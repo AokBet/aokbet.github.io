@@ -138,6 +138,55 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 .socials a{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-weight:800;}
 .legal{margin-top:22px;color:var(--muted);line-height:1.7;font-size:.85rem;}
 
+/* ── PROCESS STEPS ── */
+.process-steps{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:36px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:20px 24px;
+}
+.step{display:flex;align-items:center;gap:12px;flex:1;min-width:140px;}
+.step-num{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),#96ffd0);
+  color:#04110a;font-weight:900;font-size:.9rem;
+  display:grid;place-items:center;flex-shrink:0;
+}
+.step-text{display:flex;flex-direction:column;gap:2px;}
+.step-text strong{font-size:.85rem;font-weight:800;}
+.step-text span{font-size:.75rem;color:var(--muted);}
+.step-arrow{color:var(--muted);font-size:1.2rem;font-weight:300;}
+@media(max-width:700px){.step-arrow{display:none;}.process-steps{gap:14px;}}
+
+/* ── FAQ ── */
+.faq-list{display:grid;gap:10px;max-width:820px;}
+.faq-item{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+}
+.faq-q{
+  width:100%;background:none;border:none;
+  color:var(--text);font-family:Inter,sans-serif;
+  font-size:.95rem;font-weight:700;
+  padding:18px 22px;text-align:left;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+}
+.faq-q:hover{background:rgba(255,255,255,.04);}
+.faq-q span{font-size:1.3rem;font-weight:300;color:var(--muted);flex-shrink:0;transition:.2s;}
+.faq-q.open span{transform:rotate(45deg);color:var(--green);}
+.faq-a{
+  display:none;padding:0 22px 18px;
+  color:var(--muted);line-height:1.75;font-size:.9rem;
+}
+.faq-a.show{display:block;}
+
 /* ── FOMO BANNER ── */
 .fomo-bar{
   background:linear-gradient(90deg,#c0001a,#e8001f,#c0001a);
@@ -496,40 +545,133 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 
 <section id="abonnements">
 <div class="container">
+
   <h2>Formules VIP</h2>
+
+  <!-- Process steps -->
+  <div class="process-steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Choisis ta formule</strong>
+        <span>Sélectionne l'offre qui te convient ci-dessous</span>
+      </div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>Paye via Revolut</strong>
+        <span>Paiement sécurisé, instantané</span>
+      </div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>Envoie le reçu</strong>
+        <span>Screenshot du paiement à <a href="https://t.me/Aok_bet" target="_blank" style="color:var(--green)">@Aok_bet</a> sur Telegram</span>
+      </div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>Accès immédiat</strong>
+        <span>Tu rejoins le groupe VIP en moins de 5 minutes</span>
+      </div>
+    </div>
+  </div>
+
   <div class="plans">
     <div class="plan">
+      <h3>Essai</h3>
+      <div class="price">7€<span>/ 7 jours</span></div>
+      <ul class="features">
+        <li>Accès Telegram privé</li>
+        <li>2 analyses VIP / jour</li>
+        <li>Suivi des résultats</li>
+      </ul>
+      <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">Payer 7€ →</a>
+    </div>
+    <div class="plan featured">
       <h3>Mensuel</h3>
       <div class="price">19,99€<span>/ mois</span></div>
       <ul class="features">
         <li>Accès Telegram privé</li>
-        <li>Analyses VIP</li>
+        <li>2 analyses VIP / jour</li>
         <li>Suivi des résultats</li>
+        <li>💰 Le plus populaire</li>
       </ul>
-      <a class="btn btn-primary" href="#">Accéder au VIP</a>
+      <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=19.99&currency=EUR" target="_blank">Payer 19,99€ →</a>
     </div>
-    <div class="plan featured">
+    <div class="plan">
       <h3>3 mois</h3>
       <div class="price">49€<span>/ 3 mois</span></div>
       <ul class="features">
         <li>Accès Telegram privé</li>
-        <li>Analyses VIP</li>
+        <li>2 analyses VIP / jour</li>
         <li>Suivi des résultats</li>
-        <li>💰 Prix avantageux</li>
+        <li>💸 Économise 11€</li>
       </ul>
-      <a class="btn btn-primary" href="#">Accéder au VIP</a>
+      <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=49&currency=EUR" target="_blank">Payer 49€ →</a>
     </div>
-    <div class="plan">
-      <h3>6 mois</h3>
-      <div class="price">89€<span>/ 6 mois</span></div>
-      <ul class="features">
-        <li>Accès Telegram privé</li>
-        <li>Analyses VIP</li>
-        <li>Suivi des résultats</li>
-        <li>💸 Meilleur prix</li>
-      </ul>
-      <a class="btn btn-primary" href="#">Accéder au VIP</a>
+  </div>
+
+</div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+<div class="container">
+  <h2>Questions fréquentes</h2>
+  <div class="faq-list">
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        C'est quoi le VIP AokBet exactement ? <span>+</span>
+      </button>
+      <div class="faq-a">
+        Le VIP c'est un groupe Telegram privé où tu reçois minimum 2 paris par jour avec la cote, le match et l'analyse. Tout est suivi et transparent — les résultats sont visibles en temps réel sur le site.
+      </div>
     </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Comment je paie et comment j'accède au groupe ? <span>+</span>
+      </button>
+      <div class="faq-a">
+        Tu cliques sur le bouton de ta formule, tu paies via Revolut (rapide et sécurisé), puis tu envoies le screenshot du paiement à <strong>@Aok_bet</strong> sur Telegram. Tu es ajouté dans les 5 minutes.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Est-ce que les résultats affichés sont vrais ? <span>+</span>
+      </button>
+      <div class="faq-a">
+        Oui — les stats sur ce site sont chargées en direct depuis une feuille Google que je mets à jour après chaque pari. Aucune modification possible a posteriori, tout est horodaté.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Puis-je tester avant de m'engager sur un mois ? <span>+</span>
+      </button>
+      <div class="faq-a">
+        Oui, c'est fait pour ça. L'offre à 7€ te donne 7 jours d'accès complet au VIP. Si tu n'es pas convaincu, tu ne renouvelles pas — aucun engagement.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        C'est quoi l'offre Velobet ? <span>+</span>
+      </button>
+      <div class="faq-a">
+        Si tu n'as pas encore de compte sur Velobet, tu peux déposer 30€ et en recevoir 30€ supplémentaires offerts, plus 1 mois VIP AokBet gratuit. C'est le meilleur moyen de démarrer sans risque.
+      </div>
+    </div>
+
   </div>
 </div>
 </section>
@@ -740,6 +882,19 @@ async function loadPerf() {
 }
 
 loadPerf();
+
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const isOpen = btn.classList.contains("open");
+  document.querySelectorAll(".faq-q").forEach(b => {
+    b.classList.remove("open");
+    b.nextElementSibling.classList.remove("show");
+  });
+  if (!isOpen) {
+    btn.classList.add("open");
+    answer.classList.add("show");
+  }
+}
 </script>
 </body>
 </html>
