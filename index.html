@@ -138,6 +138,28 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 .socials a{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-weight:800;}
 .legal{margin-top:22px;color:var(--muted);line-height:1.7;font-size:.85rem;}
 
+/* ── HERO STATS STRIP ── */
+.hero-stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:34px;
+}
+.hstat{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:12px 18px;
+}
+.hstat-icon{font-size:1.2rem;}
+.hstat-info{display:flex;flex-direction:column;}
+.hstat-val{font-size:1.1rem;font-weight:900;color:var(--green);}
+.hstat-val.gold{color:var(--gold);}
+.hstat-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;}
+
 /* ── PERFORMANCES SECTION ── */
 .perf-stats{
   display:grid;
@@ -264,6 +286,39 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
   <span class="eyebrow">🏆 Tipsters sportifs premium • 18+</span>
   <h1>Rejoins une équipe de<br><span class="gradient">parieurs passionnés.</span></h1>
   <p class="lead">AokBet, c'est un groupe privé Telegram pensé pour suivre des analyses sportives structurées : tickets, contexte, suivi des résultats et gestion du risque.</p>
+
+  <!-- Live stats from Google Sheet -->
+  <div class="hero-stats">
+    <div class="hstat">
+      <span class="hstat-icon">🎯</span>
+      <div class="hstat-info">
+        <span class="hstat-val" id="h-winrate">—</span>
+        <span class="hstat-lbl">Win Rate</span>
+      </div>
+    </div>
+    <div class="hstat">
+      <span class="hstat-icon">🔥</span>
+      <div class="hstat-info">
+        <span class="hstat-val gold" id="h-streak">—</span>
+        <span class="hstat-lbl">Série en cours</span>
+      </div>
+    </div>
+    <div class="hstat">
+      <span class="hstat-icon">📊</span>
+      <div class="hstat-info">
+        <span class="hstat-val" id="h-tickets">—</span>
+        <span class="hstat-lbl">Tickets joués</span>
+      </div>
+    </div>
+    <div class="hstat">
+      <span class="hstat-icon">⚡</span>
+      <div class="hstat-info">
+        <span class="hstat-val gold" id="h-avgcote">—</span>
+        <span class="hstat-lbl">Cote moy. gagnée</span>
+      </div>
+    </div>
+  </div>
+
   <div class="offer-stack">
     <div class="offer-box">
       <span class="eyebrow">🎁 Accès VIP AokBet</span>
@@ -605,12 +660,41 @@ function renderPerf(rows) {
   document.getElementById("p-table").style.display = "table";
 }
 
+function updateHeroStats(rows) {
+  const wins   = rows.filter(r => r.resultat === "W");
+  const losses = rows.filter(r => r.resultat === "L");
+  const winrate = (wins.length + losses.length) > 0
+    ? ((wins.length / (wins.length + losses.length)) * 100).toFixed(0) : 0;
+  const avgCote = wins.length
+    ? (wins.reduce((s,r) => s + r.cote, 0) / wins.length).toFixed(2) : "—";
+
+  document.getElementById("h-winrate").textContent = winrate + "%";
+  document.getElementById("h-tickets").textContent = rows.length;
+  document.getElementById("h-avgcote").textContent = avgCote !== "—" ? "@" + avgCote : "—";
+
+  // Streak
+  let streak = "—";
+  if (rows.length) {
+    let count = 1;
+    const last = rows[rows.length - 1].resultat;
+    for (let i = rows.length - 2; i >= 0; i--) {
+      if (rows[i].resultat === last) count++;
+      else break;
+    }
+    if (last === "W") streak = "🔥 " + count + " victoire" + (count > 1 ? "s" : "");
+    else if (last === "L") streak = "❌ " + count + " défaite" + (count > 1 ? "s" : "");
+    else streak = "🟡 Remb.";
+  }
+  document.getElementById("h-streak").textContent = streak;
+}
+
 async function loadPerf() {
   try {
     const res = await fetch(SHEET_URL);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const rows = parseCSV(await res.text());
     if (!rows.length) throw new Error("Feuille vide");
+    updateHeroStats(rows);
     renderPerf(rows);
   } catch(e) {
     document.getElementById("p-loading").innerHTML =
