@@ -138,6 +138,31 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 .socials a{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-weight:800;}
 .legal{margin-top:22px;color:var(--muted);line-height:1.7;font-size:.85rem;}
 
+/* ── FOMO BANNER ── */
+.fomo-bar{
+  background:linear-gradient(90deg,#c0001a,#e8001f,#c0001a);
+  background-size:200% 100%;
+  animation:shimmer 3s linear infinite;
+  color:#fff;
+  font-size:.88rem;
+  font-weight:800;
+  text-align:center;
+  padding:11px 16px;
+  letter-spacing:.2px;
+  position:relative;
+  z-index:200;
+  display:none; /* ← passe à "block" pour activer */
+}
+.fomo-bar.active{display:block;}
+.fomo-bar a{color:#fff;text-decoration:underline;text-underline-offset:3px;margin-left:10px;}
+.fomo-dot{
+  display:inline-block;width:8px;height:8px;
+  background:#fff;border-radius:50%;margin-right:8px;
+  animation:blink 1s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
 /* ── HERO STATS STRIP ── */
 .hero-stats{
   display:flex;
@@ -257,6 +282,18 @@ footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24
 </head>
 
 <body>
+
+<!-- ═══════════════════════════════════════════
+     BANDEAU FOMO
+     Pour activer : ajoute la classe "active" sur la div
+     Pour changer le texte : modifie le contenu entre les spans
+     Pour désactiver : retire la classe "active"
+═══════════════════════════════════════════ -->
+<div class="fomo-bar active" id="fomo-bar">
+  <span class="fomo-dot"></span>
+  🔴 <strong>LIVE — Ticket France posté ce soir en VIP</strong> · Ne rate pas le prochain pari
+  <a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Accès VIP →</a>
+</div>
 
 <header class="topbar">
 <div class="container nav">
