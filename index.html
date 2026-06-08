@@ -3,14 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
 <title>AokBet — VIP Paris Sportifs</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 
 :root{
@@ -24,15 +21,8 @@
 --shadow:0 24px 90px rgba(0,0,0,.45);
 }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
-html{
-scroll-behavior:smooth;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
 
 body{
 font-family:Inter,sans-serif;
@@ -44,775 +34,589 @@ color:var(--text);
 overflow-x:hidden;
 }
 
-a{
-text-decoration:none;
-color:inherit;
-}
+a{text-decoration:none;color:inherit;}
 
-.container{
-width:min(1120px, calc(100% - 28px));
-margin:auto;
-}
+.container{width:min(1120px, calc(100% - 28px));margin:auto;}
 
 .topbar{
-position:sticky;
-top:0;
-z-index:100;
+position:sticky;top:0;z-index:100;
 backdrop-filter:blur(20px);
 background:rgba(5,7,13,.82);
 border-bottom:1px solid var(--line);
 }
 
 .nav{
-height:74px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:20px;
+height:74px;display:flex;align-items:center;
+justify-content:space-between;gap:20px;
 }
 
-.brand{
-display:flex;
-align-items:center;
-gap:12px;
-font-weight:900;
-font-size:1.5rem;
-}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:1.5rem;}
+.brand img{width:42px;height:42px;border-radius:10px;object-fit:cover;}
 
-.brand img{
-width:42px;
-height:42px;
-border-radius:10px;
-object-fit:cover;
-}
-
-.navlinks{
-display:flex;
-gap:22px;
-color:var(--muted);
-font-weight:700;
-}
-
-.navlinks a:hover{
-color:white;
-}
+.navlinks{display:flex;gap:22px;color:var(--muted);font-weight:700;}
+.navlinks a:hover{color:white;}
 
 .btn{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-border:none;
-border-radius:999px;
-padding:14px 22px;
-font-weight:900;
-cursor:pointer;
-transition:.2s;
+display:inline-flex;align-items:center;justify-content:center;
+border:none;border-radius:999px;padding:14px 22px;
+font-weight:900;cursor:pointer;transition:.2s;
 }
-
-.btn:hover{
-transform:translateY(-2px);
-}
-
+.btn:hover{transform:translateY(-2px);}
 .btn-primary{
 background:linear-gradient(135deg,var(--green),#96ffd0);
-color:#04110a;
-box-shadow:0 12px 30px rgba(39,242,138,.25);
+color:#04110a;box-shadow:0 12px 30px rgba(39,242,138,.25);
 }
 
-.hero{
-padding:70px 0;
-}
-
-.hero-grid{
-display:grid;
-gap:36px;
-align-items:center;
-}
+.hero{padding:70px 0;}
+.hero-grid{display:grid;gap:36px;align-items:center;}
 
 .eyebrow{
-display:inline-flex;
-padding:9px 14px;
-border-radius:999px;
-background:rgba(39,242,138,.08);
-border:1px solid rgba(39,242,138,.22);
-color:#c9ffe5;
-font-weight:800;
-margin-bottom:20px;
+display:inline-flex;padding:9px 14px;border-radius:999px;
+background:rgba(39,242,138,.08);border:1px solid rgba(39,242,138,.22);
+color:#c9ffe5;font-weight:800;margin-bottom:20px;
 }
 
-h1{
-font-size:clamp(3rem,8vw,6rem);
-line-height:.92;
-letter-spacing:-.08em;
-margin-bottom:18px;
-}
+h1{font-size:clamp(3rem,8vw,6rem);line-height:.92;letter-spacing:-.08em;margin-bottom:18px;}
+.gradient{background:linear-gradient(135deg,#fff,var(--green),var(--gold));-webkit-background-clip:text;color:transparent;}
 
-.gradient{
-background:linear-gradient(135deg,#fff,var(--green),var(--gold));
--webkit-background-clip:text;
-color:transparent;
-}
+.lead{max-width:760px;color:var(--muted);font-size:1.12rem;line-height:1.7;margin-bottom:34px;}
 
-.lead{
-max-width:760px;
-color:var(--muted);
-font-size:1.12rem;
-line-height:1.7;
-margin-bottom:34px;
-}
-
-.offer-stack{
-display:grid;
-gap:34px;
-max-width:980px;
-}
+.offer-stack{display:grid;gap:34px;max-width:980px;}
 
 .offer-box{
-padding:32px;
-border-radius:34px;
-background:
-linear-gradient(135deg,
-rgba(39,242,138,.18),
-rgba(255,255,255,.06));
-border:1px solid rgba(39,242,138,.22);
-box-shadow:var(--shadow);
+padding:32px;border-radius:34px;
+background:linear-gradient(135deg,rgba(39,242,138,.18),rgba(255,255,255,.06));
+border:1px solid rgba(39,242,138,.22);box-shadow:var(--shadow);
 }
-
 .offer-box.gold{
-background:
-linear-gradient(135deg,
-rgba(255,213,74,.12),
-rgba(39,242,138,.12));
+background:linear-gradient(135deg,rgba(255,213,74,.12),rgba(39,242,138,.12));
 border:1px solid rgba(255,213,74,.25);
 }
+.offer-box strong{display:block;font-size:clamp(2rem,5vw,4rem);line-height:1.02;letter-spacing:-.06em;margin:20px 0;}
 
-.offer-box strong{
-display:block;
-font-size:clamp(2rem,5vw,4rem);
-line-height:1.02;
-letter-spacing:-.06em;
-margin:20px 0;
-}
+.features{list-style:none;display:grid;gap:12px;margin-bottom:28px;}
+.features li::before{content:"✓";color:var(--green);font-weight:900;margin-right:10px;}
 
-.features{
-list-style:none;
-display:grid;
-gap:12px;
-margin-bottom:28px;
-}
+.or{display:flex;align-items:center;gap:16px;}
+.or div{flex:1;height:1px;background:rgba(255,255,255,.12);}
+.or span{width:56px;height:56px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:900;}
 
-.features li::before{
-content:"✓";
-color:var(--green);
-font-weight:900;
-margin-right:10px;
-}
+section{padding:70px 0;}
+h2{font-size:clamp(2rem,5vw,4rem);line-height:1;letter-spacing:-.06em;margin-bottom:28px;}
 
-.or{
-display:flex;
-align-items:center;
-gap:16px;
-}
+.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.review{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:24px;}
+.stars{color:var(--gold);margin-bottom:14px;letter-spacing:.12em;}
+.review p{color:var(--muted);line-height:1.7;margin:16px 0;}
 
-.or div{
-flex:1;
-height:1px;
-background:rgba(255,255,255,.12);
-}
+.screens{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.screens img{width:100%;border-radius:24px;border:1px solid var(--line);}
 
-.or span{
-width:56px;
-height:56px;
-border-radius:999px;
-display:grid;
-place-items:center;
-border:1px solid var(--line);
-background:rgba(255,255,255,.04);
-font-weight:900;
-}
+.slider{overflow:hidden;border-radius:30px;border:1px solid var(--line);background:rgba(255,255,255,.03);}
+.track{display:flex;width:max-content;animation:slide 28s linear infinite;}
+@keyframes slide{to{transform:translateX(-50%);}}
+.ticket-img{width:280px;margin:14px;padding:10px;border-radius:26px;background:rgba(255,255,255,.06);border:1px solid var(--line);flex:0 0 auto;}
+.ticket-img img{width:100%;display:block;border-radius:18px;}
 
-section{
-padding:70px 0;
-}
-
-h2{
-font-size:clamp(2rem,5vw,4rem);
-line-height:1;
-letter-spacing:-.06em;
-margin-bottom:28px;
-}
-
-.review-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:18px;
-}
-
-.review{
-background:var(--card);
-border:1px solid var(--line);
-border-radius:28px;
-padding:24px;
-}
-
-.stars{
-color:var(--gold);
-margin-bottom:14px;
-letter-spacing:.12em;
-}
-
-.review p{
-color:var(--muted);
-line-height:1.7;
-margin:16px 0;
-}
-
-.screens{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:18px;
-}
-
-.screens img{
-width:100%;
-border-radius:24px;
-border:1px solid var(--line);
-}
-
-.slider{
-overflow:hidden;
-border-radius:30px;
-border:1px solid var(--line);
-background:rgba(255,255,255,.03);
-}
-
-.track{
-display:flex;
-width:max-content;
-animation:slide 28s linear infinite;
-}
-
-@keyframes slide{
-to{
-transform:translateX(-50%);
-}
-}
-
-.ticket-img{
-width:280px;
-margin:14px;
-padding:10px;
-border-radius:26px;
-background:rgba(255,255,255,.06);
-border:1px solid var(--line);
-flex:0 0 auto;
-}
-
-.ticket-img img{
-width:100%;
-display:block;
-border-radius:18px;
-}
-
-.plans{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:18px;
-}
-
-.plan{
-padding:28px;
-border-radius:30px;
-background:rgba(255,255,255,.06);
-border:1px solid var(--line);
-}
-
-.plan.featured{
-border-color:rgba(39,242,138,.35);
-background:rgba(39,242,138,.08);
-transform:translateY(-8px);
-}
-
-.price{
-font-size:3rem;
-font-weight:900;
-margin:14px 0;
-}
-
-.price span{
-font-size:1rem;
-color:var(--muted);
-}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.plan{padding:28px;border-radius:30px;background:rgba(255,255,255,.06);border:1px solid var(--line);}
+.plan.featured{border-color:rgba(39,242,138,.35);background:rgba(39,242,138,.08);transform:translateY(-8px);}
+.price{font-size:3rem;font-weight:900;margin:14px 0;}
+.price span{font-size:1rem;color:var(--muted);}
 
 .telegram-box{
-padding:34px;
-border-radius:34px;
-background:
-linear-gradient(135deg,
-rgba(39,242,138,.16),
-rgba(69,163,255,.10));
+padding:34px;border-radius:34px;
+background:linear-gradient(135deg,rgba(39,242,138,.16),rgba(69,163,255,.10));
 border:1px solid rgba(255,255,255,.14);
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:24px;
+display:flex;justify-content:space-between;align-items:center;gap:24px;
 }
+.telegram-box p{color:var(--muted);margin-top:12px;line-height:1.7;}
 
-.telegram-box p{
-color:var(--muted);
-margin-top:12px;
-line-height:1.7;
-}
+footer{padding:40px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.24);}
+.footer-grid{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+.socials{display:flex;gap:12px;flex-wrap:wrap;}
+.socials a{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-weight:800;}
+.legal{margin-top:22px;color:var(--muted);line-height:1.7;font-size:.85rem;}
 
-footer{
-padding:40px 0;
-border-top:1px solid var(--line);
-background:rgba(0,0,0,.24);
+/* ── PERFORMANCES SECTION ── */
+.perf-stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-bottom:28px;
 }
+@media(min-width:600px){
+  .perf-stats{grid-template-columns:repeat(4,1fr);}
+}
+.perf-stat{
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px 14px;
+  text-align:center;
+}
+.perf-stat .plabel{
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--muted);margin-bottom:8px;font-weight:700;
+}
+.perf-stat .pvalue{font-size:1.4rem;font-weight:900;}
+.pvalue.pos{color:var(--green);}
+.pvalue.neg{color:#f87171;}
+.pvalue.gold{color:var(--gold);}
 
-.footer-grid{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:20px;
-flex-wrap:wrap;
+.perf-chart-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:24px 20px;
+  margin-bottom:24px;
 }
+.perf-chart-card .card-title{
+  font-size:.8rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--muted);margin-bottom:18px;
+}
+.perf-chart-wrap{position:relative;height:240px;}
 
-.socials{
-display:flex;
-gap:12px;
-flex-wrap:wrap;
+.perf-table-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:24px 20px;
+  overflow-x:auto;
 }
+.perf-table-card .card-title{
+  font-size:.8rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--muted);margin-bottom:18px;
+}
+.perf-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.perf-table th{
+  text-align:left;padding:10px 12px;
+  color:var(--muted);font-weight:700;
+  border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.perf-table td{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  vertical-align:middle;
+}
+.perf-table tr:last-child td{border-bottom:none;}
+.perf-table tr:hover td{background:rgba(255,255,255,.03);}
 
-.socials a{
-padding:10px 14px;
-border-radius:999px;
-border:1px solid var(--line);
-background:rgba(255,255,255,.04);
-color:var(--muted);
-font-weight:800;
+.pbadge{
+  display:inline-block;padding:3px 10px;border-radius:999px;
+  font-size:.72rem;font-weight:800;letter-spacing:.3px;
 }
+.pbadge-w{background:rgba(39,242,138,.15);color:var(--green);}
+.pbadge-l{background:rgba(248,113,113,.15);color:#f87171;}
+.pbadge-p{background:rgba(255,255,255,.08);color:#ccc;}
 
-.legal{
-margin-top:22px;
-color:var(--muted);
-line-height:1.7;
-font-size:.85rem;
+.perf-loading{
+  text-align:center;padding:40px;color:var(--muted);font-size:.9rem;
 }
+.perf-spinner{
+  display:inline-block;width:22px;height:22px;
+  border:2px solid var(--line);border-top-color:var(--green);
+  border-radius:50%;animation:spin .7s linear infinite;margin-bottom:10px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 @media(max-width:900px){
-
-.navlinks{
-display:none;
+  .navlinks{display:none;}
+  .review-grid,.screens,.plans{grid-template-columns:1fr;}
+  .telegram-box{flex-direction:column;align-items:flex-start;}
+  .plan.featured{transform:none;}
 }
-
-.review-grid,
-.screens,
-.plans{
-grid-template-columns:1fr;
-}
-
-.telegram-box{
-flex-direction:column;
-align-items:flex-start;
-}
-
-.plan.featured{
-transform:none;
-}
-}
-
 @media(max-width:640px){
-
-h1{
-font-size:3.2rem;
+  h1{font-size:3.2rem;}h2{font-size:2.4rem;}
+  .offer-box{padding:22px;}.offer-box strong{font-size:2.3rem;}
+  .btn{width:100%;}.ticket-img{width:240px;}
 }
-
-h2{
-font-size:2.4rem;
-}
-
-.offer-box{
-padding:22px;
-}
-
-.offer-box strong{
-font-size:2.3rem;
-}
-
-.btn{
-width:100%;
-}
-
-.ticket-img{
-width:240px;
-}
-}
-
 </style>
 </head>
 
 <body>
 
 <header class="topbar">
-
 <div class="container nav">
-
-<a class="brand" href="#top">
-<img src="logo.png" alt="AokBet">
-<span>AokBet</span>
-</a>
-
-<nav class="navlinks">
-<a href="#top">Accueil</a>
-<a href="#tickets">Tickets</a>
-<a href="#abonnements">Abonnements</a>
-<a href="#telegram">Telegram</a>
-<a href="#reseaux">Réseaux</a>
-</nav>
-
-<a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">
-Accéder au VIP
-</a>
-
+  <a class="brand" href="#top">
+    <img src="logo.png" alt="AokBet">
+    <span>AokBet</span>
+  </a>
+  <nav class="navlinks">
+    <a href="#top">Accueil</a>
+    <a href="#tickets">Tickets</a>
+    <a href="#performances">Performances</a>
+    <a href="#abonnements">Abonnements</a>
+    <a href="#telegram">Telegram</a>
+    <a href="#reseaux">Réseaux</a>
+  </nav>
+  <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">
+    Accéder au VIP
+  </a>
 </div>
-
 </header>
 
 <main id="top">
 
 <section class="hero">
-
 <div class="container hero-grid">
-
 <div>
-
-<span class="eyebrow">🏆 Tipsters sportifs premium • 18+</span>
-
-<h1>
-Rejoins une équipe de
-<span class="gradient">parieurs passionnés.</span>
-</h1>
-
-<p class="lead">
-AokBet, c’est un groupe privé Telegram pensé pour suivre des analyses sportives structurées :
-tickets, contexte, suivi des résultats et gestion du risque.
-</p>
-
-<div class="offer-stack">
-
-<div class="offer-box">
-
-<span class="eyebrow">🎁 Accès VIP AokBet</span>
-
-<strong>7 jours d’essai → 1€</strong>
-
-<ul class="features">
-<li>Accès immédiat au groupe privé</li>
-<li>Tickets + analyses + suivi</li>
-<li>Bonus : derniers tickets VIP</li>
-</ul>
-
-<a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">
-Accéder au VIP maintenant
-</a>
-
+  <span class="eyebrow">🏆 Tipsters sportifs premium • 18+</span>
+  <h1>Rejoins une équipe de<br><span class="gradient">parieurs passionnés.</span></h1>
+  <p class="lead">AokBet, c'est un groupe privé Telegram pensé pour suivre des analyses sportives structurées : tickets, contexte, suivi des résultats et gestion du risque.</p>
+  <div class="offer-stack">
+    <div class="offer-box">
+      <span class="eyebrow">🎁 Accès VIP AokBet</span>
+      <strong>7 jours d'essai → 1€</strong>
+      <ul class="features">
+        <li>Accès immédiat au groupe privé</li>
+        <li>Tickets + analyses + suivi</li>
+        <li>Bonus : derniers tickets VIP</li>
+      </ul>
+      <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Accéder au VIP maintenant</a>
+    </div>
+    <div class="or"><div></div><span>OU</span><div></div></div>
+    <div class="offer-box gold">
+      <span class="eyebrow">👑 OFFRE RECOMMANDÉE</span>
+      <strong>20€ déposés sur Prestige Casino = <span style="color:var(--gold)">20€ OFFERTS</span> + 1 mois VIP</strong>
+      <ul class="features">
+        <li>20€ crédités automatiquement</li>
+        <li>1 mois VIP offert</li>
+        <li>Tickets + analyses + suivi</li>
+        <li>Partenariat Prestige Casino</li>
+      </ul>
+      <a class="btn btn-primary" href="#">Profiter de l'offre</a>
+    </div>
+  </div>
 </div>
-
-<div class="or">
-<div></div>
-<span>OU</span>
-<div></div>
 </div>
-
-<div class="offer-box gold">
-
-<span class="eyebrow">👑 OFFRE RECOMMANDÉE</span>
-
-<strong>
-20€ déposés sur Prestige Casino =
-<span style="color:var(--gold)">20€ OFFERTS</span>
-+ 1 mois VIP
-</strong>
-
-<ul class="features">
-<li>20€ crédités automatiquement</li>
-<li>1 mois VIP offert</li>
-<li>Tickets + analyses + suivi</li>
-<li>Partenariat Prestige Casino</li>
-</ul>
-
-<a class="btn btn-primary" href="#">
-Profiter de l’offre
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </section>
 
 <section id="avis">
-
 <div class="container">
-
-<h2>Avis membres</h2>
-
-<div class="review-grid">
-
-<div class="review">
-<div class="stars">★★★★★</div>
-<h3>Lucas M.</h3>
-<p>“Tous les bets sont passés cette semaine, j’ai jamais vu une telle régularité.”</p>
+  <h2>Avis membres</h2>
+  <div class="review-grid">
+    <div class="review">
+      <div class="stars">★★★★★</div>
+      <h3>Lucas M.</h3>
+      <p>"Tous les bets sont passés cette semaine, j'ai jamais vu une telle régularité."</p>
+    </div>
+    <div class="review">
+      <div class="stars">★★★★★</div>
+      <h3>Sofiane R.</h3>
+      <p>"Dès le premier pari, j'ai remboursé l'abonnement."</p>
+    </div>
+    <div class="review">
+      <div class="stars">★★★★★</div>
+      <h3>Enzo L.</h3>
+      <p>"Honnêtement, tout est passé, c'était carré du début à la fin."</p>
+    </div>
+  </div>
 </div>
-
-<div class="review">
-<div class="stars">★★★★★</div>
-<h3>Sofiane R.</h3>
-<p>“Dès le premier pari, j’ai remboursé l’abonnement.”</p>
-</div>
-
-<div class="review">
-<div class="stars">★★★★★</div>
-<h3>Enzo L.</h3>
-<p>“Honnêtement, tout est passé, c’était carré du début à la fin.”</p>
-</div>
-
-</div>
-
-</div>
-
 </section>
 
 <section id="screenshots">
-
 <div class="container">
-
-<h2>Messages Telegram</h2>
-
-<div class="screens">
-
-<img src="screen-2.jpg" alt="">
-<img src="screen-3.jpg" alt="">
-<img src="screen-4.jpg" alt="">
-
+  <h2>Messages Telegram</h2>
+  <div class="screens">
+    <img src="screen-2.jpg" alt="">
+    <img src="screen-3.jpg" alt="">
+    <img src="screen-4.jpg" alt="">
+  </div>
 </div>
-
-</div>
-
 </section>
 
 <section id="tickets">
+<div class="container">
+  <h2>Tickets récents</h2>
+  <div class="slider">
+    <div class="track">
+      <div class="ticket-img"><img src="tickets/ticket-1.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-2.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-3.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-4.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-5.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-6.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-1.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-2.jpg" alt=""></div>
+      <div class="ticket-img"><img src="tickets/ticket-3.jpg" alt=""></div>
+    </div>
+  </div>
+</div>
+</section>
 
+<!-- ═══════════════════════════════════════════
+     SECTION PERFORMANCES
+═══════════════════════════════════════════ -->
+<section id="performances">
 <div class="container">
 
-<h2>Tickets récents</h2>
+  <h2>📈 Performances</h2>
 
-<div class="slider">
+  <div class="perf-stats">
+    <div class="perf-stat">
+      <div class="plabel">Tickets</div>
+      <div class="pvalue gold" id="p-tickets">—</div>
+    </div>
+    <div class="perf-stat">
+      <div class="plabel">Win Rate</div>
+      <div class="pvalue" id="p-winrate">—</div>
+    </div>
+    <div class="perf-stat">
+      <div class="plabel">Cote moy. gagnée</div>
+      <div class="pvalue pos" id="p-avgcote">—</div>
+    </div>
+    <div class="perf-stat">
+      <div class="plabel">Série en cours</div>
+      <div class="pvalue" id="p-streak">—</div>
+    </div>
+  </div>
 
-<div class="track">
+  <div class="perf-chart-card">
+    <div class="card-title">Courbe de performance</div>
+    <div class="perf-chart-wrap">
+      <canvas id="perfChart"></canvas>
+    </div>
+  </div>
 
-<div class="ticket-img">
-<img src="tickets/ticket-1.jpg" alt="">
+  <div class="perf-table-card">
+    <div class="card-title">Historique des tickets</div>
+    <div class="perf-loading" id="p-loading">
+      <div class="perf-spinner"></div><br>Chargement…
+    </div>
+    <table class="perf-table" id="p-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Match</th>
+          <th>Cote</th>
+          <th>Résultat</th>
+        </tr>
+      </thead>
+      <tbody id="p-body"></tbody>
+    </table>
+  </div>
+
 </div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-2.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-3.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-4.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-5.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-6.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-1.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-2.jpg" alt="">
-</div>
-
-<div class="ticket-img">
-<img src="tickets/ticket-3.jpg" alt="">
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </section>
 
 <section id="abonnements">
-
 <div class="container">
-
-<h2>Formules VIP</h2>
-
-<div class="plans">
-
-<div class="plan">
-
-<h3>Mensuel</h3>
-
-<div class="price">
-19,99€
-<span>/ mois</span>
+  <h2>Formules VIP</h2>
+  <div class="plans">
+    <div class="plan">
+      <h3>Mensuel</h3>
+      <div class="price">19,99€<span>/ mois</span></div>
+      <ul class="features">
+        <li>Accès Telegram privé</li>
+        <li>Analyses VIP</li>
+        <li>Suivi des résultats</li>
+      </ul>
+      <a class="btn btn-primary" href="#">Accéder au VIP</a>
+    </div>
+    <div class="plan featured">
+      <h3>3 mois</h3>
+      <div class="price">49€<span>/ 3 mois</span></div>
+      <ul class="features">
+        <li>Accès Telegram privé</li>
+        <li>Analyses VIP</li>
+        <li>Suivi des résultats</li>
+        <li>💰 Prix avantageux</li>
+      </ul>
+      <a class="btn btn-primary" href="#">Accéder au VIP</a>
+    </div>
+    <div class="plan">
+      <h3>6 mois</h3>
+      <div class="price">89€<span>/ 6 mois</span></div>
+      <ul class="features">
+        <li>Accès Telegram privé</li>
+        <li>Analyses VIP</li>
+        <li>Suivi des résultats</li>
+        <li>💸 Meilleur prix</li>
+      </ul>
+      <a class="btn btn-primary" href="#">Accéder au VIP</a>
+    </div>
+  </div>
 </div>
-
-<ul class="features">
-<li>Accès Telegram privé</li>
-<li>Analyses VIP</li>
-<li>Suivi des résultats</li>
-</ul>
-
-<a class="btn btn-primary" href="#">
-Accéder au VIP
-</a>
-
-</div>
-
-<div class="plan featured">
-
-<h3>3 mois</h3>
-
-<div class="price">
-49€
-<span>/ 3 mois</span>
-</div>
-
-<ul class="features">
-<li>Accès Telegram privé</li>
-<li>Analyses VIP</li>
-<li>Suivi des résultats</li>
-<li>💰 Prix avantageux</li>
-</ul>
-
-<a class="btn btn-primary" href="#">
-Accéder au VIP
-</a>
-
-</div>
-
-<div class="plan">
-
-<h3>6 mois</h3>
-
-<div class="price">
-89€
-<span>/ 6 mois</span>
-</div>
-
-<ul class="features">
-<li>Accès Telegram privé</li>
-<li>Analyses VIP</li>
-<li>Suivi des résultats</li>
-<li>💸 Meilleur prix</li>
-</ul>
-
-<a class="btn btn-primary" href="#">
-Accéder au VIP
-</a>
-
-</div>
-
-</div>
-
-</div>
-
 </section>
 
 <section id="telegram">
-
 <div class="container">
-
-<div class="telegram-box">
-
-<div>
-
-<h2>Prêt à rejoindre le VIP ?</h2>
-
-<p>
-Accède au Telegram officiel AokBet et découvre les prochains tickets VIP.
-</p>
-
+  <div class="telegram-box">
+    <div>
+      <h2>Prêt à rejoindre le VIP ?</h2>
+      <p>Accède au Telegram officiel AokBet et découvre les prochains tickets VIP.</p>
+    </div>
+    <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Ouvrir Telegram</a>
+  </div>
 </div>
-
-<a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">
-Ouvrir Telegram
-</a>
-
-</div>
-
-</div>
-
 </section>
 
 </main>
 
 <footer id="reseaux">
-
 <div class="container">
-
-<div class="footer-grid">
-
-<a class="brand" href="#top">
-<img src="logo.png" alt="AokBet">
-<span>AokBet</span>
-</a>
-
-<div class="socials">
-
-<a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">
-Telegram
-</a>
-
-<a href="#">
-Instagram
-</a>
-
-<a href="#">
-TikTok
-</a>
-
+  <div class="footer-grid">
+    <a class="brand" href="#top">
+      <img src="logo.png" alt="AokBet">
+      <span>AokBet</span>
+    </a>
+    <div class="socials">
+      <a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Telegram</a>
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+    </div>
+  </div>
+  <p class="legal">
+    © 2026 AokBet — Réservé aux personnes majeures.<br>
+    Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.
+  </p>
 </div>
-
-</div>
-
-<p class="legal">
-© 2026 AokBet — Réservé aux personnes majeures.
-Les paris sportifs comportent des risques de perte d’argent.
-Aucun gain n’est garanti.
-</p>
-
-</div>
-
 </footer>
 
-<a
-href="https://t.me/+4tUnDFWg4gVlM2Q0"
-target="_blank"
-class="btn btn-primary"
-style="position:fixed;right:18px;bottom:18px;z-index:50;">
-💬 Rejoindre le VIP
+<a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" class="btn btn-primary"
+   style="position:fixed;right:18px;bottom:18px;z-index:50;">
+  💬 Rejoindre le VIP
 </a>
 
+<script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR63UTSGY-RQLlBkDyWK_f6v0I1tuAOZqj2OdKrIb2_--r-r9HfuLdqflvlbeYpkRmHK5OTHA_nhvrL/pub?gid=171688003&single=true&output=csv";
+
+function parseCSV(text) {
+  return text.trim().split("\n").slice(1).map(line => {
+    const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+    return {
+      date:     cols[0] || "",
+      match:    cols[1] || "",
+      cote:     parseFloat(cols[2]) || 0,
+      resultat: (cols[3] || "").toUpperCase()
+    };
+  }).filter(r => r.match && r.cote > 0);
+}
+
+function getStreak(rows) {
+  if (!rows.length) return "—";
+  let count = 1;
+  const last = rows[rows.length - 1].resultat;
+  if (last === "P") return "🟡 Remb.";
+  for (let i = rows.length - 2; i >= 0; i--) {
+    if (rows[i].resultat === last) count++;
+    else break;
+  }
+  return last === "W"
+    ? `🔥 ${count} victoire${count > 1 ? "s" : ""}`
+    : `❌ ${count} défaite${count > 1 ? "s" : ""}`;
+}
+
+let chartInstance = null;
+
+function renderPerf(rows) {
+  const wins   = rows.filter(r => r.resultat === "W");
+  const losses = rows.filter(r => r.resultat === "L");
+  const winrate = (wins.length + losses.length) > 0
+    ? ((wins.length / (wins.length + losses.length)) * 100).toFixed(0) : 0;
+  const avgCote = wins.length
+    ? (wins.reduce((s, r) => s + r.cote, 0) / wins.length).toFixed(2) : "—";
+
+  document.getElementById("p-tickets").textContent = rows.length;
+
+  const wrEl = document.getElementById("p-winrate");
+  wrEl.textContent = winrate + "%";
+  wrEl.className = "pvalue " + (winrate >= 50 ? "pos" : "neg");
+
+  document.getElementById("p-avgcote").textContent = avgCote !== "—" ? "@" + avgCote : "—";
+
+  const strEl = document.getElementById("p-streak");
+  const streak = getStreak(rows);
+  strEl.textContent = streak;
+  strEl.className = "pvalue " + (streak.includes("🔥") ? "pos" : streak.includes("❌") ? "neg" : "gold");
+
+  // Chart
+  let units = 0;
+  const labels = ["Départ"];
+  const data   = [0];
+  rows.forEach(r => {
+    labels.push(r.date);
+    if (r.resultat === "W") units = parseFloat((units + (r.cote - 1)).toFixed(2));
+    else if (r.resultat === "L") units = parseFloat((units - 1).toFixed(2));
+    data.push(units);
+  });
+
+  const ctx = document.getElementById("perfChart").getContext("2d");
+  const grad = ctx.createLinearGradient(0, 0, 0, 240);
+  grad.addColorStop(0, "rgba(39,242,138,0.25)");
+  grad.addColorStop(1, "rgba(39,242,138,0.01)");
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Unités",
+        data,
+        borderColor: "#27f28a",
+        backgroundColor: grad,
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: "#27f28a",
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => " " + (ctx.parsed.y >= 0 ? "+" : "") + ctx.parsed.y + " u." }
+        }
+      },
+      scales: {
+        x: { ticks: { color: "#a7afbb", font: { size: 10 } }, grid: { color: "rgba(255,255,255,.06)" } },
+        y: {
+          ticks: { color: "#a7afbb", font: { size: 10 }, callback: v => (v >= 0 ? "+" : "") + v + " u." },
+          grid: { color: "rgba(255,255,255,.06)" }
+        }
+      }
+    }
+  });
+
+  // Table
+  const tbody = document.getElementById("p-body");
+  tbody.innerHTML = "";
+  [...rows].reverse().forEach(r => {
+    const tr = document.createElement("tr");
+    const bc = r.resultat === "W" ? "pbadge-w" : r.resultat === "L" ? "pbadge-l" : "pbadge-p";
+    const bt = r.resultat === "W" ? "GAGNÉ" : r.resultat === "L" ? "PERDU" : "REMB.";
+    tr.innerHTML = `
+      <td>${r.date}</td>
+      <td>${r.match}</td>
+      <td>@${r.cote.toFixed(2)}</td>
+      <td><span class="pbadge ${bc}">${bt}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("p-loading").style.display = "none";
+  document.getElementById("p-table").style.display = "table";
+}
+
+async function loadPerf() {
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = parseCSV(await res.text());
+    if (!rows.length) throw new Error("Feuille vide");
+    renderPerf(rows);
+  } catch(e) {
+    document.getElementById("p-loading").innerHTML =
+      `<span style="color:#f87171">❌ Erreur de chargement : ${e.message}</span>`;
+  }
+}
+
+loadPerf();
+</script>
 </body>
 </html>
