@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AokBet — Suivi des Paris</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #161616;
+      --border: #2a2a2a;
+      --gold: #f0c040;
+      --green: #22c55e;
+      --red: #ef4444;
+      --gray: #888;
+      --text: #f0f0f0;
+      --text-muted: #aaa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 24px 16px;
+    }
+
+    .widget-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .widget-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+    .widget-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (min-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .stat-card .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .stat-card .value {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+    .stat-card .value.positive { color: var(--green); }
+    .stat-card .value.negative { color: var(--red); }
+    .stat-card .value.gold     { color: var(--gold); }
+
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .chart-container { position: relative; height: 220px; }
+
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 16px;
+    }
+    .table-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .table-wrapper { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    th {
+      text-align: left;
+      padding: 8px 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #1e1e1e;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1c1c1c; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-win  { background: rgba(34,197,94,0.15);  color: var(--green); }
+    .badge-lose { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .badge-push { background: rgba(255,255,255,0.08); color: #ccc; }
+
+    .status-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .config-banner {
+      background: rgba(240,192,64,0.08);
+      border: 1px solid rgba(240,192,64,0.25);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="widget-header">
+    <h2>📈 Suivi AokBet</h2>
+    <p id="last-update">Chargement…</p>
+  </div>
+
+  <div class="config-banner" id="config-banner">
+    ⚙️ <strong>Mode démo</strong> — Remplace <code>https://docs.google.com/spreadsheets/d/e/2PACX-1vR63UTSGY-RQLlBkDyWK_f6v0I1tuAOZqj2OdKrIb2_--r-r9HfuLdqflvlbeYpkRmHK5OTHA_nhvrL/pubhtml?gid=171688003&single=true</code> dans le code par ton lien Google Sheets publié en CSV.
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Tickets</div>
+      <div class="value gold" id="stat-tickets">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Win Rate</div>
+      <div class="value" id="stat-winrate">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Cote moy. gagnée</div>
+      <div class="value positive" id="stat-avgcote">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Série en cours</div>
+      <div class="value" id="stat-streak">—</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h3>Courbe de performance (unités)</h3>
+    <div class="chart-container">
+      <canvas id="perfChart"></canvas>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <h3>Historique des tickets</h3>
+    <div class="table-wrapper">
+      <div class="status-msg" id="table-loading">
+        <div class="spinner"></div><br>Chargement…
+      </div>
+      <table id="bets-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Match</th>
+            <th>Cote</th>
+            <th>Résultat</th>
+          </tr>
+        </thead>
+        <tbody id="bets-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+// ============================================================
+// 🔧 CONFIGURATION
+// 1. Ouvre ton Google Sheet
+// 2. Fichier > Partager > Publier sur le web > Feuille 1 > CSV > Publier
+// 3. Colle le lien ci-dessous :
+// ============================================================
+const SHEET_URL = ""; // ← TON LIEN ICI
+
+// ============================================================
+// DONNÉES DÉMO
+// ============================================================
+const DEMO = [
+  { date: "08/06/2026", match: "PSG vs Lyon",          cote: 1.85, resultat: "W" },
+  { date: "08/06/2026", match: "Real Madrid vs Barça", cote: 2.10, resultat: "L" },
+  { date: "09/06/2026", match: "Man City vs Arsenal",  cote: 1.65, resultat: "W" },
+  { date: "09/06/2026", match: "Juventus vs Inter",    cote: 2.40, resultat: "W" },
+  { date: "10/06/2026", match: "Bayern vs Dortmund",   cote: 1.75, resultat: "L" },
+  { date: "10/06/2026", match: "Ajax vs PSV",          cote: 1.90, resultat: "W" },
+  { date: "11/06/2026", match: "Benfica vs Porto",     cote: 2.20, resultat: "P" },
+  { date: "11/06/2026", match: "Chelsea vs Liverpool", cote: 2.05, resultat: "W" },
+];
+
+// ============================================================
+
+let chartInstance = null;
+
+function parseCSV(text) {
+  return text.trim().split("\n").slice(1).map(line => {
+    const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+    return {
+      date:     cols[0] || "",
+      match:    cols[1] || "",
+      cote:     parseFloat(cols[2]) || 0,
+      resultat: (cols[3] || "").toUpperCase()
+    };
+  }).filter(r => r.match && r.cote > 0);
+}
+
+function getStreak(rows) {
+  if (!rows.length) return "—";
+  let count = 1;
+  const last = rows[rows.length - 1].resultat;
+  if (last === "P") return "🟡 Remb.";
+  for (let i = rows.length - 2; i >= 0; i--) {
+    if (rows[i].resultat === last) count++;
+    else break;
+  }
+  return last === "W"
+    ? `🔥 ${count} victoire${count > 1 ? "s" : ""}`
+    : `❌ ${count} défaite${count > 1 ? "s" : ""}`;
+}
+
+function renderAll(rows) {
+  const wins   = rows.filter(r => r.resultat === "W");
+  const losses = rows.filter(r => r.resultat === "L");
+  const total  = rows.length;
+  const winrate = (wins.length + losses.length) > 0
+    ? ((wins.length / (wins.length + losses.length)) * 100).toFixed(0)
+    : 0;
+  const avgCote = wins.length
+    ? (wins.reduce((s, r) => s + r.cote, 0) / wins.length).toFixed(2)
+    : "—";
+
+  document.getElementById("stat-tickets").textContent = total;
+
+  const wrEl = document.getElementById("stat-winrate");
+  wrEl.textContent = winrate + "%";
+  wrEl.className = "value " + (winrate >= 50 ? "positive" : "negative");
+
+  document.getElementById("stat-avgcote").textContent = avgCote !== "—" ? "@" + avgCote : "—";
+  document.getElementById("stat-streak").textContent = getStreak(rows);
+
+  // Courbe : chaque pari = +1 unité si gagné, -1 si perdu, 0 si remboursé
+  let units = 0;
+  const labels = ["Départ"];
+  const data   = [0];
+  rows.forEach(r => {
+    labels.push(r.date);
+    if (r.resultat === "W") units = parseFloat((units + (r.cote - 1)).toFixed(2));
+    else if (r.resultat === "L") units = parseFloat((units - 1).toFixed(2));
+    data.push(units);
+  });
+
+  const ctx = document.getElementById("perfChart").getContext("2d");
+  const grad = ctx.createLinearGradient(0, 0, 0, 220);
+  grad.addColorStop(0, "rgba(240,192,64,0.25)");
+  grad.addColorStop(1, "rgba(240,192,64,0.01)");
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Unités",
+        data,
+        borderColor: "#f0c040",
+        backgroundColor: grad,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: "#f0c040",
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => " " + (ctx.parsed.y >= 0 ? "+" : "") + ctx.parsed.y + " u." }
+        }
+      },
+      scales: {
+        x: { ticks: { color: "#888", font: { size: 10 } }, grid: { color: "#1e1e1e" } },
+        y: {
+          ticks: { color: "#888", font: { size: 10 }, callback: v => (v >= 0 ? "+" : "") + v + " u." },
+          grid: { color: "#1e1e1e" }
+        }
+      }
+    }
+  });
+
+  // Table (plus récents en premier)
+  const tbody = document.getElementById("bets-body");
+  tbody.innerHTML = "";
+  [...rows].reverse().forEach(r => {
+    const tr = document.createElement("tr");
+    const badgeClass = r.resultat === "W" ? "badge-win" : r.resultat === "L" ? "badge-lose" : "badge-push";
+    const badgeText  = r.resultat === "W" ? "GAGNÉ" : r.resultat === "L" ? "PERDU" : "REMB.";
+    tr.innerHTML = `
+      <td>${r.date}</td>
+      <td>${r.match}</td>
+      <td>@${r.cote.toFixed(2)}</td>
+      <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("table-loading").style.display = "none";
+  document.getElementById("bets-table").style.display = "table";
+
+  const now = new Date();
+  document.getElementById("last-update").textContent =
+    "Mis à jour le " + now.toLocaleDateString("fr-FR") + " à " +
+    now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+}
+
+async function loadData() {
+  if (!SHEET_URL) {
+    renderAll(DEMO);
+    return;
+  }
+  document.getElementById("config-banner").style.display = "none";
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = parseCSV(await res.text());
+    if (!rows.length) throw new Error("Feuille vide ou mal formatée");
+    renderAll(rows);
+  } catch (e) {
+    document.getElementById("table-loading").innerHTML =
+      `<span style="color:#ef4444">❌ Erreur : ${e.message}<br><small>Vérifie que ton Sheet est publié en CSV.</small></span>`;
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
