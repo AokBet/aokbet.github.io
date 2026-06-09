@@ -480,20 +480,30 @@ function setFilter(f,btn){
 
 function buildTournamentTabs(matches){
   const tabs = document.getElementById('tourn-tabs');
-  const tourneys={};
-  for(const m of matches){
-    const key=`${m.tour}|${m.tournament}`;
-    if(!tourneys[key]) tourneys[key]={tour:m.tour,name:m.tournament,hasLive:false};
-    if(m.status==='live') tourneys[key].hasLive=true;
-  }
-  const sorted=Object.entries(tourneys)
-    .sort(([,a],[,b])=>(b.hasLive?1:0)-(a.hasLive?1:0));
 
-  let html=`<button class="t-btn${activeTournament==='all'?' on':''}" onclick="setTournament('all',this)">🎾 Tous les tournois</button>`;
-  for(const [key,t] of sorted){
-    const dot=t.hasLive?'<span class="t-live-dot"></span>':'';
+  // Compter les matchs live par tour
+  const atpLive = matches.filter(m=>m.tour==='ATP'&&m.status==='live').length;
+  const wtaLive = matches.filter(m=>m.tour==='WTA'&&m.status==='live').length;
+
+  // Tournois avec au moins 1 match live → onglets individuels
+  const liveT={};
+  for(const m of matches){
+    if(m.status!=='live') continue;
+    const key=`${m.tour}|${m.tournament}`;
+    if(!liveT[key]) liveT[key]={tour:m.tour,name:m.tournament};
+  }
+
+  const allOn = activeTournament==='all';
+  const atpOn = activeTournament==='ATP';
+  const wtaOn = activeTournament==='WTA';
+
+  let html=`<button class="t-btn${allOn?' on':''}" onclick="setTournament('all',this)">🎾 Tous</button>`;
+  html+=`<button class="t-btn atp-tab${atpOn?' on':''}" onclick="setTournament('ATP',this)">${atpLive?'<span class="t-live-dot"></span>':''}ATP</button>`;
+  html+=`<button class="t-btn wta-tab${wtaOn?' on':''}" onclick="setTournament('WTA',this)">${wtaLive?'<span class="t-live-dot"></span>':''}WTA</button>`;
+
+  for(const [key,t] of Object.entries(liveT)){
     const isOn=activeTournament===key?' on':'';
-    html+=`<button class="t-btn ${t.tour.toLowerCase()}-tab${isOn}" data-key="${key}" onclick="setTournament('${key}',this)">${dot}${t.name}</button>`;
+    html+=`<button class="t-btn ${t.tour.toLowerCase()}-tab${isOn}" data-key="${key}" onclick="setTournament('${key}',this)"><span class="t-live-dot"></span>${t.name}</button>`;
   }
   tabs.innerHTML=html;
 }
@@ -513,11 +523,16 @@ function renderMatch(m){
   const sTxt=live?'Live':fin?'Terminé':(m.timeInfo||'Programmé');
 
   function row(p,opp){
-    const sHtml=p.sets.map((s,i)=>{
-      const cur=live&&i===p.sets.length-1;
-      const win=fin&&s>(opp.sets[i]??0);
-      return `<span class="set${cur?' cur':win?' w':''}">${s}</span>`;
-    }).join('');
+    let sHtml='';
+    if(p.sets && p.sets.length>0){
+      sHtml=p.sets.map((s,i)=>{
+        const cur=live&&i===p.sets.length-1;
+        const win=fin&&s>(opp.sets[i]??0);
+        return `<span class="set${cur?' cur':win?' w':''}">${s}</span>`;
+      }).join('');
+    } else if(m.status!=='scheduled'){
+      sHtml='<span class="set" style="opacity:.35">–</span>';
+    }
     const gHtml=live&&p.game?`<span class="game">${p.game}</span>`:'';
     return `
       <div class="player">
@@ -551,7 +566,11 @@ function renderMatch(m){
 function render(){
   const el = document.getElementById('list');
   let data = activeFilter==='all' ? allMatches : allMatches.filter(m=>m.status===activeFilter);
-  if(activeTournament!=='all'){
+  if(activeTournament==='ATP'){
+    data=data.filter(m=>m.tour==='ATP');
+  } else if(activeTournament==='WTA'){
+    data=data.filter(m=>m.tour==='WTA');
+  } else if(activeTournament!=='all'){
     const [tourFilter,nameFilter]=activeTournament.split('|');
     data=data.filter(m=>m.tour===tourFilter&&m.tournament===nameFilter);
   }
