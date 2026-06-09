@@ -234,10 +234,14 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <!-- Banner -->
 <div class="banner" id="banner"></div>
 
-<!-- Onglets tournois -->
-<div class="tourn-tabs" id="tourn-tabs">
-  <button class="t-btn on" onclick="setTournament('all',this)">🎾 Tous les tournois</button>
+<!-- Onglets tour (niveau 1) -->
+<div class="tourn-tabs" id="tourn-tabs-tour">
+  <button class="t-btn on" onclick="setTour('all',this)">🎾 Tous</button>
+  <button class="t-btn atp-tab" onclick="setTour('ATP',this)">ATP</button>
+  <button class="t-btn wta-tab" onclick="setTour('WTA',this)">WTA</button>
 </div>
+<!-- Onglets tournoi (niveau 2 — visible après clic ATP/WTA) -->
+<div class="tourn-tabs" id="tourn-tabs-detail" style="display:none;margin-top:-6px;"></div>
 
 <!-- Filtres -->
 <div class="filters">
@@ -379,12 +383,12 @@ function parseLivescoresHTML(html){
       nums = dStr.split('').map(Number);
     }
 
-    // Paires alternées P1/P2 par set (max 5)
-    const p1Sets=[], p2Sets=[];
-    for(let i=0; i+1<nums.length && p1Sets.length<5; i+=2){
-      p1Sets.push(nums[i]);
-      p2Sets.push(nums[i+1]);
-    }
+    // livescores.com groupe les scores par joueur : [p1_s1, p1_s2, ..., p2_s1, p2_s2, ...]
+    // → on coupe au milieu. Si impair (tiebreak en trop), on retire le dernier chiffre.
+    if(nums.length % 2 !== 0) nums.pop();
+    const half = nums.length / 2;
+    const p1Sets = nums.slice(0, Math.min(half, 5));
+    const p2Sets = nums.slice(half, half + Math.min(half, 5));
 
     const p1Won = p1Sets.filter((s,i)=>s>(p2Sets[i]??0)).length;
     const p2Won = p2Sets.filter((s,i)=>s>(p1Sets[i]??0)).length;
@@ -469,7 +473,7 @@ async function fetchAll(){
 }
 
 /* ════════ RENDU ════════ */
-let allMatches=[], activeFilter='all', activeTournament='all';
+let allMatches=[], activeFilter='all', activeTour='all', activeTournament='all';
 
 function setFilter(f,btn){
   activeFilter=f;
@@ -479,38 +483,60 @@ function setFilter(f,btn){
 }
 
 function buildTournamentTabs(matches){
-  const tabs = document.getElementById('tourn-tabs');
-
-  // Compter les matchs live par tour
+  // Ligne 1 — toujours présente, met à jour les points live
   const atpLive = matches.filter(m=>m.tour==='ATP'&&m.status==='live').length;
   const wtaLive = matches.filter(m=>m.tour==='WTA'&&m.status==='live').length;
+  document.querySelectorAll('#tourn-tabs-tour .t-btn').forEach(btn=>{
+    const tour = btn.textContent.replace(/●\s*/,'').trim();
+    if(tour==='ATP'){
+      btn.innerHTML=(atpLive?'<span class="t-live-dot"></span>':'')+'ATP';
+      btn.classList.toggle('on', activeTour==='ATP');
+    } else if(tour==='WTA'){
+      btn.innerHTML=(wtaLive?'<span class="t-live-dot"></span>':'')+'WTA';
+      btn.classList.toggle('on', activeTour==='WTA');
+    } else {
+      btn.classList.toggle('on', activeTour==='all');
+    }
+  });
 
-  // Tournois avec au moins 1 match live → onglets individuels
-  const liveT={};
+  // Ligne 2 — tournois du tour sélectionné, ou cachée
+  const detail = document.getElementById('tourn-tabs-detail');
+  if(activeTour==='all'){
+    detail.style.display='none';
+    return;
+  }
+  // Construire les tournois du tour actif
+  const tourneys={};
   for(const m of matches){
-    if(m.status!=='live') continue;
-    const key=`${m.tour}|${m.tournament}`;
-    if(!liveT[key]) liveT[key]={tour:m.tour,name:m.tournament};
+    if(m.tour!==activeTour) continue;
+    const key=m.tournament;
+    if(!tourneys[key]) tourneys[key]={name:m.tournament,hasLive:false,count:0};
+    tourneys[key].count++;
+    if(m.status==='live') tourneys[key].hasLive=true;
   }
-
-  const allOn = activeTournament==='all';
-  const atpOn = activeTournament==='ATP';
-  const wtaOn = activeTournament==='WTA';
-
-  let html=`<button class="t-btn${allOn?' on':''}" onclick="setTournament('all',this)">🎾 Tous</button>`;
-  html+=`<button class="t-btn atp-tab${atpOn?' on':''}" onclick="setTournament('ATP',this)">${atpLive?'<span class="t-live-dot"></span>':''}ATP</button>`;
-  html+=`<button class="t-btn wta-tab${wtaOn?' on':''}" onclick="setTournament('WTA',this)">${wtaLive?'<span class="t-live-dot"></span>':''}WTA</button>`;
-
-  for(const [key,t] of Object.entries(liveT)){
+  const sorted=Object.entries(tourneys).sort(([,a],[,b])=>(b.hasLive?1:0)-(a.hasLive?1:0));
+  let html=`<button class="t-btn ${activeTour.toLowerCase()}-tab${activeTournament==='all'?' on':''}" onclick="setTournament('all',this)">Tous les ${activeTour}</button>`;
+  for(const [key,t] of sorted){
+    const dot=t.hasLive?'<span class="t-live-dot"></span>':'';
     const isOn=activeTournament===key?' on':'';
-    html+=`<button class="t-btn ${t.tour.toLowerCase()}-tab${isOn}" data-key="${key}" onclick="setTournament('${key}',this)"><span class="t-live-dot"></span>${t.name}</button>`;
+    html+=`<button class="t-btn ${activeTour.toLowerCase()}-tab${isOn}" onclick="setTournament('${key.replace(/'/g,"\\'")}',this)">${dot}${t.name}</button>`;
   }
-  tabs.innerHTML=html;
+  detail.innerHTML=html;
+  detail.style.display='flex';
+}
+
+function setTour(tour, btn){
+  activeTour=tour;
+  activeTournament='all';
+  document.querySelectorAll('#tourn-tabs-tour .t-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildTournamentTabs(allMatches);
+  render();
 }
 
 function setTournament(key,btn){
   activeTournament=key;
-  document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#tourn-tabs-detail .t-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   render();
 }
@@ -566,14 +592,10 @@ function renderMatch(m){
 function render(){
   const el = document.getElementById('list');
   let data = activeFilter==='all' ? allMatches : allMatches.filter(m=>m.status===activeFilter);
-  if(activeTournament==='ATP'){
-    data=data.filter(m=>m.tour==='ATP');
-  } else if(activeTournament==='WTA'){
-    data=data.filter(m=>m.tour==='WTA');
-  } else if(activeTournament!=='all'){
-    const [tourFilter,nameFilter]=activeTournament.split('|');
-    data=data.filter(m=>m.tour===tourFilter&&m.tournament===nameFilter);
-  }
+  // Filtre tour (niveau 1)
+  if(activeTour!=='all') data=data.filter(m=>m.tour===activeTour);
+  // Filtre tournoi (niveau 2)
+  if(activeTournament!=='all') data=data.filter(m=>m.tournament===activeTournament);
 
   if(!data.length){
     el.innerHTML='<div class="state"><div class="ico">🎾</div><p>Aucun match pour ce filtre.</p></div>';
@@ -611,7 +633,7 @@ async function load(){
     document.getElementById('count-total').textContent=allMatches.length;
     document.getElementById('last-update').textContent=
       new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    buildTournamentTabs(allMatches);
+    buildTournamentTabs(allMatches); // met à jour les deux niveaux d'onglets
     render();
   }catch(e){
     document.getElementById('list').innerHTML=
