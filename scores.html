@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AokBet — Tennis Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070d;
+  --card:rgba(255,255,255,.06);
+  --card2:rgba(255,255,255,.03);
+  --line:rgba(255,255,255,.10);
+  --text:#f7f8fb;
+  --muted:#a7afbb;
+  --green:#27f28a;
+  --gold:#ffd54a;
+  --red:#f87171;
+  --pink:#ff6496;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:Inter,sans-serif;
+  background:radial-gradient(circle at top left,rgba(39,242,138,.12),transparent 28%),
+    radial-gradient(circle at top right,rgba(69,163,255,.10),transparent 28%),var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+a{text-decoration:none;color:inherit;}
+.container{width:min(1000px,calc(100% - 24px));margin:auto;}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(5,7,13,.9);border-bottom:1px solid var(--line);}
+.nav{height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.25rem;}
+.brand img{width:36px;height:36px;border-radius:8px;object-fit:cover;}
+.navlinks{display:flex;gap:20px;color:var(--muted);font-weight:700;font-size:.88rem;}
+.navlinks a:hover{color:#fff;}
+.navlinks a.here{color:var(--green);}
+.btn{display:inline-flex;align-items:center;border:none;border-radius:999px;padding:11px 20px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.88rem;}
+.btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 8px 24px rgba(39,242,138,.2);}
+.btn:hover{transform:translateY(-1px);}
+
+/* PAGE HEADER */
+.page-head{padding:36px 0 24px;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(39,242,138,.08);border:1px solid rgba(39,242,138,.22);color:#c9ffe5;font-weight:800;font-size:.8rem;margin-bottom:16px;}
+.page-head h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;letter-spacing:-.04em;margin-bottom:8px;}
+.gradient{background:linear-gradient(135deg,#fff,var(--green),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-head p{color:var(--muted);font-size:.9rem;}
+
+/* BARRE D'ÉTAT */
+.status-bar{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  background:linear-gradient(135deg,rgba(39,242,138,.07),rgba(69,163,255,.05));
+  border:1px solid rgba(39,242,138,.18);border-radius:16px;
+  padding:14px 20px;margin-bottom:20px;
+}
+.status-left{display:flex;align-items:center;gap:10px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+.status-text{font-size:.82rem;font-weight:700;color:var(--text);}
+.status-text span{color:var(--green);}
+.refresh-time{font-size:.75rem;color:var(--muted);}
+
+/* BANNER */
+.banner{
+  display:none;align-items:flex-start;gap:12px;
+  padding:14px 18px;border-radius:12px;margin-bottom:20px;
+  background:rgba(255,213,74,.07);border:1px solid rgba(255,213,74,.2);
+  font-size:.82rem;color:var(--gold);line-height:1.6;
+}
+.banner.show{display:flex;}
+
+/* FILTRES */
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.f-btn{
+  background:var(--card2);border:1px solid var(--line);color:var(--muted);
+  font-size:.78rem;font-weight:700;padding:6px 16px;border-radius:999px;
+  cursor:pointer;font-family:Inter,sans-serif;transition:all .15s;
+}
+.f-btn:hover{color:var(--text);background:var(--card);}
+.f-btn.on{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;border-color:transparent;}
+
+/* GROUPE TOURNOI */
+.group-header{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 0 8px;
+  font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+  border-bottom:1px solid var(--line);margin-bottom:8px;
+}
+.group-header::after{content:'';flex:1;}
+.tour-badge{
+  padding:2px 9px;border-radius:999px;font-size:.68rem;font-weight:800;
+  letter-spacing:.5px;flex-shrink:0;
+}
+.atp{background:rgba(39,242,138,.12);color:var(--green);border:1px solid rgba(39,242,138,.25);}
+.wta{background:rgba(255,100,150,.12);color:var(--pink);border:1px solid rgba(255,100,150,.25);}
+.live-pill{
+  background:rgba(248,113,113,.15);color:var(--red);
+  border:1px solid rgba(248,113,113,.3);
+  padding:2px 9px;border-radius:999px;font-size:.68rem;font-weight:800;
+}
+.live-pill::before{content:'● ';animation:blink 1s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MATCH CARD */
+.match{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  margin-bottom:8px;overflow:hidden;
+  transition:border-color .18s,transform .15s;
+}
+.match:hover{border-color:rgba(39,242,138,.3);transform:translateY(-1px);}
+.match.is-live{border-left:3px solid var(--red);}
+.match.is-finished{opacity:.65;}
+
+.m-head{
+  padding:6px 16px;background:rgba(255,255,255,.025);
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.m-round{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+.m-status{font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:999px;}
+.s-live{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.s-live::before{content:'● '}
+.s-done{background:rgba(39,242,138,.1);color:var(--green);border:1px solid rgba(39,242,138,.2);}
+.s-pre{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--line);}
+
+.m-body{padding:12px 16px;}
+.scoreboard{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;}
+.player{display:flex;align-items:center;gap:8px;}
+.flag{font-size:1rem;}
+.dot-serve{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 5px rgba(255,213,74,.5);}
+.dot-off{width:7px;height:7px;flex-shrink:0;}
+.pname{font-size:.9rem;font-weight:800;}
+.pname.winner{color:var(--green);}
+
+.scores{display:flex;gap:6px;justify-content:flex-end;align-items:center;}
+.set{min-width:22px;text-align:center;font-size:.85rem;font-weight:700;color:var(--muted);}
+.set.w{color:var(--text);font-weight:900;}
+.set.cur{color:var(--text);}
+.game{
+  min-width:30px;text-align:center;font-size:.85rem;font-weight:900;
+  background:rgba(39,242,138,.1);color:var(--green);
+  border:1px solid rgba(39,242,138,.22);border-radius:5px;padding:1px 5px;
+}
+
+.m-foot{
+  padding:5px 16px 10px;border-top:1px solid rgba(255,255,255,.04);margin-top:8px;
+  display:flex;gap:14px;font-size:.71rem;color:var(--muted);
+}
+
+/* ÉTATS */
+.state{text-align:center;padding:60px 16px;color:var(--muted);}
+.state .ico{font-size:2.8rem;margin-bottom:12px;}
+.spinner{width:30px;height:30px;border:2.5px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin .65s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* FOOTER */
+footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2);margin-top:48px;}
+.ft{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.legal{margin-top:16px;color:var(--muted);font-size:.78rem;line-height:1.7;}
+.float{position:fixed;right:14px;bottom:14px;z-index:50;box-shadow:0 8px 28px rgba(39,242,138,.28);}
+
+/* RESPONSIVE */
+@media(max-width:820px){.navlinks{display:none;}}
+@media(max-width:520px){
+  .page-head{padding:24px 0 16px;}
+  .m-body{padding:10px 12px;}
+  .m-head{padding:5px 12px;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+<div class="container nav">
+  <a class="brand" href="index.html">
+    <img src="logo.png" alt="AokBet">
+    <span>AokBet</span>
+  </a>
+  <nav class="navlinks">
+    <a href="index.html">Accueil</a>
+    <a href="index.html#performances">Performances</a>
+    <a href="index.html#abonnements">Abonnements</a>
+    <a href="scores.html" class="here">🎾 Tennis Live</a>
+    <a href="index.html#telegram">Telegram</a>
+  </nav>
+  <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
+</div>
+</header>
+
+<main>
+<div class="container">
+<div class="page-head">
+  <div class="eyebrow">🎾 Scores en temps réel</div>
+  <h1>Tennis <span class="gradient">Live</span></h1>
+  <p>ATP + WTA — tous tournois, mis à jour toutes les 30 secondes.</p>
+</div>
+
+<!-- Statut -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="pulse"></div>
+    <div class="status-text">
+      <span id="count-live">—</span> en cours ·
+      <span id="count-total">—</span> matchs au total
+    </div>
+  </div>
+  <div class="refresh-time">Màj : <span id="last-update">—</span></div>
+</div>
+
+<!-- Banner file:// -->
+<div class="banner" id="banner">
+  ⚠️ <div><strong>Scores de démonstration</strong> — Ce fichier est ouvert en local (file://). Les vraies données s'affichent automatiquement une fois la page uploadée sur ton site AokBet (hébergement HTTPS requis pour les appels API).</div>
+</div>
+
+<!-- Filtres -->
+<div class="filters">
+  <button class="f-btn on" onclick="setFilter('all',this)">Tous</button>
+  <button class="f-btn" onclick="setFilter('live',this)">🔴 En cours</button>
+  <button class="f-btn" onclick="setFilter('scheduled',this)">🕐 À venir</button>
+  <button class="f-btn" onclick="setFilter('finished',this)">✅ Terminés</button>
+</div>
+
+<!-- Liste -->
+<div id="list">
+  <div class="state"><div class="spinner"></div><p>Chargement…</p></div>
+</div>
+</div>
+</main>
+
+<footer>
+<div class="container">
+  <div class="ft">
+    <a class="brand" href="index.html">
+      <img src="logo.png" alt="AokBet"><span>AokBet</span>
+    </a>
+  </div>
+  <p class="legal">© 2026 AokBet — Réservé aux personnes majeures.<br>Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.</p>
+</div>
+</footer>
+
+<a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float">💬 Rejoindre le VIP</a>
+
+<script>
+/* ════════════ FLAGS ════════════ */
+const FLAGS={
+  DE:'🇩🇪',FR:'🇫🇷',ES:'🇪🇸',IT:'🇮🇹',GB:'🇬🇧',US:'🇺🇸',
+  RU:'🇷🇺',AU:'🇦🇺',AR:'🇦🇷',CH:'🇨🇭',AT:'🇦🇹',CA:'🇨🇦',
+  RS:'🇷🇸',GR:'🇬🇷',NO:'🇳🇴',CZ:'🇨🇿',PL:'🇵🇱',NL:'🇳🇱',
+  BE:'🇧🇪',HU:'🇭🇺',SK:'🇸🇰',HR:'🇭🇷',GE:'🇬🇪',KZ:'🇰🇿',
+  BR:'🇧🇷',CL:'🇨🇱',JP:'🇯🇵',KR:'🇰🇷',ZA:'🇿🇦',BG:'🇧🇬',
+  RO:'🇷🇴',UA:'🇺🇦',PT:'🇵🇹',SE:'🇸🇪',FI:'🇫🇮',DK:'🇩🇰',
+};
+const f = c => FLAGS[c] || '🏳️';
+
+/* ════════════ ESPN → ISO country ════════════ */
+const ESPN_ISO={
+  pol:'PL',fra:'FR',esp:'ES',ger:'DE',gbr:'GB',usa:'US',ita:'IT',
+  aus:'AU',sui:'CH',aut:'AT',can:'CA',srb:'RS',gre:'GR',nor:'NO',
+  cze:'CZ',ned:'NL',bel:'BE',hun:'HU',svk:'SK',cro:'HR',bra:'BR',
+  chi:'CL',jpn:'JP',kor:'KR',rsa:'ZA',bul:'BG',rou:'RO',ukr:'UA',
+  por:'PT',swe:'SE',fin:'FI',den:'DK',rus:'RU',arg:'AR',kaz:'KZ',
+  geo:'GE',deu:'DE',che:'CH',gbr:'GB',tur:'TR',
+};
+function countryFromFlag(url=''){
+  const m=url.match(/countries\/\d+\/(\w+)\.png/);
+  if(!m) return '';
+  return ESPN_ISO[m[1].toLowerCase()] || m[1].slice(0,2).toUpperCase();
+}
+
+/* ════════════ DÉMO ════════════ */
+const DEMO=[
+  {id:1,tour:'ATP',tournament:'Stuttgart (Allemagne)',status:'live',round:'QF',timeInfo:'2ème set',
+   p1:{name:'Zverev A.',cc:'DE',serving:true, sets:[6,3],setsWon:1,game:'40'},
+   p2:{name:'Alcaraz C.',cc:'ES',serving:false,sets:[3,2],setsWon:0,game:'15'},winner:null},
+  {id:2,tour:'ATP',tournament:'S-Hertogenbosch (Pays-Bas)',status:'live',round:'QF',timeInfo:'1er set',
+   p1:{name:'Hurkacz H.',cc:'PL',serving:false,sets:[4],setsWon:0,game:'30'},
+   p2:{name:'Griekspoor T.',cc:'NL',serving:true,sets:[5],setsWon:0,game:'40'},winner:null},
+  {id:3,tour:'ATP',tournament:'Stuttgart (Allemagne)',status:'scheduled',round:'QF',timeInfo:'16:00',
+   p1:{name:'Djokovic N.',cc:'RS',serving:false,sets:[],setsWon:0,game:''},
+   p2:{name:'Rune H.',cc:'DK',serving:false,sets:[],setsWon:0,game:''},winner:null},
+  {id:4,tour:'WTA',tournament:'Eastbourne (Angleterre)',status:'live',round:'QF',timeInfo:'3ème set',
+   p1:{name:'Swiatek I.',cc:'PL',serving:true, sets:[6,4,2],setsWon:1,game:'40'},
+   p2:{name:'Gauff C.',cc:'US',serving:false,sets:[3,6,1],setsWon:1,game:'0'},winner:null},
+  {id:5,tour:'ATP',tournament:'S-Hertogenbosch (Pays-Bas)',status:'scheduled',round:'QF',timeInfo:'17:30',
+   p1:{name:'Medvedev D.',cc:'RU',serving:false,sets:[],setsWon:0,game:''},
+   p2:{name:'Paul T.',cc:'US',serving:false,sets:[],setsWon:0,game:''},winner:null},
+  {id:6,tour:'ATP',tournament:'Stuttgart (Allemagne)',status:'finished',round:'2T',timeInfo:'Terminé',
+   p1:{name:'Sinner J.',cc:'IT',serving:false,sets:[6,6],setsWon:2,game:''},
+   p2:{name:'Fils A.',cc:'FR',serving:false,sets:[2,4],setsWon:0,game:''},winner:'p1'},
+  {id:7,tour:'WTA',tournament:'Eastbourne (Angleterre)',status:'finished',round:'2T',timeInfo:'Terminé',
+   p1:{name:'Sabalenka A.',cc:'BY',serving:false,sets:[7,6],setsWon:2,game:''},
+   p2:{name:'Jabeur O.',cc:'TN',serving:false,sets:[6,3],setsWon:0,game:''},winner:'p1'},
+  {id:8,tour:'ATP',tournament:'S-Hertogenbosch (Pays-Bas)',status:'finished',round:'2T',timeInfo:'Terminé',
+   p1:{name:'Diallo G.',cc:'CA',serving:false,sets:[1,6,5],setsWon:1,game:''},
+   p2:{name:'Mannarino A.',cc:'FR',serving:false,sets:[6,3,7],setsWon:2,game:''},winner:'p2'},
+];
+
+/* ════════════ FETCH ESPN ════════════ */
+async function espnFetch(url){
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(7000)});
+    if(r.ok) return await r.json();
+  }catch(e){console.warn('direct:',e);}
+  // Proxy CORS
+  const p=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  const r=await fetch(p,{signal:AbortSignal.timeout(12000)});
+  if(!r.ok) throw new Error(`proxy ${r.status}`);
+  const w=await r.json();
+  return JSON.parse(w.contents);
+}
+
+function parseESPN(events, tour){
+  return events.map(ev=>{
+    const comp=ev.competitions?.[0];
+    if(!comp) return null;
+    const state=ev.status?.type?.state||'pre';
+    const status=state==='in'?'live':state==='post'?'finished':'scheduled';
+    const detail=ev.status?.type?.detail||'';
+    const cs=comp.competitors||[];
+    const c1=cs.find(c=>c.order===1)||cs[0];
+    const c2=cs.find(c=>c.order===2)||cs[1];
+    if(!c1||!c2) return null;
+    const sets1=(c1.linescores||[]).map(l=>parseInt(l.value??0));
+    const sets2=(c2.linescores||[]).map(l=>parseInt(l.value??0));
+    const won=(mine,theirs)=>mine.reduce((n,v,i)=>n+(v>(theirs[i]??0)?1:0),0);
+    let timeInfo='';
+    if(status==='live') timeInfo=detail||'En cours';
+    else if(status==='scheduled'){
+      const d=new Date(ev.date);
+      timeInfo=isNaN(d)?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    } else timeInfo='Terminé';
+    const servId=comp.situation?.server?.id||null;
+    const w1=status==='finished'&&(c1.winner||parseInt(c1.score||0)>parseInt(c2.score||0));
+    const w2=status==='finished'&&(c2.winner||parseInt(c2.score||0)>parseInt(c1.score||0));
+    // Nom du tournoi : notes ou detail ou fallback tour
+    const note=comp.notes?.[0]?.headline||'';
+    const tournament=note||tour;
+    return{
+      id:ev.id, tour, tournament, status, timeInfo,
+      round:detail||note||'',
+      p1:{name:c1.athlete?.displayName||'—',cc:countryFromFlag(c1.athlete?.flag?.href||''),
+          serving:servId?servId===c1.athlete?.id:false,
+          sets:sets1,setsWon:won(sets1,sets2),game:status==='live'?(c1.score||''):'',
+          win:w1},
+      p2:{name:c2.athlete?.displayName||'—',cc:countryFromFlag(c2.athlete?.flag?.href||''),
+          serving:servId?servId===c2.athlete?.id:false,
+          sets:sets2,setsWon:won(sets2,sets1),game:status==='live'?(c2.score||''):'',
+          win:w2},
+    };
+  }).filter(Boolean);
+}
+
+async function fetchAll(){
+  let all=[];
+  let ok=false;
+  for(const{url,tour} of[
+    {url:'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard',tour:'ATP'},
+    {url:'https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard',tour:'WTA'},
+  ]){
+    try{
+      const d=await espnFetch(url);
+      all.push(...parseESPN(d.events||[],tour));
+      ok=true;
+    }catch(e){console.warn(tour,e);}
+  }
+  if(!ok||!all.length){
+    document.getElementById('banner').classList.add('show');
+    return DEMO;
+  }
+  return all;
+}
+
+/* ════════════ RENDU ════════════ */
+let allMatches=[], filter='all';
+
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+function renderMatch(m){
+  const live=m.status==='live';
+  const fin=m.status==='finished';
+  const cls=live?'is-live':fin?'is-finished':'';
+  const sCls=live?'s-live':fin?'s-done':'s-pre';
+  const sTxt=live?'Live':fin?'Terminé':(m.timeInfo||'Programmé');
+
+  function row(p,opp){
+    const sHtml=p.sets.map((s,i)=>{
+      const cur=live&&i===p.sets.length-1;
+      const win=fin&&s>(opp.sets[i]??0);
+      return `<span class="set${cur?' cur':win?' w':''}">${s}</span>`;
+    }).join('');
+    const gHtml=live&&p.game!==''?`<span class="game">${p.game}</span>`:'';
+    return `
+      <div class="player">
+        <span class="flag">${f(p.cc)}</span>
+        ${p.serving?'<span class="dot-serve"></span>':'<span class="dot-off"></span>'}
+        <span class="pname${p.win?' winner':''}">${p.name}</span>
+      </div>
+      <div class="scores">${sHtml}${gHtml}</div>`;
+  }
+
+  return `
+    <div class="match ${cls}">
+      <div class="m-head">
+        <span class="m-round">${m.round||m.tournament}</span>
+        <span class="m-status ${sCls}">${sTxt}</span>
+      </div>
+      <div class="m-body">
+        <div class="scoreboard">
+          ${row(m.p1,m.p2)}
+          ${row(m.p2,m.p1)}
+        </div>
+      </div>
+      ${m.status!=='scheduled'?`
+      <div class="m-foot">
+        <span>Sets : ${m.p1.setsWon}–${m.p2.setsWon}</span>
+        ${live?`<span>⏱ ${m.timeInfo}</span>`:''}
+      </div>`:''}
+    </div>`;
+}
+
+function render(){
+  const el=document.getElementById('list');
+  const data=filter==='all'?allMatches:allMatches.filter(m=>m.status===filter);
+  if(!data.length){
+    el.innerHTML='<div class="state"><div class="ico">🎾</div><p>Aucun match pour ce filtre.</p></div>';
+    return;
+  }
+  // Grouper par tournoi
+  const groups={};
+  for(const m of data){
+    const key=`${m.tour}|${m.tournament}`;
+    if(!groups[key]) groups[key]={tour:m.tour,name:m.tournament,matches:[],hasLive:false};
+    groups[key].matches.push(m);
+    if(m.status==='live') groups[key].hasLive=true;
+  }
+  // Trier : live en premier
+  const sorted=Object.values(groups).sort((a,b)=>(b.hasLive?1:0)-(a.hasLive?1:0));
+  let html='';
+  for(const g of sorted){
+    html+=`<div class="group-header">
+      <span class="tour-badge ${g.tour.toLowerCase()}">${g.tour}</span>
+      ${g.name}
+      ${g.hasLive?'<span class="live-pill" style="margin-left:4px">Live</span>':''}
+    </div>`;
+    html+=g.matches.map(renderMatch).join('');
+  }
+  el.innerHTML=html;
+}
+
+/* ════════════ LOAD ════════════ */
+async function load(){
+  try{
+    allMatches=await fetchAll();
+    const live=allMatches.filter(m=>m.status==='live').length;
+    document.getElementById('count-live').textContent=live;
+    document.getElementById('count-total').textContent=allMatches.length;
+    document.getElementById('last-update').textContent=
+      new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    render();
+  }catch(e){
+    document.getElementById('list').innerHTML=
+      '<div class="state"><div class="ico">⚠️</div><p>Erreur. Nouvelle tentative dans 30s…</p></div>';
+  }
+}
+
+load();
+setInterval(load,30000);
+</script>
+</body>
+</html>
