@@ -3,7 +3,7 @@ name: Update Tennis Scores
 on:
   schedule:
     - cron: '*/5 * * * *'   # toutes les 5 minutes
-  workflow_dispatch:          # déclenchement manuel possible
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,20 +16,247 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch Sofascore
+      - name: Install dependencies
+        run: pip install beautifulsoup4 lxml requests --break-system-packages -q
+
+      - name: Scrape TennisEnDirect
         run: |
-          DATE=$(date -u +%Y-%m-%d)
-          HTTP=$(curl -s -o tennis-live.json -w "%{http_code}" \
-            -H "Accept: application/json" \
-            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-            "https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/$DATE")
-          echo "Sofascore status: $HTTP"
-          if [ "$HTTP" != "200" ]; then
-            echo "Fetch failed — fichier existant conservé"
-            exit 0
-          fi
-          COUNT=$(python3 -c "import sys,json; d=json.load(open('tennis-live.json')); print(len(d.get('events',[])))" 2>/dev/null || echo "?")
-          echo "$COUNT matchs récupérés"
+          python3 << 'PYEOF'
+          import requests, json, re, sys
+          from bs4 import BeautifulSoup
+          from datetime import datetime, timezone
+
+          HEADERS = {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+              'Cache-Control': 'no-cache',
+              'Referer': 'https://www.google.com/',
+          }
+
+          SURFACE_MAP = {
+              'gazon': 'grass', 'terre battue': 'clay',
+              'dur': 'hard', 'indoor': 'hard', 'moquette': 'carpet'
+          }
+
+          COUNTRY_CC = {
+              'Germany': 'DE', 'France': 'FR', 'Spain': 'ES', 'Italy': 'IT',
+              'United Kingdom': 'GB', 'USA': 'US', 'Russia': 'RU', 'Australia': 'AU',
+              'Argentina': 'AR', 'Switzerland': 'CH', 'Austria': 'AT', 'Canada': 'CA',
+              'Serbia': 'RS', 'Greece': 'GR', 'Norway': 'NO', 'Czech Republic': 'CZ',
+              'Poland': 'PL', 'Holland': 'NL', 'Netherlands': 'NL', 'Belgium': 'BE',
+              'Hungary': 'HU', 'Slovakia': 'SK', 'Croatia': 'HR', 'Georgia': 'GE',
+              'Kazakhstan': 'KZ', 'Brazil': 'BR', 'Chile': 'CL', 'Japan': 'JP',
+              'South Korea': 'KR', 'South Africa': 'ZA', 'Bulgaria': 'BG', 'Romania': 'RO',
+              'Ukraine': 'UA', 'Portugal': 'PT', 'Sweden': 'SE', 'Finland': 'FI',
+              'Denmark': 'DK', 'Belarus': 'BY', 'Tunisia': 'TN', 'Turkey': 'TR',
+              'China': 'CN', 'Hong Kong': 'HK', 'Bosnia and Herzeg.': 'BA',
+              'Morocco': 'MA', 'Algeria': 'DZ', 'Slovenia': 'SI', 'Estonia': 'EE',
+              'Latvia': 'LV', 'Lithuania': 'LT', 'Bosnia': 'BA',
+          }
+
+          def get_score_tokens(text, player_name):
+              """Extract raw score tokens from a row's text after stripping noise."""
+              t = text
+              # Remove player name (may appear twice due to link + span)
+              for _ in range(3):
+                  t = t.replace(player_name, '')
+              t = re.sub(r'\bserve\b', '', t, flags=re.I)
+              t = re.sub(r'\[[^\]]*\]', '', t)
+              t = re.sub(r'\b(1er|2ème|3ème|4ème|qualif\.?|tour|Quart|Demi|Finale|Interrompu|H2H)\b', '', t, flags=re.I)
+              t = re.sub(r'\d{2}:\d{2}', '', t)
+              t = re.sub(r'\d{2}\.\d{2}\.\d{2}', '', t)
+              tokens = re.findall(r'\b(\d{1,3}|A)\b', t)
+              return tokens
+
+          def parse_scores(tokens):
+              """tokens → (sets_won, set_scores_list, game_str)"""
+              if not tokens:
+                  return 0, [], '0'
+              GAME = {'0': '0', '15': '15', '30': '30', '40': '40', 'A': 'A'}
+              # First token = sets won (0‑3)
+              sets_won = 0
+              if tokens[0].isdigit() and int(tokens[0]) <= 3:
+                  sets_won = int(tokens[0])
+                  tokens = tokens[1:]
+              if not tokens:
+                  return sets_won, [], '0'
+              # Last token = current game score
+              game = GAME.get(tokens[-1], '0')
+              set_scores = [int(t) for t in tokens[:-1] if t.isdigit()]
+              return sets_won, set_scores, game
+
+          # ── Fetch page ──────────────────────────────────────────────
+          try:
+              r = requests.get('https://www.tennisendirect.net/', headers=HEADERS, timeout=20)
+              r.raise_for_status()
+          except Exception as e:
+              print(f"Fetch error: {e}", file=sys.stderr)
+              sys.exit(0)
+
+          soup = BeautifulSoup(r.text, 'lxml')
+
+          # ── Find main scores list ────────────────────────────────────
+          main_ul = None
+          for ul in soup.find_all('ul'):
+              txt = ul.get_text(' ', strip=True)[:500]
+              if re.search(r'\b(hommes|femmes)\b', txt, re.I) and 'Sets 1 2' in txt:
+                  main_ul = ul
+                  break
+
+          if not main_ul:
+              print("Could not find scores list – saving empty file", file=sys.stderr)
+              with open('tennis-live.json', 'w') as f:
+                  json.dump({"source": "tennisendirect", "events": [], "updatedAt": datetime.now(timezone.utc).isoformat()}, f)
+              sys.exit(0)
+
+          # ── Parse items ─────────────────────────────────────────────
+          events = []
+          match_id = 1
+          current_tourn = {'name': '', 'tour': 'ATP', 'surface': 'hard', 'cc': ''}
+          pending_p1 = None
+
+          items = main_ul.find_all('li', recursive=False)
+
+          for li in items:
+              text = li.get_text(' ', strip=True)
+              if not text:
+                  continue
+
+              # ── TOURNAMENT HEADER ────────────────────────────────────
+              if re.search(r'\b(hommes|femmes)\b', text, re.I) and 'Sets 1 2' in text:
+                  pending_p1 = None
+                  tour = 'WTA' if 'femmes' in text.lower() else 'ATP'
+
+                  surface = 'hard'
+                  for s, v in SURFACE_MAP.items():
+                      if s in text.lower():
+                          surface = v
+                          break
+
+                  # Tournament link (title = "Full Name - City - Genre")
+                  tourn_link = next(
+                      (a for a in li.find_all('a')
+                       if '/hommes/' in a.get('href','') or '/femmes/' in a.get('href','')),
+                      None
+                  )
+                  tourn_name = ''
+                  if tourn_link:
+                      title = tourn_link.get('title', '')
+                      parts = title.split(' - ')
+                      tourn_name = ' - '.join(parts[:2]) if len(parts) >= 2 else tourn_link.get_text(strip=True)
+
+                  # Country / CC
+                  cc = ''
+                  for country, code in COUNTRY_CC.items():
+                      if country in text:
+                          cc = code
+                          break
+
+                  current_tourn = {'name': tourn_name, 'tour': tour, 'surface': surface, 'cc': cc}
+                  continue
+
+              # ── PLAYER ROW ───────────────────────────────────────────
+              # Identify player links (/atp/PLAYER/ or /wta/PLAYER/, not /match/ or /classement/)
+              player_links = [
+                  a for a in li.find_all('a')
+                  if re.search(r'/(atp|wta)/[^/]+/?$', a.get('href', ''))
+              ]
+              if not player_links:
+                  continue
+
+              player_name = player_links[0].get_text(strip=True)
+              serving = bool(re.search(r'\bserve\b', text, re.I))
+
+              # Qualifier / seed
+              qualifiers = re.findall(r'\[([^\]]{1,10})\]', text)
+              qualifier = next((q for q in qualifiers if q not in ['H2H']), '')
+
+              # Time present → player 1
+              has_time = bool(re.search(r'\d{2}:\d{2}', text))
+
+              if has_time:
+                  if pending_p1 is not None:
+                      pending_p1 = None  # orphaned p1, discard
+
+                  time_m = re.search(r'(\d{2}:\d{2})', text)
+                  time_str = time_m.group(1) if time_m else ''
+
+                  round_str = ''
+                  for rnd in ['1er tour', '2ème tour', '3ème tour', 'Quart', 'Demi', 'Finale', 'qualif.']:
+                      if rnd.lower() in text.lower():
+                          round_str = rnd; break
+
+                  tokens = get_score_tokens(text, player_name)
+                  sw, sets, game = parse_scores(tokens)
+
+                  pending_p1 = {
+                      'name': player_name, 'qualifier': qualifier,
+                      'serving': serving, 'sets': sets, 'setsWon': sw, 'game': game,
+                      'time': time_str, 'round': round_str,
+                  }
+
+              elif pending_p1 is not None:
+                  # Player 2
+                  tokens = get_score_tokens(text, player_name)
+                  sw2, sets2, game2 = parse_scores(tokens)
+                  p1 = pending_p1
+
+                  # Status: scheduled if literally no play yet (all zeros, no sets)
+                  both_empty = (not p1['sets'] and not sets2)
+                  status = 'scheduled' if both_empty else 'live'
+
+                  # Finished detection: one player has clearly won (≥2 sets, more than opponent)
+                  sw1 = p1['setsWon']
+                  win1 = win2 = False
+                  if (sw1 >= 2 or sw2 >= 2) and sw1 != sw2:
+                      if sw1 > sw2:
+                          win1 = True; status = 'finished'
+                      else:
+                          win2 = True; status = 'finished'
+
+                  event = {
+                      'id': match_id,
+                      'tour': current_tourn['tour'],
+                      'tournament': current_tourn['name'],
+                      'surface': current_tourn['surface'],
+                      'status': status,
+                      'round': p1['round'],
+                      'timeInfo': p1['time'] if status == 'scheduled' else ('En cours' if status == 'live' else 'Terminé'),
+                      'p1': {
+                          'name': p1['name'], 'qualifier': p1['qualifier'],
+                          'cc': current_tourn['cc'],
+                          'serving': p1['serving'],
+                          'sets': p1['sets'], 'setsWon': sw1,
+                          'game': p1['game'] if status == 'live' else '',
+                          'win': win1,
+                      },
+                      'p2': {
+                          'name': player_name, 'qualifier': qualifier,
+                          'cc': '',
+                          'serving': serving,
+                          'sets': sets2, 'setsWon': sw2,
+                          'game': game2 if status == 'live' else '',
+                          'win': win2,
+                      },
+                  }
+                  events.append(event)
+                  match_id += 1
+                  pending_p1 = None
+
+              else:
+                  # Row without time and no pending p1 — skip (orphaned p2 or unknown)
+                  pass
+
+          output = {
+              'source': 'tennisendirect',
+              'updatedAt': datetime.now(timezone.utc).isoformat(),
+              'events': events,
+          }
+          with open('tennis-live.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False)
+          print(f"✅ {len(events)} matches written")
+          PYEOF
 
       - name: Commit si modifié
         run: |
