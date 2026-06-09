@@ -143,13 +143,17 @@ jobs:
               p1_won = sum(1 for a, b in zip(p1_sets, p2_sets) if a > b)
               p2_won = sum(1 for a, b in zip(p1_sets, p2_sets) if b > a)
 
+              # Match "live" sans aucun score = match futur mal détecté → scheduled
+              if status == 'live' and not p1_sets:
+                  status = 'scheduled'
+
               if status == 'finished':
                   time_info = 'Termine'
               elif status == 'live':
                   time_info = 'En cours'
               else:
                   hm = re.search(r'(\d{1,2}:\d{2})', raw)
-                  time_info = hm.group(1) if hm else ''
+                  time_info = hm.group(1) if hm else 'À venir'
 
               events.append({
                   'id': mid,
