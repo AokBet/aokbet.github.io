@@ -483,12 +483,15 @@ function parseLivescoresHTML(html){
     const p1Won = p1Sets.filter((s,i)=>s>(p2Sets[i]??0)).length;
     const p2Won = p2Sets.filter((s,i)=>s>(p1Sets[i]??0)).length;
 
+    // Match "live" sans score = match futur mal détecté → scheduled
+    if(status==='live' && p1Sets.length===0) status='scheduled';
+
     let timeInfo = '';
     if(status==='finished') timeInfo='Terminé';
     else if(status==='live') timeInfo='En cours';
     else {
       const hm = raw.match(/(\d{1,2}:\d{2})/);
-      timeInfo = hm ? hm[1] : '';
+      timeInfo = hm ? hm[1] : 'À venir';
     }
 
     events.push({
