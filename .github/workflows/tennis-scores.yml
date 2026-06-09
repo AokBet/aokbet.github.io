@@ -80,16 +80,32 @@ jobs:
               if re.search(r'Canc\.|Retired|W\.O\.', raw, re.I):
                   continue
 
-              if re.match(r'^FT\b', raw, re.I):
-                  status = 'finished'
-              else:
-                  stripped = re.sub(r'^(FT|Live|Fin\.?|Int\.|Susp\.)\s*', '', raw, flags=re.I)
-                  stripped = re.sub(r'\d{2}:\d{2}', '', stripped)
-                  status = 'live' if re.findall(r'\d+', stripped) else 'scheduled'
+              # ── Statut ────────────────────────────────────────────────
+              # livescores.com : "FT" = terminé (peut être collé : "FTNuno...")
+              # Heure seule (ex : "21:00") = programmé. Sinon = en cours.
+              first_child_text = ''
+              for child in link.children:
+                  t = child.get_text(strip=True) if hasattr(child, 'get_text') else str(child).strip()
+                  if t:
+                      first_child_text = t
+                      break
 
-              score_str = re.sub(r'^(FT|Live|Fin\.?|Int\.|Susp\.)\s*', '', raw, flags=re.I)
-              score_str = re.sub(r'\d{2}:\d{2}', '', score_str)
-              nums = [int(n) for n in re.findall(r'\d+', score_str)]
+              if first_child_text == 'FT' or raw.startswith('FT'):
+                  status = 'finished'
+              elif re.match(r'^\d{1,2}:\d{2}$', first_child_text):
+                  status = 'scheduled'
+              else:
+                  status = 'live'
+
+              # ── Scores ────────────────────────────────────────────────
+              # Les scores sont dans des éléments FEUILLES séparés.
+              # On cherche les feuilles (sans enfant) dont le texte est 1-2 chiffres.
+              nums = []
+              for el in link.find_all(True):
+                  if not el.find():   # feuille (pas d'enfant tag)
+                      t = el.get_text(strip=True)
+                      if re.match(r'^\d{1,2}$', t):
+                          nums.append(int(t))
 
               p1_sets, p2_sets = [], []
               for i in range(0, len(nums) - 1, 2):
