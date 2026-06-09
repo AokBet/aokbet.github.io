@@ -31,7 +31,6 @@ body{
 a{text-decoration:none;color:inherit;}
 img{max-width:100%;display:block;}
 .container{width:min(1120px,calc(100% - 28px));margin:auto;}
-
 /* ── FOMO BAR ── */
 .fomo-bar{
   background:linear-gradient(90deg,#c0001a,#e8001f,#c0001a);
@@ -45,7 +44,6 @@ img{max-width:100%;display:block;}
 .fomo-dot{display:inline-block;width:7px;height:7px;background:#fff;border-radius:50%;margin-right:7px;animation:blink 1s ease-in-out infinite;}
 @keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
 /* ── NAV ── */
 .topbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(5,7,13,.88);border-bottom:1px solid var(--line);}
 .nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
@@ -58,14 +56,12 @@ img{max-width:100%;display:block;}
 .btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 10px 28px rgba(39,242,138,.25);}
 .btn-outline{background:transparent;border:2px solid var(--green);color:var(--green);}
 .btn-lg{padding:16px 32px;font-size:1rem;}
-
 /* ── HERO ── */
 .hero{padding:60px 0 50px;}
 .eyebrow{display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(39,242,138,.08);border:1px solid rgba(39,242,138,.22);color:#c9ffe5;font-weight:800;font-size:.82rem;margin-bottom:22px;letter-spacing:.3px;}
 h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:.95;letter-spacing:-.07em;margin-bottom:20px;font-weight:900;}
 .gradient{background:linear-gradient(135deg,#fff,var(--green),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .hero-sub{color:var(--muted);font-size:1.05rem;line-height:1.7;margin-bottom:32px;max-width:600px;}
-
 /* Hero stats */
 .hero-stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
 .hstat{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 16px;}
@@ -73,11 +69,9 @@ h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:.95;letter-spacing:-.07em;marg
 .hstat-val{font-size:1rem;font-weight:900;color:var(--green);display:block;}
 .hstat-val.gold{color:var(--gold);}
 .hstat-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;}
-
 /* Hero CTAs */
 .hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
 .hero-note{font-size:.8rem;color:var(--muted);}
-
 /* Dernière victoire */
 .last-win{
   margin-top:40px;
@@ -90,7 +84,6 @@ h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:.95;letter-spacing:-.07em;marg
 .last-win-match{font-size:1rem;font-weight:800;}
 .last-win-cote{font-size:1.6rem;font-weight:900;color:var(--green);}
 .last-win-badge{background:rgba(39,242,138,.15);color:var(--green);border-radius:999px;padding:6px 16px;font-size:.8rem;font-weight:800;}
-
 /* ── MEMBRES ── */
 .members-counter{
   background:linear-gradient(135deg,rgba(39,242,138,.08),rgba(69,163,255,.06));
@@ -105,12 +98,10 @@ h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:.95;letter-spacing:-.07em;marg
 .counter-label{color:var(--muted);font-size:.82rem;margin-top:3px;font-weight:600;}
 .counter-right{display:flex;flex-wrap:wrap;gap:8px;}
 .counter-badge{padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:.78rem;font-weight:700;}
-
 /* ── PERFORMANCES ── */
 section{padding:60px 0;}
 h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin-bottom:10px;font-weight:900;}
 .section-sub{color:var(--muted);font-size:.95rem;margin-bottom:28px;line-height:1.6;}
-
 .perf-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
 @media(min-width:560px){.perf-stats{grid-template-columns:repeat(4,1fr);}}
 .perf-stat{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:16px 12px;text-align:center;}
@@ -119,7 +110,6 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 .pvalue.pos{color:var(--green);}
 .pvalue.neg{color:var(--red);}
 .pvalue.gold{color:var(--gold);}
-
 .perf-chart-card,.perf-table-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:20px;padding:20px 16px;}
 .perf-chart-card{margin-bottom:16px;}
 .card-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:16px;}
@@ -136,11 +126,9 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 .perf-loading{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;}
 .perf-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
 /* ── SCREENS ── */
 .screens{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .screens img{width:100%;border-radius:20px;border:1px solid var(--line);}
-
 /* ── PLANS ── */
 .process-steps{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:32px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:18px 22px;}
 .step{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:120px;}
@@ -148,7 +136,6 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 .step-text strong{font-size:.82rem;font-weight:800;display:block;margin-bottom:2px;}
 .step-text span{font-size:.72rem;color:var(--muted);line-height:1.4;}
 .step-arrow{color:var(--muted);font-size:1.1rem;padding-top:6px;}
-
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 .plan{padding:24px;border-radius:24px;background:rgba(255,255,255,.05);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px;}
 .plan.featured{border-color:rgba(39,242,138,.4);background:rgba(39,242,138,.07);}
@@ -158,7 +145,6 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 .features{list-style:none;display:grid;gap:10px;flex:1;}
 .features li{font-size:.87rem;display:flex;align-items:flex-start;gap:8px;}
 .features li::before{content:"✓";color:var(--green);font-weight:900;flex-shrink:0;}
-
 /* ── FAQ ── */
 .faq-list{display:grid;gap:8px;max-width:800px;}
 .faq-item{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
@@ -168,20 +154,16 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 .faq-q.open span{transform:rotate(45deg);color:var(--green);}
 .faq-a{display:none;padding:0 20px 16px;color:var(--muted);line-height:1.75;font-size:.88rem;}
 .faq-a.show{display:block;}
-
 /* ── TELEGRAM CTA ── */
 .telegram-box{padding:32px;border-radius:28px;background:linear-gradient(135deg,rgba(39,242,138,.14),rgba(69,163,255,.08));border:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
 .telegram-box h2{margin-bottom:8px;}
 .telegram-box p{color:var(--muted);line-height:1.65;font-size:.95rem;}
-
 /* ── FOOTER ── */
 footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2);}
 .footer-grid{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
 .legal{margin-top:20px;color:var(--muted);line-height:1.7;font-size:.82rem;}
-
 /* ── FLOATING CTA ── */
 .float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
-
 /* ── MOBILE ── */
 @media(max-width:860px){
   .navlinks{display:none;}
@@ -209,14 +191,12 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 </style>
 </head>
 <body>
-
-<!-- FOMO BAR — retire "active" pour désactiver -->
-<div class="fomo-bar active" id="fomo-bar">
+<!-- FOMO BAR — ajoute "active" pour activer -->
+<div class="fomo-bar" id="fomo-bar">
   <span class="fomo-dot"></span>
   🔴 <strong>LIVE — Ticket France posté ce soir en VIP</strong> · Ne rate pas le prochain pari
-  <a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Accès VIP →</a>
+  <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accès VIP →</a>
 </div>
-
 <header class="topbar">
 <div class="container nav">
   <a class="brand" href="#top">
@@ -229,22 +209,16 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <a href="#abonnements">Abonnements</a>
     <a href="#telegram">Telegram</a>
   </nav>
-  <a class="btn btn-primary" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Accéder au VIP</a>
+  <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
 </div>
 </header>
-
 <main id="top">
-
 <!-- ═══════════ HERO ═══════════ -->
 <section class="hero">
 <div class="container">
-
   <span class="eyebrow">🏆 Tipster sportif premium • 18+</span>
-
   <h1>2 paris par jour.<br><span class="gradient">Résultats prouvés.</span></h1>
-
   <p class="hero-sub">Win rate et performances vérifiables en temps réel sur cette page. Pas de promesses — des chiffres.</p>
-
   <!-- Stats live -->
   <div class="hero-stats">
     <div class="hstat">
@@ -276,7 +250,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       </div>
     </div>
   </div>
-
   <!-- CTAs -->
   <div class="hero-ctas">
     <a class="btn btn-primary btn-lg" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">
@@ -287,7 +260,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     </a>
   </div>
   <p class="hero-note">Accès immédiat après paiement · Résiliation libre</p>
-
   <!-- Dernière victoire (chargée dynamiquement) -->
   <div class="last-win" id="last-win" style="display:none">
     <div>
@@ -300,10 +272,8 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       <div class="last-win-badge" style="margin-top:8px;">GAGNÉ</div>
     </div>
   </div>
-
 </div>
 </section>
-
 <!-- ═══════════ MEMBRES ═══════════ -->
 <section id="avis" style="padding:0 0 60px;">
 <div class="container">
@@ -328,25 +298,21 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   </div>
 </div>
 </section>
-
 <!-- ═══════════ PERFORMANCES ═══════════ -->
 <section id="performances">
 <div class="container">
   <h2>📈 Performances en direct</h2>
   <p class="section-sub">Mises à jour après chaque pari — rien n'est modifiable a posteriori.</p>
-
   <div class="perf-stats">
     <div class="perf-stat"><div class="plabel">Tickets</div><div class="pvalue gold" id="p-tickets">—</div></div>
     <div class="perf-stat"><div class="plabel">Win Rate</div><div class="pvalue" id="p-winrate">—</div></div>
     <div class="perf-stat"><div class="plabel">Cote moy. gagnée</div><div class="pvalue pos" id="p-avgcote">—</div></div>
     <div class="perf-stat"><div class="plabel">Série en cours</div><div class="pvalue" id="p-streak">—</div></div>
   </div>
-
   <div class="perf-chart-card">
     <div class="card-title">Courbe de performance</div>
     <div class="perf-chart-wrap"><canvas id="perfChart"></canvas></div>
   </div>
-
   <div class="perf-table-card">
     <div class="card-title">Historique des tickets</div>
     <div class="perf-loading" id="p-loading"><div class="perf-spinner"></div><br>Chargement…</div>
@@ -359,7 +325,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   </div>
 </div>
 </section>
-
 <!-- ═══════════ SCREENS ═══════════ -->
 <section id="screenshots">
 <div class="container">
@@ -372,13 +337,11 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   </div>
 </div>
 </section>
-
 <!-- ═══════════ ABONNEMENTS ═══════════ -->
 <section id="abonnements">
 <div class="container">
   <h2>Rejoindre le VIP</h2>
   <p class="section-sub">Paiement via Revolut — accès en moins de 5 minutes.</p>
-
   <div class="process-steps">
     <div class="step">
       <div class="step-num">1</div>
@@ -400,7 +363,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       <div class="step-text"><strong>Accès immédiat</strong><span>Tu rejoins le groupe VIP</span></div>
     </div>
   </div>
-
   <div class="plans">
     <div class="plan">
       <h3>Essai</h3>
@@ -435,7 +397,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=49&currency=EUR" target="_blank">Payer 49€ →</a>
     </div>
   </div>
-
   <!-- Offre Velobet -->
   <div style="margin-top:28px;padding:28px 32px;border-radius:24px;background:linear-gradient(135deg,rgba(255,213,74,.1),rgba(39,242,138,.08));border:1px solid rgba(255,213,74,.25);">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
@@ -449,10 +410,8 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       </a>
     </div>
   </div>
-
 </div>
 </section>
-
 <!-- ═══════════ FAQ ═══════════ -->
 <section id="faq">
 <div class="container">
@@ -481,7 +440,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   </div>
 </div>
 </section>
-
 <!-- ═══════════ CTA FINAL ═══════════ -->
 <section id="telegram">
 <div class="container">
@@ -490,37 +448,31 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       <h2>Prêt à rejoindre le VIP ?</h2>
       <p>Accède au Telegram officiel AokBet et découvre les prochains tickets.</p>
     </div>
-    <a class="btn btn-primary btn-lg" href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank">Ouvrir Telegram</a>
+    <a class="btn btn-primary btn-lg" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Ouvrir Telegram</a>
   </div>
 </div>
 </section>
-
 </main>
-
 <footer>
 <div class="container">
   <div class="footer-grid">
     <a class="brand" href="#top">
       <img src="logo.png" alt="AokBet">
       <span>AokBet</span>
-    </a>
+    </div>
   </div>
   <p class="legal">© 2026 AokBet — Réservé aux personnes majeures.<br>Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.</p>
 </div>
 </footer>
-
-<a href="https://t.me/+4tUnDFWg4gVlM2Q0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
-
+<a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR63UTSGY-RQLlBkDyWK_f6v0I1tuAOZqj2OdKrIb2_--r-r9HfuLdqflvlbeYpkRmHK5OTHA_nhvrL/pub?gid=171688003&single=true&output=csv";
-
 function parseCSV(text) {
   return text.trim().split("\n").slice(1).map(line => {
     const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g,""));
     return { date:cols[0]||"", match:cols[1]||"", cote:parseFloat(cols[2])||0, resultat:(cols[3]||"").toUpperCase() };
   }).filter(r => r.match && r.cote > 0);
 }
-
 function getStreak(rows) {
   if (!rows.length) return "—";
   let count = 1, last = rows[rows.length-1].resultat;
@@ -528,7 +480,6 @@ function getStreak(rows) {
   for (let i=rows.length-2;i>=0;i--) { if(rows[i].resultat===last) count++; else break; }
   return last==="W" ? `🔥 ${count} victoire${count>1?"s":""}` : `❌ ${count} défaite${count>1?"s":""}`;
 }
-
 function updateHeroStats(rows) {
   const wins = rows.filter(r=>r.resultat==="W");
   const losses = rows.filter(r=>r.resultat==="L");
@@ -538,7 +489,6 @@ function updateHeroStats(rows) {
   document.getElementById("h-tickets").textContent = rows.length;
   document.getElementById("h-avgcote").textContent = avg!=="—" ? "@"+avg : "—";
   document.getElementById("h-streak").textContent = getStreak(rows);
-
   // Dernière victoire
   const lastWin = [...rows].reverse().find(r=>r.resultat==="W");
   if (lastWin) {
@@ -548,7 +498,6 @@ function updateHeroStats(rows) {
     document.getElementById("last-win").style.display = "flex";
   }
 }
-
 let chartInstance = null;
 function renderPerf(rows) {
   const wins = rows.filter(r=>r.resultat==="W");
@@ -556,7 +505,6 @@ function renderPerf(rows) {
   const wr = (wins.length+losses.length)>0 ? ((wins.length/(wins.length+losses.length))*100).toFixed(0) : 0;
   const avg = wins.length ? (wins.reduce((s,r)=>s+r.cote,0)/wins.length).toFixed(2) : "—";
   const streak = getStreak(rows);
-
   document.getElementById("p-tickets").textContent = rows.length;
   const wrEl = document.getElementById("p-winrate");
   wrEl.textContent = wr+"%"; wrEl.className = "pvalue "+(wr>=50?"pos":"neg");
@@ -564,7 +512,6 @@ function renderPerf(rows) {
   const strEl = document.getElementById("p-streak");
   strEl.textContent = streak;
   strEl.className = "pvalue "+(streak.includes("🔥")?"pos":streak.includes("❌")?"neg":"gold");
-
   let units=0;
   const labels=["Départ"], data=[0];
   rows.forEach(r => {
@@ -573,7 +520,6 @@ function renderPerf(rows) {
     else if(r.resultat==="L") units=parseFloat((units-1).toFixed(2));
     data.push(units);
   });
-
   const ctx = document.getElementById("perfChart").getContext("2d");
   const grad = ctx.createLinearGradient(0,0,0,220);
   grad.addColorStop(0,"rgba(39,242,138,.22)"); grad.addColorStop(1,"rgba(39,242,138,.01)");
@@ -590,7 +536,6 @@ function renderPerf(rows) {
       }
     }
   });
-
   const tbody = document.getElementById("p-body");
   tbody.innerHTML="";
   [...rows].reverse().forEach(r => {
@@ -603,7 +548,6 @@ function renderPerf(rows) {
   document.getElementById("p-loading").style.display="none";
   document.getElementById("p-table").style.display="table";
 }
-
 async function loadPerf() {
   try {
     const res = await fetch(SHEET_URL);
@@ -616,13 +560,11 @@ async function loadPerf() {
     document.getElementById("p-loading").innerHTML=`<span style="color:#f87171">❌ ${e.message}</span>`;
   }
 }
-
 function toggleFaq(btn) {
   const a = btn.nextElementSibling, open = btn.classList.contains("open");
   document.querySelectorAll(".faq-q").forEach(b=>{ b.classList.remove("open"); b.nextElementSibling.classList.remove("show"); });
   if(!open){ btn.classList.add("open"); a.classList.add("show"); }
 }
-
 loadPerf();
 </script>
 </body>
