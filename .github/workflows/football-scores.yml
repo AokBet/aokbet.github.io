@@ -1,0 +1,182 @@
+name: Update Football Scores
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # toutes les 5 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Installer les dépendances
+        run: pip install beautifulsoup4 lxml requests --break-system-packages -q
+
+      - name: Scraper livescores.com football
+        run: |
+          python3 << 'PYEOF'
+          import requests, json, re, sys
+          from bs4 import BeautifulSoup
+          from datetime import datetime, timezone, timedelta
+
+          HEADERS = {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                            'AppleWebKit/537.36 (KHTML, like Gecko) '
+                            'Chrome/124.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.9',
+              'Cache-Control': 'no-cache',
+              'Referer': 'https://www.google.com/',
+          }
+
+          def cap(slug):
+              return ' '.join(w.capitalize() for w in slug.replace('-', ' ').split())
+
+          tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime('%Y-%m-%d')
+
+          urls_to_fetch = [
+              'https://www.livescores.com/football/',
+              f'https://www.livescores.com/football/?d={tomorrow}',
+              f'https://www.livescores.com/football/{tomorrow}/',
+          ]
+
+          all_html = []
+          for url in urls_to_fetch:
+              try:
+                  r = requests.get(url, headers=HEADERS, timeout=25)
+                  r.raise_for_status()
+                  print(f"Fetch OK {url} — {len(r.text)} octets", file=sys.stderr)
+                  if '-vs-' in r.text:
+                      all_html.append(r.text)
+              except Exception as e:
+                  print(f"Fetch error {url}: {e}", file=sys.stderr)
+
+          if not all_html:
+              print("Aucune source disponible", file=sys.stderr)
+              sys.exit(0)
+
+          events = []
+          seen = set()
+
+          combined = '\n'.join(all_html)
+          soup = BeautifulSoup(combined, 'lxml')
+
+          for link in soup.find_all('a', href=True):
+              href = link['href']
+              # URL pattern football: /football/competition/team1-vs-team2/id/
+              m = re.match(
+                  r'^/football/([^/]+)/(.+)-vs-(.+)/(\d{5,9})/?$',
+                  href
+              )
+              if not m:
+                  continue
+              comp_slug, t1s, t2s, mid = m.groups()
+              if mid in seen:
+                  continue
+              seen.add(mid)
+
+              competition = cap(comp_slug)
+              t1_name = cap(t1s)
+              t2_name = cap(t2s)
+
+              raw = link.get_text(strip=True)
+
+              # ── Statut ────────────────────────────────────────────────
+              # "FT" = terminé, minute "45'" = en cours, heure "21:00" = programmé
+              first_child_text = ''
+              for child in link.children:
+                  t = child.get_text(strip=True) if hasattr(child, 'get_text') else str(child).strip()
+                  if t:
+                      first_child_text = t
+                      break
+
+              if first_child_text in ('FT', 'AET', 'Pen') or raw.startswith('FT') or raw.startswith('AET'):
+                  status = 'finished'
+                  time_info = 'FT'
+              elif re.match(r"^\d{1,3}'$", first_child_text) or re.match(r"^\d{1,3}\+\d+'?$", first_child_text):
+                  # Minute de jeu ex: "45'" ou "90+2'"
+                  status = 'live'
+                  time_info = first_child_text
+              elif re.match(r'^\d{1,2}:\d{2}$', first_child_text):
+                  status = 'scheduled'
+                  time_info = first_child_text
+              elif first_child_text in ('HT', 'MI-TEMPS'):
+                  status = 'live'
+                  time_info = 'Mi-temps'
+              else:
+                  # Chercher heure dans le texte brut
+                  hm = re.search(r'(\d{1,2}:\d{2})', raw)
+                  if hm:
+                      status = 'scheduled'
+                      time_info = hm.group(1)
+                  else:
+                      status = 'live'
+                      time_info = first_child_text or 'Live'
+
+              # ── Buts ────────────────────────────────────────────────
+              # livescores football : 2 nombres = buts domicile / extérieur
+              leaf_nums = []
+              for el in link.find_all(True):
+                  if not el.find():
+                      t = el.get_text(strip=True)
+                      if re.match(r'^\d{1,2}$', t):
+                          leaf_nums.append(int(t))
+
+              # Pour un match de foot terminé/en cours : 2 nombres (t1_goals, t2_goals)
+              t1_goals = None
+              t2_goals = None
+              if len(leaf_nums) >= 2 and status != 'scheduled':
+                  t1_goals = leaf_nums[0]
+                  t2_goals = leaf_nums[1]
+
+              t1_win = status == 'finished' and t1_goals is not None and t1_goals > t2_goals
+              t2_win = status == 'finished' and t2_goals is not None and t2_goals > t1_goals
+
+              events.append({
+                  'id': mid,
+                  'competition': competition,
+                  'status': status,
+                  'timeInfo': time_info,
+                  't1': {
+                      'name': t1_name,
+                      'goals': t1_goals,
+                      'win': t1_win,
+                  },
+                  't2': {
+                      'name': t2_name,
+                      'goals': t2_goals,
+                      'win': t2_win,
+                  },
+              })
+
+          output = {
+              'source': 'livescores',
+              'updatedAt': datetime.now(timezone.utc).isoformat(),
+              'events': events,
+          }
+
+          with open('football-live.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False)
+
+          print(f"OK: {len(events)} matchs écrits dans football-live.json")
+          if events:
+              s = events[0]
+              g1 = s['t1']['goals'] if s['t1']['goals'] is not None else '–'
+              g2 = s['t2']['goals'] if s['t2']['goals'] is not None else '–'
+              print(f"   Exemple : {s['t1']['name']} {g1} – {g2} {s['t2']['name']} [{s['competition']}] {s['status']}")
+          PYEOF
+
+      - name: Commit si modifié
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add football-live.json
+          git diff --staged --quiet || git commit -m "⚽ Scores $(date -u +'%H:%M UTC')"
+          git push
