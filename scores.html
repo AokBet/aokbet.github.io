@@ -212,10 +212,8 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   <div class="refresh-time">Màj : <span id="last-update">—</span></div>
 </div>
 
-<!-- Banner file:// -->
-<div class="banner" id="banner">
-  ⚠️ <div><strong>Scores de démonstration</strong> — Ce fichier est ouvert en local (file://). Les vraies données s'affichent automatiquement une fois la page uploadée sur ton site AokBet (hébergement HTTPS requis pour les appels API).</div>
-</div>
+<!-- Banner -->
+<div class="banner" id="banner"></div>
 
 <!-- Filtres -->
 <div class="filters">
@@ -246,7 +244,7 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float">💬 Rejoindre le VIP</a>
 
 <script>
-/* ════════════ FLAGS ════════════ */
+/* ════════ FLAGS ════════ */
 const FLAGS={
   DE:'🇩🇪',FR:'🇫🇷',ES:'🇪🇸',IT:'🇮🇹',GB:'🇬🇧',US:'🇺🇸',
   RU:'🇷🇺',AU:'🇦🇺',AR:'🇦🇷',CH:'🇨🇭',AT:'🇦🇹',CA:'🇨🇦',
@@ -256,17 +254,16 @@ const FLAGS={
   RO:'🇷🇴',UA:'🇺🇦',PT:'🇵🇹',SE:'🇸🇪',FI:'🇫🇮',DK:'🇩🇰',
   BY:'🇧🇾',TN:'🇹🇳',TR:'🇹🇷',CN:'🇨🇳',HK:'🇭🇰',
 };
-const f = c => FLAGS[(c||'').toUpperCase()] || '🏳️';
+const f = c => FLAGS[(c||'').toUpperCase()] || '';
 
-/* ════════════ DATE DU JOUR ════════════ */
-const TODAY = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+const TODAY = new Date().toISOString().slice(0,10);
 
-/* ════════════ DÉMO (fallback si tout échoue) ════════════ */
+/* ════════ DÉMO ════════ */
 const DEMO=[
   {id:1,tour:'ATP',tournament:'Boss Open Stuttgart',status:'live',round:'QF',timeInfo:'2ème set',
    p1:{name:'Zverev A.',cc:'DE',serving:true, sets:[6,3],setsWon:1,game:'40'},
    p2:{name:'Alcaraz C.',cc:'ES',serving:false,sets:[3,2],setsWon:0,game:'15'}},
-  {id:2,tour:'ATP',tournament:'Libema Open \'s-Hertogenbosch',status:'live',round:'QF',timeInfo:'1er set',
+  {id:2,tour:'ATP',tournament:"Libema Open 's-Hertogenbosch",status:'live',round:'QF',timeInfo:'1er set',
    p1:{name:'Hurkacz H.',cc:'PL',serving:false,sets:[4],setsWon:0,game:'30'},
    p2:{name:'Griekspoor T.',cc:'NL',serving:true,sets:[5],setsWon:0,game:'40'}},
   {id:3,tour:'ATP',tournament:'Boss Open Stuttgart',status:'scheduled',round:'QF',timeInfo:'16:00',
@@ -275,7 +272,7 @@ const DEMO=[
   {id:4,tour:'WTA',tournament:'Rothesay International Eastbourne',status:'live',round:'QF',timeInfo:'3ème set',
    p1:{name:'Swiatek I.',cc:'PL',serving:true, sets:[6,4,2],setsWon:1,game:'40'},
    p2:{name:'Gauff C.',cc:'US',serving:false,sets:[3,6,1],setsWon:1,game:'0'}},
-  {id:5,tour:'ATP',tournament:'Libema Open \'s-Hertogenbosch',status:'scheduled',round:'QF',timeInfo:'17:30',
+  {id:5,tour:'ATP',tournament:"Libema Open 's-Hertogenbosch",status:'scheduled',round:'QF',timeInfo:'17:30',
    p1:{name:'Medvedev D.',cc:'RU',serving:false,sets:[],setsWon:0,game:''},
    p2:{name:'Paul T.',cc:'US',serving:false,sets:[],setsWon:0,game:''}},
   {id:6,tour:'ATP',tournament:'Boss Open Stuttgart',status:'finished',round:'2T',timeInfo:'Terminé',
@@ -284,249 +281,155 @@ const DEMO=[
   {id:7,tour:'WTA',tournament:'Rothesay International Eastbourne',status:'finished',round:'2T',timeInfo:'Terminé',
    p1:{name:'Sabalenka A.',cc:'BY',serving:false,sets:[7,6],setsWon:2,game:'',win:true},
    p2:{name:'Jabeur O.',cc:'TN',serving:false,sets:[6,3],setsWon:0,game:'',win:false}},
-  {id:8,tour:'ATP',tournament:'Libema Open \'s-Hertogenbosch',status:'finished',round:'2T',timeInfo:'Terminé',
-   p1:{name:'Diallo G.',cc:'CA',serving:false,sets:[1,6,5],setsWon:1,game:'',win:false},
-   p2:{name:'Mannarino A.',cc:'FR',serving:false,sets:[6,3,7],setsWon:2,game:'',win:true}},
 ];
 
-/* ════════════ UTILS ════════════ */
+/* ════════ UTILS ════════ */
 function sig(ms){ const c=new AbortController(); setTimeout(()=>c.abort(),ms); return c.signal; }
-const enc=encodeURIComponent;
+const enc = encodeURIComponent;
+function cap(s){ return s.split('-').map(w=>w?w[0].toUpperCase()+w.slice(1):'').join(' ').trim(); }
 
-/* ════════════ FILTRE TOURNOIS PRINCIPAUX ════════════ */
-function isMainTourEvent(ev){
-  const n=(ev.tournament?.uniqueTournament?.name||'').toLowerCase();
-  const c=(ev.tournament?.category?.name||'').toLowerCase();
-  const skip=['itf','junior','wheelchair','fed cup','davis','billie jean','under','u18','u16'];
-  return !skip.some(x=>n.includes(x)||c.includes(x));
-}
+/* ════════ PARSER LIVESCORES.COM ════════
+   livescores.com est rendu côté serveur → le HTML contient les vraies données.
+   Chaque match est dans un <a href="/tennis/[cat]/[tourn]/[p1]-vs-[p2]/[id]/"> */
+function parseLivescoresHTML(html){
+  const doc = new DOMParser().parseFromString(html,'text/html');
+  const events = [];
+  const seen = new Set();
 
-/* ════════════ TENNISENDIRECT — PARSER HTML CÔTÉ CLIENT ════════════ */
-const TED_SURFACE={gazon:'grass','terre battue':'clay',dur:'hard',indoor:'hard'};
-const TED_CC={
-  Germany:'DE',France:'FR',Spain:'ES',Italy:'IT','United Kingdom':'GB',USA:'US',
-  Russia:'RU',Australia:'AU',Argentina:'AR',Switzerland:'CH',Austria:'AT',Canada:'CA',
-  Serbia:'RS',Greece:'GR',Norway:'NO','Czech Republic':'CZ',Poland:'PL',Holland:'NL',
-  Netherlands:'NL',Belgium:'BE',Hungary:'HU',Slovakia:'SK',Croatia:'HR',Georgia:'GE',
-  Kazakhstan:'KZ',Brazil:'BR',Chile:'CL',Japan:'JP','South Korea':'KR',
-  'South Africa':'ZA',Bulgaria:'BG',Romania:'RO',Ukraine:'UA',Portugal:'PT',
-  Sweden:'SE',Finland:'FI',Denmark:'DK',Belarus:'BY',Tunisia:'TN',Turkey:'TR',
-  China:'CN','Bosnia and Herzeg.':'BA',Morocco:'MA',
-};
+  const links = doc.querySelectorAll('a[href]');
+  for(const link of links){
+    const href = link.getAttribute('href')||'';
+    // Pattern : /tennis/atp-250/stuttgart-open/player-one-vs-player-two/1234567/
+    const m = href.match(/^\/tennis\/([^/]+)\/([^/]+)\/(.+)-vs-(.+)\/(\d{5,8})\/?$/);
+    if(!m) continue;
+    const [,cat,tourn,p1s,p2s,mid] = m;
+    if(seen.has(mid)) continue;
+    seen.add(mid);
 
-function tedTokens(text,name){
-  let t=text;
-  for(let i=0;i<3;i++) t=t.replace(name,'');
-  t=t.replace(/\bserve\b/gi,'').replace(/\[[^\]]*\]/g,'')
-     .replace(/\b(1er|2ème|3ème|qualif\.?|tour|Quart|Demi|Finale|Interrompu|H2H)\b/gi,'')
-     .replace(/\d{2}:\d{2}/g,'').replace(/\d{2}\.\d{2}\.\d{2}/g,'');
-  return t.match(/\b(\d{1,3}|A)\b/g)||[];
-}
+    const tour = (cat.startsWith('wta') || cat==='wta') ? 'WTA' : 'ATP';
+    const tournament = cap(tourn);
+    const p1Name = cap(p1s);
+    const p2Name = cap(p2s);
 
-function tedScores(toks){
-  if(!toks.length) return{setsWon:0,sets:[],game:'0'};
-  const G={'0':'0','15':'15','30':'30','40':'40','A':'A'};
-  let setsWon=0,t=[...toks];
-  if(t[0]&&/^\d$/.test(t[0])&&+t[0]<=3){setsWon=+t.shift();}
-  if(!t.length) return{setsWon,sets:[],game:'0'};
-  const game=G[t[t.length-1]]||'0';
-  const sets=t.slice(0,-1).map(Number).filter(n=>!isNaN(n));
-  return{setsWon,sets,game};
-}
+    const raw = (link.textContent||'').trim();
 
-function parseTEDHTML(html){
-  const doc=new DOMParser().parseFromString(html,'text/html');
-  // Find container: parent of a li that has "Sets 1 2" + hommes/femmes
-  let container=null;
-  for(const li of doc.querySelectorAll('li')){
-    const t=li.textContent||'';
-    if(t.includes('Sets 1 2')&&/\b(hommes|femmes)\b/i.test(t)&&t.length<400){
-      container=li.parentElement; break;
+    // Sauter les matchs annulés ou retirés
+    if(/Canc\.|Retired|W\.O\./i.test(raw)) continue;
+
+    // Statut
+    let status = 'scheduled';
+    if(/^FT\b/i.test(raw)) status = 'finished';
+    else {
+      // En cours : le texte commence par un chiffre ou contient un score visible
+      const afterStatus = raw.replace(/^(FT|Live|Fin\.?|Int\.|Susp\.)\s*/i,'');
+      if(/^\d/.test(afterStatus) && !/^\d{2}:\d{2}/.test(afterStatus)) status = 'live';
     }
+
+    // Extraire les nombres (scores de sets)
+    // On supprime d'abord le préfixe de statut et l'heure éventuelle
+    const stripped = raw
+      .replace(/^(FT|Live|Fin\.?|Int\.|Susp\.)\s*/i,'')
+      .replace(/\d{2}:\d{2}/g,'');
+    const nums = (stripped.match(/\d+/g)||[]).map(Number);
+
+    // Scores : livescores affiche P1_s1 P2_s1 P1_s2 P2_s2 ... (alternés)
+    // On prend les paires successives, max 5 sets
+    const p1Sets=[], p2Sets=[];
+    for(let i=0; i+1<nums.length && p1Sets.length<5; i+=2){
+      // Ignorer les nombres > 7 qui sont des scores de tie-break (ex : 10 dans un super tie-break)
+      // On les garde mais on les limite pour l'affichage
+      p1Sets.push(nums[i]);
+      p2Sets.push(nums[i+1]);
+    }
+
+    const p1Won = p1Sets.filter((s,i)=>s>(p2Sets[i]??0)).length;
+    const p2Won = p2Sets.filter((s,i)=>s>(p1Sets[i]??0)).length;
+
+    let timeInfo = '';
+    if(status==='finished') timeInfo='Terminé';
+    else if(status==='live') timeInfo='En cours';
+    else {
+      // Chercher une heure dans le texte original
+      const hm = raw.match(/(\d{1,2}:\d{2})/);
+      timeInfo = hm ? hm[1] : '';
+    }
+
+    events.push({
+      id: mid,
+      tour,
+      tournament,
+      status,
+      round: '',
+      timeInfo,
+      p1:{ name:p1Name, cc:'', serving:false, sets:p1Sets, setsWon:p1Won, game:'', win: status==='finished' && p1Won>p2Won },
+      p2:{ name:p2Name, cc:'', serving:false, sets:p2Sets, setsWon:p2Won, game:'', win: status==='finished' && p2Won>p1Won },
+    });
   }
-  if(!container){console.warn('TED: container not found');return[];}
 
-  const events=[],items=container.querySelectorAll(':scope > li');
-  let matchId=1,curT={name:'',tour:'ATP',surface:'hard',cc:''},pending=null;
-
-  for(const li of items){
-    const text=li.textContent||'';
-    if(!text.trim()) continue;
-
-    // ─ Tournament header ─
-    if(text.includes('Sets 1 2')&&/\b(hommes|femmes)\b/i.test(text)&&text.length<400){
-      pending=null;
-      const tour=/\bfemmes\b/i.test(text)?'WTA':'ATP';
-      let surface='hard';
-      for(const[s,v] of Object.entries(TED_SURFACE)){if(text.toLowerCase().includes(s)){surface=v;break;}}
-      let tournName='',cc='';
-      for(const a of li.querySelectorAll('a')){
-        const href=a.href||'';
-        if(href.includes('/hommes/')||href.includes('/femmes/')){
-          const parts=(a.title||'').split(' - ');
-          tournName=parts.length>=2?parts.slice(0,2).join(' - '):a.textContent.trim();
-          break;
-        }
-      }
-      for(const[country,code] of Object.entries(TED_CC)){if(text.includes(country)){cc=code;break;}}
-      curT={name:tournName,tour,surface,cc};
-      continue;
-    }
-
-    // ─ Player row ─
-    const pLinks=[...li.querySelectorAll('a')].filter(a=>/\/(atp|wta)\/[^/]+\/?$/.test(a.href||''));
-    if(!pLinks.length) continue;
-
-    const name=pLinks[0].textContent.trim();
-    const serving=/\bserve\b/i.test(text);
-    const qualifier=((text.match(/\[([^\]]{1,10})\]/g)||[]).find(q=>!q.includes('H2H'))||'').replace(/[\[\]]/g,'');
-    const hasTime=/\d{2}:\d{2}/.test(text);
-
-    if(hasTime){
-      if(pending) pending=null;
-      const tm=text.match(/(\d{2}:\d{2})/);
-      let round='';
-      for(const r of['1er tour','2ème tour','Quart','Demi','Finale','qualif.']){
-        if(text.toLowerCase().includes(r.toLowerCase())){round=r;break;}
-      }
-      const sc=tedScores(tedTokens(text,name));
-      pending={name,qualifier,serving,...sc,time:tm?tm[1]:'',round};
-    } else if(pending){
-      const sc2=tedScores(tedTokens(text,name));
-      const p=pending;
-      const bothEmpty=!p.sets.length&&!sc2.sets.length;
-      let status=bothEmpty?'scheduled':'live';
-      let w1=false,w2=false;
-      if((p.setsWon>=2||sc2.setsWon>=2)&&p.setsWon!==sc2.setsWon){
-        status='finished'; w1=p.setsWon>sc2.setsWon; w2=!w1;
-      }
-      events.push({
-        id:matchId++,tour:curT.tour,tournament:curT.name,surface:curT.surface,
-        status,round:p.round,
-        timeInfo:status==='scheduled'?p.time:status==='live'?'En cours':'Terminé',
-        p1:{name:p.name,qualifier:p.qualifier,cc:curT.cc,serving:p.serving,
-            sets:p.sets,setsWon:p.setsWon,game:status==='live'?p.game:'',win:w1},
-        p2:{name,qualifier,cc:'',serving,
-            sets:sc2.sets,setsWon:sc2.setsWon,game:status==='live'?sc2.game:'',win:w2},
-      });
-      pending=null;
-    }
-  }
   return events;
 }
 
-async function fetchTED(){
-  const url='https://www.tennisendirect.net/';
+async function fetchLivescores(){
+  const url = 'https://www.livescores.com/tennis/';
   const proxies=[
-    ()=>fetch(`https://api.allorigins.win/raw?url=${enc(url)}`,{signal:sig(18000)}),
-    ()=>fetch(`https://corsproxy.io/?${enc(url)}`,{signal:sig(18000)}),
-    ()=>fetch(`https://api.allorigins.win/get?url=${enc(url)}`,{signal:sig(18000)})
+    ()=>fetch(`https://api.allorigins.win/raw?url=${enc(url)}`,{signal:sig(20000)}),
+    ()=>fetch(`https://corsproxy.io/?${enc(url)}`,{signal:sig(20000)}),
+    ()=>fetch(`https://api.allorigins.win/get?url=${enc(url)}`,{signal:sig(20000)})
           .then(r=>r.json()).then(w=>({ok:true,text:()=>Promise.resolve(w.contents)})),
-    ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${enc(url)}`,{signal:sig(18000)}),
-    ()=>fetch(`https://thingproxy.freeboard.io/fetch/${url}`,{signal:sig(18000)}),
+    ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${enc(url)}`,{signal:sig(20000)}),
   ];
   const errs=[];
   for(const fn of proxies){
     try{
-      const r=await fn();
-      if(!r.ok) throw new Error('status:'+r.status);
-      const html=await r.text();
-      if(!html.includes('Sets 1 2')) throw new Error('no match data in response');
-      const m=parseTEDHTML(html);
-      if(m.length>0){console.log(`✅ TED via proxy: ${m.length} matchs`);return m;}
-    }catch(e){errs.push(e.message);console.warn('TED proxy:',e.message);}
-  }
-  throw new Error('TED all proxies failed: '+errs.join(' | '));
-}
-
-/* ════════════ SOFASCORE (legacy fallback) ════════════ */
-async function ssFetch(url){
-  const tries=[
-    ()=>fetch(url,{signal:sig(8000),cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('direct:'+r.status);return r.json();}),
-    ()=>fetch(`https://api.allorigins.win/raw?url=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('ao-raw:'+r.status);return r.json();}),
-    ()=>fetch(`https://corsproxy.io/?${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('corsproxy:'+r.status);return r.json();}),
-  ];
-  const errors=[];
-  for(const fn of tries){
-    try{const d=await fn();if(d&&typeof d==='object') return d;}
-    catch(e){errors.push(e.message);}
-  }
-  throw new Error(errors.join(' | '));
-}
-
-function parseSSEvent(ev){
-  if(!ev?.homeTeam||!ev?.awayTeam) return null;
-  const st=ev.status?.type||'notstarted';
-  const status=st==='inprogress'?'live':st==='finished'?'finished':'scheduled';
-  const uName=ev.tournament?.uniqueTournament?.name||'';
-  const catName=ev.tournament?.category?.name||'';
-  const combined=(uName+' '+catName).toLowerCase();
-  const tour=combined.includes('wta')||combined.includes('women')?'WTA':'ATP';
-  const tournament=uName||catName||'Tennis';
-  const hs=ev.homeScore||{},as=ev.awayScore||{};
-  const sets1=[],sets2=[];
-  for(let i=1;i<=5;i++){
-    const k=`period${i}`;
-    if(hs[k]!==undefined&&as[k]!==undefined){sets1.push(Number(hs[k]));sets2.push(Number(as[k]));}
-  }
-  const won=(a,b)=>a.reduce((n,v,i)=>n+(v>(b[i]??0)?1:0),0);
-  let timeInfo='';
-  if(status==='live') timeInfo=ev.status?.description||'En cours';
-  else if(status==='scheduled'){const d=new Date(ev.startTimestamp*1000);timeInfo=isNaN(d)?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
-  else timeInfo='Terminé';
-  const w1=status==='finished'&&won(sets1,sets2)>won(sets2,sets1);
-  const w2=status==='finished'&&won(sets2,sets1)>won(sets1,sets2);
-  return{id:ev.id,tour,tournament,status,timeInfo,round:ev.roundInfo?.name||'',
-    p1:{name:ev.homeTeam.shortName||ev.homeTeam.name||'—',cc:(ev.homeTeam.country?.alpha2||'').toUpperCase(),
-        serving:ev.serving===1,sets:sets1,setsWon:won(sets1,sets2),
-        game:status==='live'?String(hs.display??hs.current??''):'',win:w1},
-    p2:{name:ev.awayTeam.shortName||ev.awayTeam.name||'—',cc:(ev.awayTeam.country?.alpha2||'').toUpperCase(),
-        serving:ev.serving===2,sets:sets2,setsWon:won(sets2,sets1),
-        game:status==='live'?String(as.display??as.current??''):'',win:w2}};
-}
-
-/* ════════════ FETCH ALL ════════════ */
-async function fetchAll(){
-  // 1. JSON local (GitHub Actions — si jamais ça marche un jour)
-  try{
-    const r=await fetch(`/tennis-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
-    if(r.ok){
-      const data=await r.json();
-      let matches=[];
-      if(data.source==='tennisendirect'){
-        matches=(data.events||[]).filter(ev=>ev?.p1?.name&&ev?.p2?.name);
-      } else if((data.events||[]).length>0){
-        matches=data.events.filter(isMainTourEvent||Boolean).map(parseSSEvent).filter(Boolean);
+      const r = await fn();
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const html = await r.text();
+      if(!html.includes('-vs-')) throw new Error('pas de matchs dans la réponse');
+      const matches = parseLivescoresHTML(html);
+      if(matches.length>0){
+        console.log(`✅ Livescores via proxy : ${matches.length} matchs`);
+        return matches;
       }
-      if(matches.length>0){console.log(`✅ JSON local: ${matches.length} matchs`);return matches;}
+      throw new Error('0 match parsé');
+    }catch(e){errs.push(e.message); console.warn('Livescores proxy:',e.message);}
+  }
+  throw new Error('Tous les proxies ont échoué : '+errs.join(' | '));
+}
+
+/* ════════ FETCH ALL — cascade de sources ════════ */
+async function fetchAll(){
+
+  // 1. tennis-live.json généré par GitHub Actions
+  try{
+    const r = await fetch(`/tennis-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
+    if(r.ok){
+      const data = await r.json();
+      const matches = (data.events||[]).filter(ev=>ev?.p1?.name&&ev?.p2?.name);
+      if(matches.length>0){
+        console.log(`✅ JSON local (GitHub Actions) : ${matches.length} matchs`);
+        return matches;
+      }
     }
   }catch(e){console.warn('JSON local:',e.message);}
 
-  // 2. TennisEnDirect via proxy CORS (depuis ton navigateur — IP résidentielle)
+  // 2. Livescores.com via proxy CORS (rendu côté serveur → données réelles)
   try{
-    const m=await fetchTED();
-    if(m.length>0) return m;
-  }catch(e){console.warn('TED:',e.message);}
+    const matches = await fetchLivescores();
+    if(matches.length>0) return matches;
+  }catch(e){console.warn('Livescores:',e.message);}
 
-  // 3. Sofascore via proxy (legacy)
-  try{
-    const data=await ssFetch(`https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${TODAY}`);
-    const ss=(data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
-    if(ss.length>0){console.log(`✅ Sofascore: ${ss.length} matchs`);return ss;}
-  }catch(e){console.warn('Sofascore:',e.message);}
-
-  // 4. Démo
-  const banner=document.getElementById('banner');
-  banner.innerHTML='⚠️ <div><strong>Scores indisponibles</strong> — Les services de scores sont momentanément inaccessibles. Réessai automatique dans 30s.</div>';
+  // 3. Aucune source disponible → démo
+  const banner = document.getElementById('banner');
+  banner.innerHTML = '⚠️ <div><strong>Scores temporairement indisponibles</strong> — Nouvelle tentative automatique dans 30s. Les données ci-dessous sont fictives.</div>';
   banner.classList.add('show');
   return DEMO;
 }
 
-/* ════════════ RENDU ════════════ */
-let allMatches=[], filter='all';
+/* ════════ RENDU ════════ */
+let allMatches=[], activeFilter='all';
 
 function setFilter(f,btn){
-  filter=f;
+  activeFilter=f;
   document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   render();
@@ -545,10 +448,10 @@ function renderMatch(m){
       const win=fin&&s>(opp.sets[i]??0);
       return `<span class="set${cur?' cur':win?' w':''}">${s}</span>`;
     }).join('');
-    const gHtml=live&&p.game!==''?`<span class="game">${p.game}</span>`:'';
+    const gHtml=live&&p.game?`<span class="game">${p.game}</span>`:'';
     return `
       <div class="player">
-        <span class="flag">${f(p.cc)}</span>
+        ${p.cc?`<span class="flag">${f(p.cc)}</span>`:''}
         ${p.serving?'<span class="dot-serve"></span>':'<span class="dot-off"></span>'}
         <span class="pname${p.win?' winner':''}">${p.name}</span>
       </div>
@@ -576,13 +479,17 @@ function renderMatch(m){
 }
 
 function render(){
-  const el=document.getElementById('list');
-  const data=filter==='all'?allMatches:allMatches.filter(m=>m.status===filter);
+  const el = document.getElementById('list');
+  const data = activeFilter==='all'
+    ? allMatches
+    : allMatches.filter(m=>m.status===activeFilter);
+
   if(!data.length){
     el.innerHTML='<div class="state"><div class="ico">🎾</div><p>Aucun match pour ce filtre.</p></div>';
     return;
   }
-  // Grouper par tournoi
+
+  // Grouper par tournoi, trier live en premier
   const groups={};
   for(const m of data){
     const key=`${m.tour}|${m.tournament}`;
@@ -590,8 +497,8 @@ function render(){
     groups[key].matches.push(m);
     if(m.status==='live') groups[key].hasLive=true;
   }
-  // Trier : live en premier
   const sorted=Object.values(groups).sort((a,b)=>(b.hasLive?1:0)-(a.hasLive?1:0));
+
   let html='';
   for(const g of sorted){
     html+=`<div class="group-header">
@@ -604,11 +511,11 @@ function render(){
   el.innerHTML=html;
 }
 
-/* ════════════ LOAD ════════════ */
+/* ════════ CHARGEMENT ════════ */
 async function load(){
   try{
-    allMatches=await fetchAll();
-    const live=allMatches.filter(m=>m.status==='live').length;
+    allMatches = await fetchAll();
+    const live = allMatches.filter(m=>m.status==='live').length;
     document.getElementById('count-live').textContent=live;
     document.getElementById('count-total').textContent=allMatches.length;
     document.getElementById('last-update').textContent=
@@ -621,7 +528,7 @@ async function load(){
 }
 
 load();
-setInterval(load,30000);
+setInterval(load, 30000);
 </script>
 </body>
 </html>
