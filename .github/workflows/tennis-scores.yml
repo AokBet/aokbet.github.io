@@ -1,0 +1,152 @@
+name: Update Tennis Scores
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # toutes les 5 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Installer les dépendances
+        run: pip install beautifulsoup4 lxml requests --break-system-packages -q
+
+      - name: Scraper livescores.com
+        run: |
+          python3 << 'PYEOF'
+          import requests, json, re, sys
+          from bs4 import BeautifulSoup
+          from datetime import datetime, timezone
+
+          # livescores.com est rendu côté serveur (SSR) — les données sont dans le HTML brut.
+          # Couvre : ATP 250/500/1000, WTA 250/500/1000, Challengers, Grand Chelems.
+
+          HEADERS = {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                            'AppleWebKit/537.36 (KHTML, like Gecko) '
+                            'Chrome/124.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.9',
+              'Cache-Control': 'no-cache',
+              'Referer': 'https://www.google.com/',
+          }
+
+          def cap(slug):
+              return ' '.join(w.capitalize() for w in slug.split('-') if w)
+
+          try:
+              r = requests.get(
+                  'https://www.livescores.com/tennis/',
+                  headers=HEADERS, timeout=25
+              )
+              r.raise_for_status()
+              print(f"Fetch OK — {len(r.text)} octets", file=sys.stderr)
+          except Exception as e:
+              print(f"Fetch error: {e}", file=sys.stderr)
+              sys.exit(0)
+
+          soup = BeautifulSoup(r.text, 'lxml')
+          events = []
+          seen = set()
+
+          for link in soup.find_all('a', href=True):
+              href = link['href']
+              m = re.match(
+                  r'^/tennis/([^/]+)/([^/]+)/(.+)-vs-(.+)/(\d{5,8})/?$',
+                  href
+              )
+              if not m:
+                  continue
+              cat, tourn, p1s, p2s, mid = m.groups()
+              if mid in seen:
+                  continue
+              seen.add(mid)
+
+              tour = 'WTA' if cat.startswith('wta') else 'ATP'
+              tournament = cap(tourn)
+              p1_name = cap(p1s)
+              p2_name = cap(p2s)
+
+              raw = link.get_text(strip=True)
+
+              if re.search(r'Canc\.|Retired|W\.O\.', raw, re.I):
+                  continue
+
+              if re.match(r'^FT\b', raw, re.I):
+                  status = 'finished'
+              else:
+                  stripped = re.sub(r'^(FT|Live|Fin\.?|Int\.|Susp\.)\s*', '', raw, flags=re.I)
+                  stripped = re.sub(r'\d{2}:\d{2}', '', stripped)
+                  status = 'live' if re.findall(r'\d+', stripped) else 'scheduled'
+
+              score_str = re.sub(r'^(FT|Live|Fin\.?|Int\.|Susp\.)\s*', '', raw, flags=re.I)
+              score_str = re.sub(r'\d{2}:\d{2}', '', score_str)
+              nums = [int(n) for n in re.findall(r'\d+', score_str)]
+
+              p1_sets, p2_sets = [], []
+              for i in range(0, len(nums) - 1, 2):
+                  if len(p1_sets) >= 5:
+                      break
+                  p1_sets.append(nums[i])
+                  p2_sets.append(nums[i + 1])
+
+              p1_won = sum(1 for a, b in zip(p1_sets, p2_sets) if a > b)
+              p2_won = sum(1 for a, b in zip(p1_sets, p2_sets) if b > a)
+
+              if status == 'finished':
+                  time_info = 'Termine'
+              elif status == 'live':
+                  time_info = 'En cours'
+              else:
+                  hm = re.search(r'(\d{1,2}:\d{2})', raw)
+                  time_info = hm.group(1) if hm else ''
+
+              events.append({
+                  'id': mid,
+                  'tour': tour,
+                  'tournament': tournament,
+                  'status': status,
+                  'round': '',
+                  'timeInfo': time_info,
+                  'p1': {
+                      'name': p1_name, 'cc': '', 'serving': False,
+                      'sets': p1_sets, 'setsWon': p1_won, 'game': '',
+                      'win': status == 'finished' and p1_won > p2_won,
+                  },
+                  'p2': {
+                      'name': p2_name, 'cc': '', 'serving': False,
+                      'sets': p2_sets, 'setsWon': p2_won, 'game': '',
+                      'win': status == 'finished' and p2_won > p1_won,
+                  },
+              })
+
+          output = {
+              'source': 'livescores',
+              'updatedAt': datetime.now(timezone.utc).isoformat(),
+              'events': events,
+          }
+
+          with open('tennis-live.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False)
+
+          print(f"OK: {len(events)} matchs ecrits dans tennis-live.json")
+          if events:
+              s = events[0]
+              print(f"   Exemple : {s['p1']['name']} vs {s['p2']['name']} [{s['tournament']}] {s['status']}")
+          PYEOF
+
+      - name: Commit si modifié
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add tennis-live.json
+          git diff --staged --quiet || git commit -m "🎾 Scores $(date -u +'%H:%M UTC')"
+          git push
