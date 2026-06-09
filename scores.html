@@ -254,125 +254,183 @@ const FLAGS={
   BE:'🇧🇪',HU:'🇭🇺',SK:'🇸🇰',HR:'🇭🇷',GE:'🇬🇪',KZ:'🇰🇿',
   BR:'🇧🇷',CL:'🇨🇱',JP:'🇯🇵',KR:'🇰🇷',ZA:'🇿🇦',BG:'🇧🇬',
   RO:'🇷🇴',UA:'🇺🇦',PT:'🇵🇹',SE:'🇸🇪',FI:'🇫🇮',DK:'🇩🇰',
+  BY:'🇧🇾',TN:'🇹🇳',TR:'🇹🇷',CN:'🇨🇳',HK:'🇭🇰',
 };
-const f = c => FLAGS[c] || '🏳️';
+const f = c => FLAGS[(c||'').toUpperCase()] || '🏳️';
 
-/* ════════════ ESPN → ISO country ════════════ */
-const ESPN_ISO={
-  pol:'PL',fra:'FR',esp:'ES',ger:'DE',gbr:'GB',usa:'US',ita:'IT',
-  aus:'AU',sui:'CH',aut:'AT',can:'CA',srb:'RS',gre:'GR',nor:'NO',
-  cze:'CZ',ned:'NL',bel:'BE',hun:'HU',svk:'SK',cro:'HR',bra:'BR',
-  chi:'CL',jpn:'JP',kor:'KR',rsa:'ZA',bul:'BG',rou:'RO',ukr:'UA',
-  por:'PT',swe:'SE',fin:'FI',den:'DK',rus:'RU',arg:'AR',kaz:'KZ',
-  geo:'GE',deu:'DE',che:'CH',gbr:'GB',tur:'TR',
-};
-function countryFromFlag(url=''){
-  const m=url.match(/countries\/\d+\/(\w+)\.png/);
-  if(!m) return '';
-  return ESPN_ISO[m[1].toLowerCase()] || m[1].slice(0,2).toUpperCase();
-}
+/* ════════════ DATE DU JOUR ════════════ */
+const TODAY = new Date().toISOString().slice(0,10); // YYYY-MM-DD
 
-/* ════════════ DÉMO ════════════ */
+/* ════════════ DÉMO (fallback si tout échoue) ════════════ */
 const DEMO=[
-  {id:1,tour:'ATP',tournament:'Stuttgart (Allemagne)',status:'live',round:'QF',timeInfo:'2ème set',
+  {id:1,tour:'ATP',tournament:'Boss Open Stuttgart',status:'live',round:'QF',timeInfo:'2ème set',
    p1:{name:'Zverev A.',cc:'DE',serving:true, sets:[6,3],setsWon:1,game:'40'},
-   p2:{name:'Alcaraz C.',cc:'ES',serving:false,sets:[3,2],setsWon:0,game:'15'},winner:null},
-  {id:2,tour:'ATP',tournament:'S-Hertogenbosch (Pays-Bas)',status:'live',round:'QF',timeInfo:'1er set',
+   p2:{name:'Alcaraz C.',cc:'ES',serving:false,sets:[3,2],setsWon:0,game:'15'}},
+  {id:2,tour:'ATP',tournament:'Libema Open \'s-Hertogenbosch',status:'live',round:'QF',timeInfo:'1er set',
    p1:{name:'Hurkacz H.',cc:'PL',serving:false,sets:[4],setsWon:0,game:'30'},
-   p2:{name:'Griekspoor T.',cc:'NL',serving:true,sets:[5],setsWon:0,game:'40'},winner:null},
-  {id:3,tour:'ATP',tournament:'Stuttgart (Allemagne)',status:'scheduled',round:'QF',timeInfo:'16:00',
+   p2:{name:'Griekspoor T.',cc:'NL',serving:true,sets:[5],setsWon:0,game:'40'}},
+  {id:3,tour:'ATP',tournament:'Boss Open Stuttgart',status:'scheduled',round:'QF',timeInfo:'16:00',
    p1:{name:'Djokovic N.',cc:'RS',serving:false,sets:[],setsWon:0,game:''},
-   p2:{name:'Rune H.',cc:'DK',serving:false,sets:[],setsWon:0,game:''},winner:null},
-  {id:4,tour:'WTA',tournament:'Eastbourne (Angleterre)',status:'live',round:'QF',timeInfo:'3ème set',
+   p2:{name:'Rune H.',cc:'DK',serving:false,sets:[],setsWon:0,game:''}},
+  {id:4,tour:'WTA',tournament:'Rothesay International Eastbourne',status:'live',round:'QF',timeInfo:'3ème set',
    p1:{name:'Swiatek I.',cc:'PL',serving:true, sets:[6,4,2],setsWon:1,game:'40'},
-   p2:{name:'Gauff C.',cc:'US',serving:false,sets:[3,6,1],setsWon:1,game:'0'},winner:null},
-  {id:5,tour:'ATP',tournament:'S-Hertogenbosch (Pays-Bas)',status:'scheduled',round:'QF',timeInfo:'17:30',
+   p2:{name:'Gauff C.',cc:'US',serving:false,sets:[3,6,1],setsWon:1,game:'0'}},
+  {id:5,tour:'ATP',tournament:'Libema Open \'s-Hertogenbosch',status:'scheduled',round:'QF',timeInfo:'17:30',
    p1:{name:'Medvedev D.',cc:'RU',serving:false,sets:[],setsWon:0,game:''},
-   p2:{name:'Paul T.',cc:'US',serving:false,sets:[],setsWon:0,game:''},winner:null},
-  {id:6,tour:'ATP',tournament:'Stuttgart (Allemagne)',status:'finished',round:'2T',timeInfo:'Terminé',
-   p1:{name:'Sinner J.',cc:'IT',serving:false,sets:[6,6],setsWon:2,game:''},
-   p2:{name:'Fils A.',cc:'FR',serving:false,sets:[2,4],setsWon:0,game:''},winner:'p1'},
-  {id:7,tour:'WTA',tournament:'Eastbourne (Angleterre)',status:'finished',round:'2T',timeInfo:'Terminé',
-   p1:{name:'Sabalenka A.',cc:'BY',serving:false,sets:[7,6],setsWon:2,game:''},
-   p2:{name:'Jabeur O.',cc:'TN',serving:false,sets:[6,3],setsWon:0,game:''},winner:'p1'},
-  {id:8,tour:'ATP',tournament:'S-Hertogenbosch (Pays-Bas)',status:'finished',round:'2T',timeInfo:'Terminé',
-   p1:{name:'Diallo G.',cc:'CA',serving:false,sets:[1,6,5],setsWon:1,game:''},
-   p2:{name:'Mannarino A.',cc:'FR',serving:false,sets:[6,3,7],setsWon:2,game:''},winner:'p2'},
+   p2:{name:'Paul T.',cc:'US',serving:false,sets:[],setsWon:0,game:''}},
+  {id:6,tour:'ATP',tournament:'Boss Open Stuttgart',status:'finished',round:'2T',timeInfo:'Terminé',
+   p1:{name:'Sinner J.',cc:'IT',serving:false,sets:[6,6],setsWon:2,game:'',win:true},
+   p2:{name:'Fils A.',cc:'FR',serving:false,sets:[2,4],setsWon:0,game:'',win:false}},
+  {id:7,tour:'WTA',tournament:'Rothesay International Eastbourne',status:'finished',round:'2T',timeInfo:'Terminé',
+   p1:{name:'Sabalenka A.',cc:'BY',serving:false,sets:[7,6],setsWon:2,game:'',win:true},
+   p2:{name:'Jabeur O.',cc:'TN',serving:false,sets:[6,3],setsWon:0,game:'',win:false}},
+  {id:8,tour:'ATP',tournament:'Libema Open \'s-Hertogenbosch',status:'finished',round:'2T',timeInfo:'Terminé',
+   p1:{name:'Diallo G.',cc:'CA',serving:false,sets:[1,6,5],setsWon:1,game:'',win:false},
+   p2:{name:'Mannarino A.',cc:'FR',serving:false,sets:[6,3,7],setsWon:2,game:'',win:true}},
 ];
 
-/* ════════════ FETCH ESPN ════════════ */
-async function espnFetch(url){
+/* ════════════ SOFASCORE FETCH ════════════ */
+async function ssFetch(url){
+  // 1. Direct (fonctionne si Sofascore autorise CORS depuis HTTPS)
   try{
-    const r=await fetch(url,{signal:AbortSignal.timeout(7000)});
+    const r=await fetch(url,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(7000)});
     if(r.ok) return await r.json();
-  }catch(e){console.warn('direct:',e);}
-  // Proxy CORS
+  }catch(e){console.warn('SS direct:',e.message);}
+  // 2. allorigins proxy
+  try{
+    const p=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const r=await fetch(p,{signal:AbortSignal.timeout(14000)});
+    if(r.ok){const w=await r.json();return JSON.parse(w.contents);}
+  }catch(e){console.warn('SS allorigins:',e.message);}
+  // 3. corsproxy.io
+  const r=await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(14000)});
+  if(!r.ok) throw new Error(`corsproxy ${r.status}`);
+  return await r.json();
+}
+
+function parseSSEvent(ev){
+  if(!ev?.homeTeam||!ev?.awayTeam) return null;
+  const st=ev.status?.type||'notstarted';
+  const status=st==='inprogress'?'live':st==='finished'?'finished':'scheduled';
+  // Nom du tournoi
+  const uName=ev.tournament?.uniqueTournament?.name||'';
+  const catName=ev.tournament?.category?.name||'';
+  const seasonName=ev.season?.name||'';
+  const combined=(uName+' '+catName+' '+seasonName).toLowerCase();
+  // Détecter ATP / WTA
+  const tour=combined.includes('wta')||combined.includes('women')||combined.includes('femmes')?'WTA':'ATP';
+  const location=catName&&!uName.toLowerCase().includes(catName.toLowerCase())?` (${catName})`:'';
+  const tournament=(uName||catName||'Tennis')+location;
+  // Scores par set
+  const hs=ev.homeScore||{}, as=ev.awayScore||{};
+  const sets1=[],sets2=[];
+  for(let i=1;i<=5;i++){
+    const k=`period${i}`;
+    if(hs[k]!==undefined&&as[k]!==undefined){sets1.push(Number(hs[k]));sets2.push(Number(as[k]));}
+  }
+  const won=(a,b)=>a.reduce((n,v,i)=>n+(v>(b[i]??0)?1:0),0);
+  // Heure / statut
+  let timeInfo='';
+  if(status==='live') timeInfo=ev.status?.description||'En cours';
+  else if(status==='scheduled'){
+    const d=new Date(ev.startTimestamp*1000);
+    timeInfo=isNaN(d)?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  } else timeInfo='Terminé';
+  const w1=status==='finished'&&won(sets1,sets2)>won(sets2,sets1);
+  const w2=status==='finished'&&won(sets2,sets1)>won(sets1,sets2);
+  return{
+    id:ev.id, tour, tournament, status, timeInfo,
+    round:ev.roundInfo?.name||'',
+    p1:{
+      name:ev.homeTeam.shortName||ev.homeTeam.name||'—',
+      cc:(ev.homeTeam.country?.alpha2||'').toUpperCase(),
+      serving:ev.serving===1,
+      sets:sets1, setsWon:won(sets1,sets2),
+      game:status==='live'?String(hs.display??hs.current??''):'',
+      win:w1
+    },
+    p2:{
+      name:ev.awayTeam.shortName||ev.awayTeam.name||'—',
+      cc:(ev.awayTeam.country?.alpha2||'').toUpperCase(),
+      serving:ev.serving===2,
+      sets:sets2, setsWon:won(sets2,sets1),
+      game:status==='live'?String(as.display??as.current??''):'',
+      win:w2
+    }
+  };
+}
+
+async function fetchSofascore(){
+  // Programme du jour
+  const data=await ssFetch(`https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${TODAY}`);
+  const events=data.events||[];
+  // Garder seulement ATP/WTA Tour (exclure ITF, Challenger, Junior, Wheelchair)
+  const skip=['itf','junior','wheelchair','fed cup','davis','billie jean'];
+  const filtered=events.filter(ev=>{
+    const n=(ev.tournament?.uniqueTournament?.name||'').toLowerCase();
+    const c=(ev.tournament?.category?.name||'').toLowerCase();
+    return !skip.some(x=>n.includes(x)||c.includes(x));
+  });
+  return filtered.map(parseSSEvent).filter(Boolean);
+}
+
+/* ════════════ ESPN → FALLBACK ════════════ */
+const ESPN_ISO={pol:'PL',fra:'FR',esp:'ES',ger:'DE',gbr:'GB',usa:'US',ita:'IT',aus:'AU',sui:'CH',aut:'AT',can:'CA',srb:'RS',gre:'GR',nor:'NO',cze:'CZ',ned:'NL',bel:'BE',hun:'HU',svk:'SK',cro:'HR',bra:'BR',chi:'CL',jpn:'JP',kor:'KR',rsa:'ZA',bul:'BG',rou:'RO',ukr:'UA',por:'PT',swe:'SE',fin:'FI',den:'DK',rus:'RU',arg:'AR',kaz:'KZ',geo:'GE',deu:'DE',che:'CH',tur:'TR'};
+function countryFromFlag(url=''){const m=url.match(/countries\/\d+\/(\w+)\.png/);if(!m) return '';return ESPN_ISO[m[1].toLowerCase()]||m[1].slice(0,2).toUpperCase();}
+async function espnFetch(url){
+  try{const r=await fetch(url,{signal:AbortSignal.timeout(7000)});if(r.ok) return await r.json();}catch(e){}
   const p=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
   const r=await fetch(p,{signal:AbortSignal.timeout(12000)});
   if(!r.ok) throw new Error(`proxy ${r.status}`);
-  const w=await r.json();
-  return JSON.parse(w.contents);
+  const w=await r.json();return JSON.parse(w.contents);
 }
-
-function parseESPN(events, tour){
+function parseESPN(events,tour){
   return events.map(ev=>{
-    const comp=ev.competitions?.[0];
-    if(!comp) return null;
+    const comp=ev.competitions?.[0];if(!comp) return null;
     const state=ev.status?.type?.state||'pre';
     const status=state==='in'?'live':state==='post'?'finished':'scheduled';
     const detail=ev.status?.type?.detail||'';
     const cs=comp.competitors||[];
-    const c1=cs.find(c=>c.order===1)||cs[0];
-    const c2=cs.find(c=>c.order===2)||cs[1];
+    const c1=cs.find(c=>c.order===1)||cs[0];const c2=cs.find(c=>c.order===2)||cs[1];
     if(!c1||!c2) return null;
     const sets1=(c1.linescores||[]).map(l=>parseInt(l.value??0));
     const sets2=(c2.linescores||[]).map(l=>parseInt(l.value??0));
-    const won=(mine,theirs)=>mine.reduce((n,v,i)=>n+(v>(theirs[i]??0)?1:0),0);
-    let timeInfo='';
-    if(status==='live') timeInfo=detail||'En cours';
-    else if(status==='scheduled'){
-      const d=new Date(ev.date);
-      timeInfo=isNaN(d)?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-    } else timeInfo='Terminé';
+    const won=(a,b)=>a.reduce((n,v,i)=>n+(v>(b[i]??0)?1:0),0);
+    let timeInfo=status==='live'?detail||'En cours':status==='scheduled'?new Date(ev.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'Terminé';
     const servId=comp.situation?.server?.id||null;
-    const w1=status==='finished'&&(c1.winner||parseInt(c1.score||0)>parseInt(c2.score||0));
-    const w2=status==='finished'&&(c2.winner||parseInt(c2.score||0)>parseInt(c1.score||0));
-    // Nom du tournoi : notes ou detail ou fallback tour
     const note=comp.notes?.[0]?.headline||'';
-    const tournament=note||tour;
-    return{
-      id:ev.id, tour, tournament, status, timeInfo,
-      round:detail||note||'',
-      p1:{name:c1.athlete?.displayName||'—',cc:countryFromFlag(c1.athlete?.flag?.href||''),
-          serving:servId?servId===c1.athlete?.id:false,
-          sets:sets1,setsWon:won(sets1,sets2),game:status==='live'?(c1.score||''):'',
-          win:w1},
-      p2:{name:c2.athlete?.displayName||'—',cc:countryFromFlag(c2.athlete?.flag?.href||''),
-          serving:servId?servId===c2.athlete?.id:false,
-          sets:sets2,setsWon:won(sets2,sets1),game:status==='live'?(c2.score||''):'',
-          win:w2},
+    return{id:ev.id,tour,tournament:note||tour,status,timeInfo,round:detail||note||'',
+      p1:{name:c1.athlete?.displayName||'—',cc:countryFromFlag(c1.athlete?.flag?.href||''),serving:servId?servId===c1.athlete?.id:false,sets:sets1,setsWon:won(sets1,sets2),game:status==='live'?(c1.score||''):'',win:status==='finished'&&(c1.winner||parseInt(c1.score||0)>parseInt(c2.score||0))},
+      p2:{name:c2.athlete?.displayName||'—',cc:countryFromFlag(c2.athlete?.flag?.href||''),serving:servId?servId===c2.athlete?.id:false,sets:sets2,setsWon:won(sets2,sets1),game:status==='live'?(c2.score||''):'',win:status==='finished'&&(c2.winner||parseInt(c2.score||0)>parseInt(c1.score||0))},
     };
   }).filter(Boolean);
 }
 
+/* ════════════ FETCH ALL ════════════ */
 async function fetchAll(){
+  // 1. Sofascore (couvre TOUS les tournois ATP/WTA)
+  try{
+    const ss=await fetchSofascore();
+    if(ss.length>0){console.log(`✅ Sofascore: ${ss.length} matchs`);return ss;}
+    console.warn('Sofascore: 0 matchs aujourd\'hui');
+  }catch(e){console.warn('Sofascore erreur:',e.message);}
+
+  // 2. ESPN fallback
   let all=[];
-  let ok=false;
   for(const{url,tour} of[
     {url:'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard',tour:'ATP'},
     {url:'https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard',tour:'WTA'},
   ]){
-    try{
-      const d=await espnFetch(url);
-      all.push(...parseESPN(d.events||[],tour));
-      ok=true;
-    }catch(e){console.warn(tour,e);}
+    try{const d=await espnFetch(url);all.push(...parseESPN(d.events||[],tour));}
+    catch(e){console.warn(tour,e.message);}
   }
-  if(!ok||!all.length){
-    document.getElementById('banner').classList.add('show');
-    return DEMO;
-  }
-  return all;
+  if(all.length>0){console.log(`✅ ESPN: ${all.length} matchs`);return all;}
+
+  // 3. Démo
+  const banner=document.getElementById('banner');
+  banner.innerHTML='⚠️ <div><strong>Données indisponibles</strong> — Les APIs sont temporairement inaccessibles depuis ce navigateur. Réessaie dans quelques instants. Les scores réels s\'afficheront automatiquement.</div>';
+  banner.classList.add('show');
+  return DEMO;
 }
 
 /* ════════════ RENDU ════════════ */
