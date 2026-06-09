@@ -10,34 +10,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#05070d;
-  --card:rgba(255,255,255,.06);
-  --line:rgba(255,255,255,.12);
-  --text:#f7f8fb;
-  --muted:#a7afbb;
-  --green:#27f28a;
-  --gold:#ffd54a;
-  --red:#f87171;
-  --shadow:0 24px 90px rgba(0,0,0,.45);
+--bg:#05070d;
+--card:rgba(255,255,255,.06);
+--line:rgba(255,255,255,.12);
+--text:#f7f8fb;
+--muted:#a7afbb;
+--green:#27f28a;
+--gold:#ffd54a;
+--red:#f87171;
+--shadow:0 24px 90px rgba(0,0,0,.45);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
-  font-family:Inter,sans-serif;
-  background:radial-gradient(circle at top left,rgba(39,242,138,.15),transparent 30%),
-    radial-gradient(circle at top right,rgba(69,163,255,.12),transparent 30%),#05070d;
-  color:var(--text);overflow-x:hidden;
+font-family:Inter,sans-serif;
+background:radial-gradient(circle at top left,rgba(39,242,138,.15),transparent 30%),
+radial-gradient(circle at top right,rgba(69,163,255,.12),transparent 30%),#05070d;
+color:var(--text);overflow-x:hidden;
 }
 a{text-decoration:none;color:inherit;}
 img{max-width:100%;display:block;}
 .container{width:min(1120px,calc(100% - 28px));margin:auto;}
 /* ── FOMO BAR ── */
 .fomo-bar{
-  background:linear-gradient(90deg,#c0001a,#e8001f,#c0001a);
-  background-size:200% 100%;animation:shimmer 3s linear infinite;
-  color:#fff;font-size:.85rem;font-weight:800;
-  text-align:center;padding:10px 16px;z-index:200;
-  display:none;
+background:linear-gradient(90deg,#c0001a,#e8001f,#c0001a);
+background-size:200% 100%;animation:shimmer 3s linear infinite;
+color:#fff;font-size:.85rem;font-weight:800;
+text-align:center;padding:10px 16px;z-index:200;
+display:none;
 }
 .fomo-bar.active{display:block;}
 .fomo-bar a{color:#fff;text-decoration:underline;text-underline-offset:3px;margin-left:8px;}
@@ -76,11 +76,11 @@ h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:.95;letter-spacing:-.07em;marg
 .hero-note{font-size:.8rem;color:var(--muted);}
 /* Dernière victoire */
 .last-win{
-  margin-top:40px;
-  background:linear-gradient(135deg,rgba(39,242,138,.12),rgba(39,242,138,.04));
-  border:1px solid rgba(39,242,138,.3);
-  border-radius:20px;padding:20px 24px;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+margin-top:40px;
+background:linear-gradient(135deg,rgba(39,242,138,.12),rgba(39,242,138,.04));
+border:1px solid rgba(39,242,138,.3);
+border-radius:20px;padding:20px 24px;
+display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
 }
 .last-win-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;color:var(--green);font-weight:800;margin-bottom:6px;}
 .last-win-match{font-size:1rem;font-weight:800;}
@@ -154,287 +154,288 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 .float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
 /* ── MOBILE ── */
 @media(max-width:860px){
-  .navlinks{display:none;}
-  .screens,.plans{grid-template-columns:1fr;}
-  .telegram-box{flex-direction:column;align-items:flex-start;}
-  .plan.featured{transform:none;}
-  .step-arrow{display:none;}
-  .process-steps{gap:12px;}
+.navlinks{display:none;}
+.screens,.plans{grid-template-columns:1fr;}
+.telegram-box{flex-direction:column;align-items:flex-start;}
+.plan.featured{transform:none;}
+.step-arrow{display:none;}
+.process-steps{gap:12px;}
 }
 @media(max-width:560px){
-  h1{font-size:2.6rem;letter-spacing:-.05em;}
-  h2{font-size:1.9rem;}
-  .hero{padding:40px 0 36px;}
-  section{padding:44px 0;}
-  .hero-ctas{flex-direction:column;}
-  .hero-ctas .btn{width:100%;justify-content:center;}
-  .btn-lg{padding:15px 24px;}
-  .hstat{flex:1;min-width:calc(50% - 5px);}
-  .last-win{flex-direction:column;}
-  .perf-chart-wrap{height:180px;}
-  .plans{grid-template-columns:1fr;}
-  .process-steps{padding:14px 16px;}
+h1{font-size:2.6rem;letter-spacing:-.05em;}
+h2{font-size:1.9rem;}
+.hero{padding:40px 0 36px;}
+section{padding:44px 0;}
+.hero-ctas{flex-direction:column;}
+.hero-ctas .btn{width:100%;justify-content:center;}
+.btn-lg{padding:15px 24px;}
+.hstat{flex:1;min-width:calc(50% - 5px);}
+.last-win{flex-direction:column;}
+.perf-chart-wrap{height:180px;}
+.plans{grid-template-columns:1fr;}
+.process-steps{padding:14px 16px;}
 }
 </style>
 </head>
 <body>
 <!-- FOMO BAR — ajoute "active" pour activer -->
 <div class="fomo-bar" id="fomo-bar">
-  <span class="fomo-dot"></span>
-  🔴 <strong>LIVE — Ticket France posté ce soir en VIP</strong> · Ne rate pas le prochain pari
-  <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accès VIP →</a>
+<span class="fomo-dot"></span>
+🔴 <strong>LIVE — Ticket France posté ce soir en VIP</strong> · Ne rate pas le prochain pari
+<a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accès VIP →</a>
 </div>
 <header class="topbar">
 <div class="container nav">
-  <a class="brand" href="#top">
-    <img src="logo.png" alt="AokBet">
-    <span>AokBet</span>
-  </a>
-  <nav class="navlinks">
-    <a href="#top">Accueil</a>
-    <a href="#performances">Performances</a>
-    <a href="#abonnements">Abonnements</a>
-    <a href="#telegram">Telegram</a>
-    <a href="scores.html" class="live-link">🎾 Scores Live</a>
-  </nav>
-  <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
+<a class="brand" href="#top">
+<img src="logo.png" alt="AokBet">
+<span>AokBet</span>
+</a>
+<nav class="navlinks">
+<a href="#top">Accueil</a>
+<a href="#performances">Performances</a>
+<a href="#abonnements">Abonnements</a>
+<a href="#telegram">Telegram</a>
+<a href="scores.html" class="live-link">🎾 Scores Live</a>
+</nav>
+<a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
 </div>
 </header>
 <main id="top">
 <!-- ═══════════ HERO ═══════════ -->
 <section class="hero">
 <div class="container">
-  <span class="eyebrow">🏆 Tipster sportif premium • 18+</span>
-  <h1>2 paris par jour.<br><span class="gradient">Résultats prouvés.</span></h1>
-  <p class="hero-sub">Win rate et performances vérifiables en temps réel sur cette page. Pas de promesses — des chiffres.</p>
-  <!-- Stats live -->
-  <div class="hero-stats">
-    <div class="hstat">
-      <span class="hstat-icon">🎯</span>
-      <div>
-        <span class="hstat-val" id="h-winrate">—</span>
-        <span class="hstat-lbl">Win Rate</span>
-      </div>
-    </div>
-    <div class="hstat">
-      <span class="hstat-icon">🔥</span>
-      <div>
-        <span class="hstat-val gold" id="h-streak">—</span>
-        <span class="hstat-lbl">Série en cours</span>
-      </div>
-    </div>
-    <div class="hstat">
-      <span class="hstat-icon">📊</span>
-      <div>
-        <span class="hstat-val" id="h-tickets">—</span>
-        <span class="hstat-lbl">Tickets joués</span>
-      </div>
-    </div>
-    <div class="hstat">
-      <span class="hstat-icon">⚡</span>
-      <div>
-        <span class="hstat-val gold" id="h-avgcote">—</span>
-        <span class="hstat-lbl">Cote moy. gagnée</span>
-      </div>
-    </div>
-  </div>
-  <!-- CTAs -->
-  <div class="hero-ctas">
-    <a class="btn btn-primary btn-lg" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">
-      Essayer 7 jours — 7€
-    </a>
-    <a class="btn btn-outline btn-lg" href="https://velo1bet.com/fr/registration?affid=42330&cxd=42330_1479111" target="_blank">
-      Offre Velobet — accès VIP gratuit
-    </a>
-  </div>
-  <p class="hero-note">Accès immédiat après paiement · Résiliation libre</p>
-  <!-- Dernière victoire (chargée dynamiquement) -->
-  <div class="last-win" id="last-win" style="display:none">
-    <div>
-      <div class="last-win-label">✅ Dernière victoire</div>
-      <div class="last-win-match" id="lw-match">—</div>
-      <div style="color:var(--muted);font-size:.82rem;margin-top:4px;" id="lw-date">—</div>
-    </div>
-    <div style="text-align:right">
-      <div class="last-win-cote" id="lw-cote">—</div>
-      <div class="last-win-badge" style="margin-top:8px;">GAGNÉ</div>
-    </div>
-  </div>
+<span class="eyebrow">🏆 Tipster sportif premium • 18+</span>
+<h1>2 paris par jour.<br><span class="gradient">Résultats prouvés.</span></h1>
+<p class="hero-sub">Win rate et performances vérifiables en temps réel sur cette page. Pas de promesses — des chiffres.</p>
+<!-- Stats live -->
+<div class="hero-stats">
+<div class="hstat">
+<span class="hstat-icon">🎯</span>
+<div>
+<span class="hstat-val" id="h-winrate">—</span>
+<span class="hstat-lbl">Win Rate</span>
+</div>
+</div>
+<div class="hstat">
+<span class="hstat-icon">🔥</span>
+<div>
+<span class="hstat-val gold" id="h-streak">—</span>
+<span class="hstat-lbl">Série en cours</span>
+</div>
+</div>
+<div class="hstat">
+<span class="hstat-icon">📊</span>
+<div>
+<span class="hstat-val" id="h-tickets">—</span>
+<span class="hstat-lbl">Tickets joués</span>
+</div>
+</div>
+<div class="hstat">
+<span class="hstat-icon">⚡</span>
+<div>
+<span class="hstat-val gold" id="h-avgcote">—</span>
+<span class="hstat-lbl">Cote moy. gagnée</span>
+</div>
+</div>
+</div>
+<!-- CTAs -->
+<div class="hero-ctas">
+<a class="btn btn-primary btn-lg" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">
+Essayer 7 jours — 7€
+</a>
+<a class="btn btn-outline btn-lg" href="https://velo1bet.com/fr/registration?affid=42330&cxd=42330_1479111" target="_blank">
+Offre Velobet — accès VIP gratuit
+</a>
+</div>
+<p class="hero-note">Accès immédiat après paiement · Résiliation libre</p>
+<!-- Dernière victoire (chargée dynamiquement) -->
+<div class="last-win" id="last-win" style="display:none">
+<div>
+<div class="last-win-label">✅ Dernière victoire</div>
+<div class="last-win-match" id="lw-match">—</div>
+<div style="color:var(--muted);font-size:.82rem;margin-top:4px;" id="lw-date">—</div>
+</div>
+<div style="text-align:right">
+<div class="last-win-cote" id="lw-cote">—</div>
+<div class="last-win-badge" style="margin-top:8px;">GAGNÉ</div>
+</div>
+</div>
 </div>
 </section>
 <!-- ═══════════ PERFORMANCES ═══════════ -->
 <section id="performances">
 <div class="container">
-  <h2>📈 Performances en direct</h2>
-  <p class="section-sub">Mises à jour après chaque pari — rien n'est modifiable a posteriori.</p>
-  <div class="perf-stats">
-    <div class="perf-stat"><div class="plabel">Tickets</div><div class="pvalue gold" id="p-tickets">—</div></div>
-    <div class="perf-stat"><div class="plabel">Win Rate</div><div class="pvalue" id="p-winrate">—</div></div>
-    <div class="perf-stat"><div class="plabel">Cote moy. gagnée</div><div class="pvalue pos" id="p-avgcote">—</div></div>
-    <div class="perf-stat"><div class="plabel">Série en cours</div><div class="pvalue" id="p-streak">—</div></div>
-  </div>
-  <div class="perf-chart-card">
-    <div class="card-title">Courbe de performance</div>
-    <div class="perf-chart-wrap"><canvas id="perfChart"></canvas></div>
-  </div>
-  <div class="perf-table-card">
-    <div class="card-title">Historique des tickets</div>
-    <div class="perf-loading" id="p-loading"><div class="perf-spinner"></div><br>Chargement…</div>
-    <div style="overflow-x:auto">
-      <table class="perf-table" id="p-table" style="display:none">
-        <thead><tr><th>Date</th><th>Match</th><th>Cote</th><th>Résultat</th></tr></thead>
-        <tbody id="p-body"></tbody>
-      </table>
-    </div>
-  </div>
+<h2>📈 Performances en direct</h2>
+<p class="section-sub">Mises à jour après chaque pari — rien n'est modifiable a posteriori.</p>
+<div class="perf-stats">
+<div class="perf-stat"><div class="plabel">Tickets</div><div class="pvalue gold" id="p-tickets">—</div></div>
+<div class="perf-stat"><div class="plabel">Win Rate</div><div class="pvalue" id="p-winrate">—</div></div>
+<div class="perf-stat"><div class="plabel">Cote moy. gagnée</div><div class="pvalue pos" id="p-avgcote">—</div></div>
+<div class="perf-stat"><div class="plabel">Série en cours</div><div class="pvalue" id="p-streak">—</div></div>
+</div>
+<div class="perf-chart-card">
+<div class="card-title">Courbe de performance</div>
+<div class="perf-chart-wrap"><canvas id="perfChart"></canvas></div>
+</div>
+<div class="perf-table-card">
+<div class="card-title">Historique des tickets</div>
+<div class="perf-loading" id="p-loading"><div class="perf-spinner"></div><br>Chargement…</div>
+<div style="overflow-x:auto">
+<table class="perf-table" id="p-table" style="display:none">
+<thead><tr><th>Date</th><th>Match</th><th>Prono</th><th>Cote</th><th>Résultat</th></tr></thead>
+<tbody id="p-body"></tbody>
+</table>
+</div>
+</div>
 </div>
 </section>
 <!-- ═══════════ SCREENS ═══════════ -->
 <section id="screenshots">
 <div class="container">
-  <h2>Messages Telegram</h2>
-  <p class="section-sub">Aperçu de ce que reçoivent les membres VIP chaque jour.</p>
-  <div class="screens">
-    <img src="screen-2.jpg" alt="Message VIP Telegram">
-    <img src="screen-3.jpg" alt="Message VIP Telegram">
-    <img src="screen-4.jpg" alt="Message VIP Telegram">
-  </div>
+<h2>Messages Telegram</h2>
+<p class="section-sub">Aperçu de ce que reçoivent les membres VIP chaque jour.</p>
+<div class="screens">
+<img src="screen-2.jpg" alt="Message VIP Telegram">
+<img src="screen-3.jpg" alt="Message VIP Telegram">
+<img src="screen-4.jpg" alt="Message VIP Telegram">
+</div>
 </div>
 </section>
 <!-- ═══════════ ABONNEMENTS ═══════════ -->
 <section id="abonnements">
 <div class="container">
-  <h2>Rejoindre le VIP</h2>
-  <p class="section-sub">Paiement via Revolut — accès en moins de 5 minutes.</p>
-  <div class="process-steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-text"><strong>Choisis ta formule</strong><span>Clique sur le bouton de paiement</span></div>
-    </div>
-    <div class="step-arrow">→</div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-text"><strong>Paye via Revolut</strong><span>Rapide et sécurisé</span></div>
-    </div>
-    <div class="step-arrow">→</div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-text"><strong>Envoie le reçu</strong><span>Screenshot à <a href="https://t.me/Aok_bet" target="_blank" style="color:var(--green)">@Aok_bet</a></span></div>
-    </div>
-    <div class="step-arrow">→</div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-text"><strong>Accès immédiat</strong><span>Tu rejoins le groupe VIP</span></div>
-    </div>
-  </div>
-  <div class="plans">
-    <div class="plan">
-      <h3>Essai</h3>
-      <div class="price">7€<span> / 7 jours</span></div>
-      <ul class="features">
-        <li>Accès Telegram privé</li>
-        <li>2 analyses VIP / jour</li>
-        <li>Suivi des résultats</li>
-      </ul>
-      <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">Payer 7€ →</a>
-    </div>
-    <div class="plan featured">
-      <h3>Mensuel ⭐</h3>
-      <div class="price">19€<span> / mois</span></div>
-      <ul class="features">
-        <li>Accès Telegram privé</li>
-        <li>2 analyses VIP / jour</li>
-        <li>Suivi des résultats</li>
-        <li>💰 Le plus populaire</li>
-      </ul>
-      <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=19&currency=EUR" target="_blank">Payer 19€ →</a>
-    </div>
-    <div class="plan">
-      <h3>3 mois</h3>
-      <div class="price">49€<span> / 3 mois</span></div>
-      <ul class="features">
-        <li>Accès Telegram privé</li>
-        <li>2 analyses VIP / jour</li>
-        <li>Suivi des résultats</li>
-        <li>💸 Économise 11€</li>
-      </ul>
-      <a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=49&currency=EUR" target="_blank">Payer 49€ →</a>
-    </div>
-  </div>
-  <!-- Offre Velobet -->
-  <div style="margin-top:28px;padding:28px 32px;border-radius:24px;background:linear-gradient(135deg,rgba(255,213,74,.1),rgba(39,242,138,.08));border:1px solid rgba(255,213,74,.25);">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-      <div>
-        <span style="display:inline-block;background:rgba(255,213,74,.15);color:var(--gold);border-radius:999px;padding:5px 12px;font-size:.75rem;font-weight:800;margin-bottom:10px;">👑 MEILLEURE OFFRE — ZÉRO RISQUE</span>
-        <div style="font-size:1.3rem;font-weight:900;margin-bottom:8px;">Dépose sur <span style="color:var(--gold)">Velobet</span> → joue directement nos pronos VIP avec cet argent</div>
-        <div style="color:var(--muted);font-size:.88rem;line-height:1.7;">Tu crées un compte sur Velobet, tu déposes — et tu joues immédiatement nos tickets VIP avec cet argent. <strong style="color:var(--text)">Tu n'as rien à m'envoyer.</strong> Pas besoin de payer un abonnement séparé : l'accès au VIP est offert dès ton dépôt. Tu utilises ton argent sur les paris, pas pour payer des pronos.</div>
-      </div>
-      <a class="btn btn-primary btn-lg" href="https://velo1bet.com/fr/registration?affid=42330&cxd=42330_1479111" target="_blank" style="white-space:nowrap;">
-        Profiter de l'offre →
-      </a>
-    </div>
-  </div>
+<h2>Rejoindre le VIP</h2>
+<p class="section-sub">Paiement via Revolut — accès en moins de 5 minutes.</p>
+<div class="process-steps">
+<div class="step">
+<div class="step-num">1</div>
+<div class="step-text"><strong>Choisis ta formule</strong><span>Clique sur le bouton de paiement</span></div>
+</div>
+<div class="step-arrow">→</div>
+<div class="step">
+<div class="step-num">2</div>
+<div class="step-text"><strong>Paye via Revolut</strong><span>Rapide et sécurisé</span></div>
+</div>
+<div class="step-arrow">→</div>
+<div class="step">
+<div class="step-num">3</div>
+<div class="step-text"><strong>Envoie le reçu</strong><span>Screenshot à <a href="https://t.me/Aok_bet" target="_blank" style="color:var(--green)">@Aok_bet</a></span></div>
+</div>
+<div class="step-arrow">→</div>
+<div class="step">
+<div class="step-num">4</div>
+<div class="step-text"><strong>Accès immédiat</strong><span>Tu rejoins le groupe VIP</span></div>
+</div>
+</div>
+<div class="plans">
+<div class="plan">
+<h3>Essai</h3>
+<div class="price">7€<span> / 7 jours</span></div>
+<ul class="features">
+<li>Accès Telegram privé</li>
+<li>2 analyses VIP / jour</li>
+<li>Suivi des résultats</li>
+</ul>
+<a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">Payer 7€ →</a>
+</div>
+<div class="plan featured">
+<h3>Mensuel ⭐</h3>
+<div class="price">19€<span> / mois</span></div>
+<ul class="features">
+<li>Accès Telegram privé</li>
+<li>2 analyses VIP / jour</li>
+<li>Suivi des résultats</li>
+<li>💰 Le plus populaire</li>
+</ul>
+<a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=19&currency=EUR" target="_blank">Payer 19€ →</a>
+</div>
+<div class="plan">
+<h3>3 mois</h3>
+<div class="price">49€<span> / 3 mois</span></div>
+<ul class="features">
+<li>Accès Telegram privé</li>
+<li>2 analyses VIP / jour</li>
+<li>Suivi des résultats</li>
+<li>💸 Économise 11€</li>
+</ul>
+<a class="btn btn-primary" href="https://revolut.me/aokcasino?amount=49&currency=EUR" target="_blank">Payer 49€ →</a>
+</div>
+</div>
+<!-- Offre Velobet -->
+<div style="margin-top:28px;padding:28px 32px;border-radius:24px;background:linear-gradient(135deg,rgba(255,213,74,.1),rgba(39,242,138,.08));border:1px solid rgba(255,213,74,.25);">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+<div>
+<span style="display:inline-block;background:rgba(255,213,74,.15);color:var(--gold);border-radius:999px;padding:5px 12px;font-size:.75rem;font-weight:800;margin-bottom:10px;">👑 MEILLEURE OFFRE — ZÉRO RISQUE</span>
+<div style="font-size:1.3rem;font-weight:900;margin-bottom:8px;">Dépose sur <span style="color:var(--gold)">Velobet</span> → joue directement nos pronos VIP avec cet argent</div>
+<div style="color:var(--muted);font-size:.88rem;line-height:1.7;">Tu crées un compte sur Velobet, tu déposes — et tu joues immédiatement nos tickets VIP avec cet argent. <strong style="color:var(--text)">Tu n'as rien à m'envoyer.</strong> Pas besoin de payer un abonnement séparé : l'accès au VIP est offert dès ton dépôt. Tu utilises ton argent sur les paris, pas pour payer des pronos.</div>
+</div>
+<a class="btn btn-primary btn-lg" href="https://velo1bet.com/fr/registration?affid=42330&cxd=42330_1479111" target="_blank" style="white-space:nowrap;">
+Profiter de l'offre →
+</a>
+</div>
+</div>
 </div>
 </section>
 <!-- ═══════════ FAQ ═══════════ -->
 <section id="faq">
 <div class="container">
-  <h2>Questions fréquentes</h2>
-  <div class="faq-list">
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">C'est quoi le VIP AokBet exactement ? <span>+</span></button>
-      <div class="faq-a">Un groupe Telegram privé avec minimum 2 paris par jour — cote, match, analyse. Tout est transparent : les résultats sont visibles en temps réel sur cette page.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Comment je paie et comment j'accède au groupe ? <span>+</span></button>
-      <div class="faq-a">Tu cliques sur le bouton de ta formule, tu paies via Revolut, puis tu envoies le screenshot du paiement à <strong>@Aok_bet</strong> sur Telegram. Tu es ajouté en moins de 5 minutes.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Est-ce que les résultats affichés sont vrais ? <span>+</span></button>
-      <div class="faq-a">Oui — les stats sont chargées en direct depuis une feuille Google mise à jour après chaque pari. Rien n'est modifiable a posteriori.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Puis-je tester avant de m'engager ? <span>+</span></button>
-      <div class="faq-a">Oui. L'offre à 7€ te donne 7 jours d'accès complet. Si tu n'es pas convaincu, tu ne renouvelles pas — aucun engagement.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">C'est quoi l'offre Velobet ? <span>+</span></button>
-      <div class="faq-a">Tu crées un compte sur Velobet via notre lien, tu déposes — et l'accès VIP t'est offert directement. Tu joues nos pronos avec ton propre argent sur Velobet. Tu n'as rien à m'envoyer, pas d'abonnement à payer en plus.</div>
-    </div>
-  </div>
+<h2>Questions fréquentes</h2>
+<div class="faq-list">
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)">C'est quoi le VIP AokBet exactement ? <span>+</span></button>
+<div class="faq-a">Un groupe Telegram privé avec minimum 2 paris par jour — cote, match, analyse. Tout est transparent : les résultats sont visibles en temps réel sur cette page.</div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)">Comment je paie et comment j'accède au groupe ? <span>+</span></button>
+<div class="faq-a">Tu cliques sur le bouton de ta formule, tu paies via Revolut, puis tu envoies le screenshot du paiement à <strong>@Aok_bet</strong> sur Telegram. Tu es ajouté en moins de 5 minutes.</div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)">Est-ce que les résultats affichés sont vrais ? <span>+</span></button>
+<div class="faq-a">Oui — les stats sont chargées en direct depuis une feuille Google mise à jour après chaque pari. Rien n'est modifiable a posteriori.</div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)">Puis-je tester avant de m'engager ? <span>+</span></button>
+<div class="faq-a">Oui. L'offre à 7€ te donne 7 jours d'accès complet. Si tu n'es pas convaincu, tu ne renouvelles pas — aucun engagement.</div>
+</div>
+<div class="faq-item">
+<button class="faq-q" onclick="toggleFaq(this)">C'est quoi l'offre Velobet ? <span>+</span></button>
+<div class="faq-a">Tu crées un compte sur Velobet via notre lien, tu déposes — et l'accès VIP t'est offert directement. Tu joues nos pronos avec ton propre argent sur Velobet. Tu n'as rien à m'envoyer, pas d'abonnement à payer en plus.</div>
+</div>
+</div>
 </div>
 </section>
 <!-- ═══════════ CTA FINAL ═══════════ -->
 <section id="telegram">
 <div class="container">
-  <div class="telegram-box">
-    <div>
-      <h2>Prêt à rejoindre le VIP ?</h2>
-      <p>Accède au Telegram officiel AokBet et découvre les prochains tickets.</p>
-    </div>
-    <a class="btn btn-primary btn-lg" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Ouvrir Telegram</a>
-  </div>
+<div class="telegram-box">
+<div>
+<h2>Prêt à rejoindre le VIP ?</h2>
+<p>Accède au Telegram officiel AokBet et découvre les prochains tickets.</p>
+</div>
+<a class="btn btn-primary btn-lg" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Ouvrir Telegram</a>
+</div>
 </div>
 </section>
 </main>
 <footer>
 <div class="container">
-  <div class="footer-grid">
-    <a class="brand" href="#top">
-      <img src="logo.png" alt="AokBet">
-      <span>AokBet</span>
-    </a>
-  </div>
-  <p class="legal">© 2026 AokBet — Réservé aux personnes majeures.<br>Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.</p>
+<div class="footer-grid">
+<a class="brand" href="#top">
+<img src="logo.png" alt="AokBet">
+<span>AokBet</span>
+</a>
+</div>
+<p class="legal">© 2026 AokBet — Réservé aux personnes majeures.<br>Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.</p>
 </div>
 </footer>
 <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
 <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR63UTSGY-RQLlBkDyWK_f6v0I1tuAOZqj2OdKrIb2_--r-r9HfuLdqflvlbeYpkRmHK5OTHA_nhvrL/pub?gid=171688003&single=true&output=csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLH1BmpsGieaDY6nzfD-Ut0U6RL_ybpi_px6nn2vbESpgSnXkWmod5yxjxtWzOZOt6eOV3E8Co2mXJ/pub?gid=1836212572&single=true&output=csv";
 function parseCSV(text) {
   return text.trim().split("\n").slice(1).map(line => {
     const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g,""));
-    return { date:cols[0]||"", match:cols[1]||"", cote:parseFloat(cols[2])||0, resultat:(cols[3]||"").toUpperCase() };
+    // Columns: Date(0), Match(1), Prono(2), Cote(3), Résultat(4)
+    return { date:cols[0]||"", match:cols[1]||"", prono:cols[2]||"", cote:parseFloat(cols[3])||0, resultat:(cols[4]||"").toUpperCase() };
   }).filter(r => r.match && r.cote > 0);
 }
 function getStreak(rows) {
@@ -505,7 +506,7 @@ function renderPerf(rows) {
     const tr = document.createElement("tr");
     const bc = r.resultat==="W"?"pbadge-w":r.resultat==="L"?"pbadge-l":"pbadge-p";
     const bt = r.resultat==="W"?"GAGNÉ":r.resultat==="L"?"PERDU":"REMB.";
-    tr.innerHTML=`<td>${r.date}</td><td>${r.match}</td><td>@${r.cote.toFixed(2)}</td><td><span class="pbadge ${bc}">${bt}</span></td>`;
+    tr.innerHTML=`<td>${r.date}</td><td>${r.match}</td><td style="color:var(--muted)">${r.prono}</td><td>@${r.cote.toFixed(2)}</td><td><span class="pbadge ${bc}">${bt}</span></td>`;
     tbody.appendChild(tr);
   });
   document.getElementById("p-loading").style.display="none";
