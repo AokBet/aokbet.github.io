@@ -76,12 +76,24 @@ a{text-decoration:none;color:inherit;}
 
 /* ONGLETS TOURNOIS */
 .tourn-tabs{
-  display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;
   scrollbar-width:thin;scrollbar-color:var(--line) transparent;
 }
 .tourn-tabs::-webkit-scrollbar{height:4px;}
 .tourn-tabs::-webkit-scrollbar-track{background:transparent;}
 .tourn-tabs::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
+#tourn-tabs-tour{margin-bottom:0;}
+#tourn-tabs-detail{
+  margin-top:8px;margin-bottom:16px;
+  padding:10px 14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+#tourn-tabs-tour .t-btn{font-size:.85rem;padding:8px 22px;font-weight:800;}
+.pick-msg{
+  text-align:center;padding:48px 16px;color:var(--muted);font-size:.88rem;
+}
 .t-btn{
   white-space:nowrap;background:var(--card2);border:1px solid var(--line);
   color:var(--muted);font-size:.78rem;font-weight:700;padding:6px 16px;
@@ -591,10 +603,17 @@ function renderMatch(m){
 
 function render(){
   const el = document.getElementById('list');
+
+  // Si un tour est sélectionné mais pas de tournoi précis → message "choisissez un tournoi"
+  if(activeTour!=='all' && activeTournament==='all'){
+    const tour = activeTour;
+    const count = allMatches.filter(m=>m.tour===tour).length;
+    el.innerHTML=`<div class="pick-msg">👆 Sélectionnez un tournoi ${tour} ci-dessus<br><span style="font-size:.78rem;opacity:.6">${count} matchs disponibles</span></div>`;
+    return;
+  }
+
   let data = activeFilter==='all' ? allMatches : allMatches.filter(m=>m.status===activeFilter);
-  // Filtre tour (niveau 1)
   if(activeTour!=='all') data=data.filter(m=>m.tour===activeTour);
-  // Filtre tournoi (niveau 2)
   if(activeTournament!=='all') data=data.filter(m=>m.tournament===activeTournament);
 
   if(!data.length){
