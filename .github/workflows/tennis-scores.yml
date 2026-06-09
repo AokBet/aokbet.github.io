@@ -42,20 +42,36 @@ jobs:
           def cap(slug):
               return ' '.join(w.capitalize() for w in slug.split('-') if w)
 
-          try:
-              r = requests.get(
-                  'https://www.livescores.com/tennis/',
-                  headers=HEADERS, timeout=25
-              )
-              r.raise_for_status()
-              print(f"Fetch OK — {len(r.text)} octets", file=sys.stderr)
-          except Exception as e:
-              print(f"Fetch error: {e}", file=sys.stderr)
+          from datetime import timedelta
+          tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime('%Y-%m-%d')
+
+          urls_to_fetch = [
+              'https://www.livescores.com/tennis/',                        # aujourd'hui
+              f'https://www.livescores.com/tennis/?d={tomorrow}',          # demain (format ?d=)
+              f'https://www.livescores.com/tennis/{tomorrow}/',            # demain (format /date/)
+          ]
+
+          all_html = []
+          for url in urls_to_fetch:
+              try:
+                  r = requests.get(url, headers=HEADERS, timeout=25)
+                  r.raise_for_status()
+                  print(f"Fetch OK {url} — {len(r.text)} octets", file=sys.stderr)
+                  if '-vs-' in r.text:
+                      all_html.append(r.text)
+              except Exception as e:
+                  print(f"Fetch error {url}: {e}", file=sys.stderr)
+
+          if not all_html:
+              print("Aucune source disponible", file=sys.stderr)
               sys.exit(0)
 
-          soup = BeautifulSoup(r.text, 'lxml')
           events = []
           seen = set()
+
+          # Combiner tous les HTML (aujourd'hui + demain) et parser en une passe
+          combined = '\n'.join(all_html)
+          soup = BeautifulSoup(combined, 'lxml')
 
           for link in soup.find_all('a', href=True):
               href = link['href']
