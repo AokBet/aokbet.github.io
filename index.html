@@ -51,6 +51,8 @@ img{max-width:100%;display:block;}
 .brand img{width:38px;height:38px;border-radius:9px;object-fit:cover;}
 .navlinks{display:flex;gap:20px;color:var(--muted);font-weight:700;font-size:.9rem;}
 .navlinks a:hover{color:#fff;}
+.navlinks a.live-link{color:var(--green);}
+.navlinks a.live-link:hover{color:#96ffd0;}
 .btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:12px 22px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.9rem;}
 .btn:hover{transform:translateY(-2px);}
 .btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 10px 28px rgba(39,242,138,.25);}
@@ -208,6 +210,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <a href="#performances">Performances</a>
     <a href="#abonnements">Abonnements</a>
     <a href="#telegram">Telegram</a>
+    <a href="scores.html" class="live-link">🎾 Scores Live</a>
   </nav>
   <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
 </div>
@@ -459,7 +462,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <a class="brand" href="#top">
       <img src="logo.png" alt="AokBet">
       <span>AokBet</span>
-    </div>
+    </a>
   </div>
   <p class="legal">© 2026 AokBet — Réservé aux personnes majeures.<br>Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.</p>
 </div>
@@ -489,7 +492,6 @@ function updateHeroStats(rows) {
   document.getElementById("h-tickets").textContent = rows.length;
   document.getElementById("h-avgcote").textContent = avg!=="—" ? "@"+avg : "—";
   document.getElementById("h-streak").textContent = getStreak(rows);
-  // Dernière victoire
   const lastWin = [...rows].reverse().find(r=>r.resultat==="W");
   if (lastWin) {
     document.getElementById("lw-match").textContent = lastWin.match;
