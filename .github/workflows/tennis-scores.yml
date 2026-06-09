@@ -98,21 +98,31 @@ jobs:
                   status = 'live'
 
               # ── Scores ────────────────────────────────────────────────
-              # Les scores sont dans des éléments FEUILLES séparés.
-              # On cherche les feuilles (sans enfant) dont le texte est 1-2 chiffres.
+              # Méthode 1 : éléments feuilles avec 1-2 chiffres
               nums = []
               for el in link.find_all(True):
-                  if not el.find():   # feuille (pas d'enfant tag)
+                  if not el.find():
                       t = el.get_text(strip=True)
                       if re.match(r'^\d{1,2}$', t):
                           nums.append(int(t))
 
-              p1_sets, p2_sets = [], []
-              for i in range(0, len(nums) - 1, 2):
-                  if len(p1_sets) >= 5:
-                      break
-                  p1_sets.append(nums[i])
-                  p2_sets.append(nums[i + 1])
+              # Méthode 2 (fallback) : livescores colle les scores en un bloc
+              # ex: "FTNuno BorgesTerence Atmane6644" → digits = [6,6,4,4]
+              if not nums and status != 'scheduled':
+                  full = link.get_text()
+                  # Supprimer le préfixe de statut et les heures
+                  full = re.sub(r'^(FT|Live|Fin\.?|Int\.)\s*', '', full.strip(), flags=re.I)
+                  full = re.sub(r'\d{1,2}:\d{2}', '', full)
+                  # Ne garder que les chiffres, prendre chaque chiffre séparément
+                  digits_str = re.sub(r'[^0-9]', '', full)
+                  nums = [int(d) for d in digits_str]
+
+              # livescores groupe par joueur : [p1_s1, p1_s2, ..., p2_s1, p2_s2, ...]
+              if len(nums) % 2 != 0:
+                  nums = nums[:-1]  # retirer le dernier si impair (tiebreak)
+              half = len(nums) // 2
+              p1_sets = nums[:half][:5]
+              p2_sets = nums[half:half+5]
 
               p1_won = sum(1 for a, b in zip(p1_sets, p2_sets) if a > b)
               p2_won = sum(1 for a, b in zip(p1_sets, p2_sets) if b > a)
