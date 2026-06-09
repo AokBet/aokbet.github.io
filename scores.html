@@ -289,23 +289,34 @@ const DEMO=[
    p2:{name:'Mannarino A.',cc:'FR',serving:false,sets:[6,3,7],setsWon:2,game:'',win:true}},
 ];
 
-/* ════════════ SOFASCORE FETCH ════════════ */
+/* ════════════ UTILS ════════════ */
+function sig(ms){ const c=new AbortController(); setTimeout(()=>c.abort(),ms); return c.signal; }
+const enc=encodeURIComponent;
+
+/* ════════════ FILTRE TOURNOIS PRINCIPAUX ════════════ */
+function isMainTourEvent(ev){
+  const n=(ev.tournament?.uniqueTournament?.name||'').toLowerCase();
+  const c=(ev.tournament?.category?.name||'').toLowerCase();
+  const skip=['itf','junior','wheelchair','fed cup','davis','billie jean','under','u18','u16'];
+  return !skip.some(x=>n.includes(x)||c.includes(x));
+}
+
+/* ════════════ SOFASCORE FETCH (multi-proxy) ════════════ */
 async function ssFetch(url){
-  // 1. Direct (fonctionne si Sofascore autorise CORS depuis HTTPS)
-  try{
-    const r=await fetch(url,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(7000)});
-    if(r.ok) return await r.json();
-  }catch(e){console.warn('SS direct:',e.message);}
-  // 2. allorigins proxy
-  try{
-    const p=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const r=await fetch(p,{signal:AbortSignal.timeout(14000)});
-    if(r.ok){const w=await r.json();return JSON.parse(w.contents);}
-  }catch(e){console.warn('SS allorigins:',e.message);}
-  // 3. corsproxy.io
-  const r=await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(14000)});
-  if(!r.ok) throw new Error(`corsproxy ${r.status}`);
-  return await r.json();
+  const tries=[
+    ()=>fetch(url,{signal:sig(8000),cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('direct:'+r.status);return r.json();}),
+    ()=>fetch(`https://api.allorigins.win/raw?url=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('ao-raw:'+r.status);return r.json();}),
+    ()=>fetch(`https://api.allorigins.win/get?url=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('ao-get:'+r.status);return r.json();}).then(w=>{const d=JSON.parse(w.contents);return d;}),
+    ()=>fetch(`https://corsproxy.io/?${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('corsproxy:'+r.status);return r.json();}),
+    ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('codetabs:'+r.status);return r.json();}),
+    ()=>fetch(`https://thingproxy.freeboard.io/fetch/${url}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('thingproxy:'+r.status);return r.json();}),
+  ];
+  const errors=[];
+  for(const fn of tries){
+    try{const d=await fn();if(d&&typeof d==='object') return d;}
+    catch(e){errors.push(e.message);}
+  }
+  throw new Error(errors.join(' | '));
 }
 
 function parseSSEvent(ev){
@@ -361,74 +372,31 @@ function parseSSEvent(ev){
 }
 
 async function fetchSofascore(){
-  // Programme du jour
   const data=await ssFetch(`https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${TODAY}`);
-  const events=data.events||[];
-  // Garder seulement ATP/WTA Tour (exclure ITF, Challenger, Junior, Wheelchair)
-  const skip=['itf','junior','wheelchair','fed cup','davis','billie jean'];
-  const filtered=events.filter(ev=>{
-    const n=(ev.tournament?.uniqueTournament?.name||'').toLowerCase();
-    const c=(ev.tournament?.category?.name||'').toLowerCase();
-    return !skip.some(x=>n.includes(x)||c.includes(x));
-  });
-  return filtered.map(parseSSEvent).filter(Boolean);
-}
-
-/* ════════════ ESPN → FALLBACK ════════════ */
-const ESPN_ISO={pol:'PL',fra:'FR',esp:'ES',ger:'DE',gbr:'GB',usa:'US',ita:'IT',aus:'AU',sui:'CH',aut:'AT',can:'CA',srb:'RS',gre:'GR',nor:'NO',cze:'CZ',ned:'NL',bel:'BE',hun:'HU',svk:'SK',cro:'HR',bra:'BR',chi:'CL',jpn:'JP',kor:'KR',rsa:'ZA',bul:'BG',rou:'RO',ukr:'UA',por:'PT',swe:'SE',fin:'FI',den:'DK',rus:'RU',arg:'AR',kaz:'KZ',geo:'GE',deu:'DE',che:'CH',tur:'TR'};
-function countryFromFlag(url=''){const m=url.match(/countries\/\d+\/(\w+)\.png/);if(!m) return '';return ESPN_ISO[m[1].toLowerCase()]||m[1].slice(0,2).toUpperCase();}
-async function espnFetch(url){
-  try{const r=await fetch(url,{signal:AbortSignal.timeout(7000)});if(r.ok) return await r.json();}catch(e){}
-  const p=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-  const r=await fetch(p,{signal:AbortSignal.timeout(12000)});
-  if(!r.ok) throw new Error(`proxy ${r.status}`);
-  const w=await r.json();return JSON.parse(w.contents);
-}
-function parseESPN(events,tour){
-  return events.map(ev=>{
-    const comp=ev.competitions?.[0];if(!comp) return null;
-    const state=ev.status?.type?.state||'pre';
-    const status=state==='in'?'live':state==='post'?'finished':'scheduled';
-    const detail=ev.status?.type?.detail||'';
-    const cs=comp.competitors||[];
-    const c1=cs.find(c=>c.order===1)||cs[0];const c2=cs.find(c=>c.order===2)||cs[1];
-    if(!c1||!c2) return null;
-    const sets1=(c1.linescores||[]).map(l=>parseInt(l.value??0));
-    const sets2=(c2.linescores||[]).map(l=>parseInt(l.value??0));
-    const won=(a,b)=>a.reduce((n,v,i)=>n+(v>(b[i]??0)?1:0),0);
-    let timeInfo=status==='live'?detail||'En cours':status==='scheduled'?new Date(ev.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'Terminé';
-    const servId=comp.situation?.server?.id||null;
-    const note=comp.notes?.[0]?.headline||'';
-    return{id:ev.id,tour,tournament:note||tour,status,timeInfo,round:detail||note||'',
-      p1:{name:c1.athlete?.displayName||'—',cc:countryFromFlag(c1.athlete?.flag?.href||''),serving:servId?servId===c1.athlete?.id:false,sets:sets1,setsWon:won(sets1,sets2),game:status==='live'?(c1.score||''):'',win:status==='finished'&&(c1.winner||parseInt(c1.score||0)>parseInt(c2.score||0))},
-      p2:{name:c2.athlete?.displayName||'—',cc:countryFromFlag(c2.athlete?.flag?.href||''),serving:servId?servId===c2.athlete?.id:false,sets:sets2,setsWon:won(sets2,sets1),game:status==='live'?(c2.score||''):'',win:status==='finished'&&(c2.winner||parseInt(c2.score||0)>parseInt(c1.score||0))},
-    };
-  }).filter(Boolean);
+  return (data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
 }
 
 /* ════════════ FETCH ALL ════════════ */
 async function fetchAll(){
-  // 1. Sofascore (couvre TOUS les tournois ATP/WTA)
+  // 1. Fichier local mis à jour par GitHub Actions (même origine = pas de CORS)
+  try{
+    const r=await fetch(`/tennis-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
+    if(r.ok){
+      const data=await r.json();
+      const matches=(data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
+      if(matches.length>0){console.log(`✅ JSON local: ${matches.length} matchs`);return matches;}
+    }
+  }catch(e){console.warn('JSON local:',e.message);}
+
+  // 2. Sofascore via proxies
   try{
     const ss=await fetchSofascore();
-    if(ss.length>0){console.log(`✅ Sofascore: ${ss.length} matchs`);return ss;}
-    console.warn('Sofascore: 0 matchs aujourd\'hui');
-  }catch(e){console.warn('Sofascore erreur:',e.message);}
+    if(ss.length>0){console.log(`✅ Sofascore proxy: ${ss.length} matchs`);return ss;}
+  }catch(e){console.warn('Sofascore:',e.message);}
 
-  // 2. ESPN fallback
-  let all=[];
-  for(const{url,tour} of[
-    {url:'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard',tour:'ATP'},
-    {url:'https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard',tour:'WTA'},
-  ]){
-    try{const d=await espnFetch(url);all.push(...parseESPN(d.events||[],tour));}
-    catch(e){console.warn(tour,e.message);}
-  }
-  if(all.length>0){console.log(`✅ ESPN: ${all.length} matchs`);return all;}
-
-  // 3. Démo
+  // 3. Démo + message
   const banner=document.getElementById('banner');
-  banner.innerHTML='⚠️ <div><strong>Données indisponibles</strong> — Les APIs sont temporairement inaccessibles depuis ce navigateur. Réessaie dans quelques instants. Les scores réels s\'afficheront automatiquement.</div>';
+  banner.innerHTML='⚠️ <div><strong>Données en cours de chargement</strong> — Le fichier de scores sera disponible dans quelques minutes après la première exécution de GitHub Actions. <a href="https://github.com/aokcasino/aokbet.github.io/actions" target="_blank" style="color:var(--gold);text-decoration:underline">Voir les Actions →</a></div>';
   banner.classList.add('show');
   return DEMO;
 }
