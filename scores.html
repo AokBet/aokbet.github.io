@@ -105,6 +105,24 @@ a{text-decoration:none;color:inherit;}
 .t-btn.on.wta-tab{background:linear-gradient(135deg,var(--pink),#ffb0c8);color:#110408;}
 .t-live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1s ease-in-out infinite;flex-shrink:0;}
 
+/* BARRE DE RECHERCHE */
+.search-wrap{position:relative;margin-bottom:16px;}
+.search-wrap input{
+  width:100%;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:11px 16px 11px 42px;
+  color:var(--text);font-family:Inter,sans-serif;font-size:.88rem;font-weight:500;
+  outline:none;transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:rgba(39,242,138,.4);}
+.search-wrap input::placeholder{color:var(--muted);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem;pointer-events:none;}
+.search-clear{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;
+  display:none;
+}
+.search-clear.show{display:block;}
+
 /* FILTRES */
 .filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
 .f-btn{
@@ -246,6 +264,13 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <!-- Banner -->
 <div class="banner" id="banner"></div>
 
+<!-- Barre de recherche joueur -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="search-input" placeholder="Rechercher un joueur…" oninput="setSearch(this.value)" autocomplete="off">
+  <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+</div>
+
 <!-- Onglets tour (niveau 1) -->
 <div class="tourn-tabs" id="tourn-tabs-tour">
   <button class="t-btn on" onclick="setTour('all',this)">🎾 Tous</button>
@@ -297,6 +322,50 @@ const FLAGS={
 const f = c => FLAGS[(c||'').toUpperCase()] || '';
 
 const TODAY = new Date().toISOString().slice(0,10);
+
+/* ════════ DICTIONNAIRE TOURNOIS ════════
+   livescores.com utilise les noms sponsors. On mappe vers les noms géographiques. */
+const TOURN_MAP = {
+  // ATP
+  'Libema Open':                       "Libema Open — 's-Hertogenbosch",
+  'S Hertogenbosch':                   "'s-Hertogenbosch",
+  'Cinch Championships':               "Queen's Club — Londres",
+  'Queens Club':                       "Queen's Club — Londres",
+  'Terra Wortmann Open':               'Halle — Allemagne',
+  'Halle Open':                        'Halle — Allemagne',
+  'Boss Open Stuttgart':               'Stuttgart (Boss Open)',
+  'Boss Open':                         'Stuttgart (Boss Open)',
+  'Ilkley':                            'Ilkley (Challenger)',
+  'Ilkley England':                    'Ilkley — Angleterre',
+  'Arag N Open':                       'Saragosse (Aragón Open)',
+  'Nordea Open':                       'Bastad — Suède',
+  'Hamburg Open':                      'Hambourg',
+  'Swiss Open Gstaad':                 'Gstaad — Suisse',
+  'Generali Open':                     'Kitzbühel — Autriche',
+  'Infosys Hall Of Fame Open':         'Newport — États-Unis',
+  'Mubadala Citi Open':                'Washington',
+  'National Bank Open':                'Montréal / Toronto',
+  'Western Southern Open':             'Cincinnati',
+  'Us Open':                           'US Open 🇺🇸',
+  'Australian Open':                   'Australian Open 🇦🇺',
+  'Roland Garros':                     'Roland-Garros 🇫🇷',
+  'Wimbledon':                         'Wimbledon 🌿',
+  // WTA
+  'Rothesay Classic Birmingham':       'Birmingham (Rothesay Classic)',
+  'Rothesay International':            'Eastbourne (Rothesay International)',
+  'Rothesay International Eastbourne': 'Eastbourne (Rothesay)',
+  'Rothesay Open Nottingham':          'Nottingham (Rothesay)',
+  'Bett1 Open':                        'Berlin',
+  'Bad Homburg Open':                  'Bad Homburg — Allemagne',
+  'Eastbourne':                        'Eastbourne',
+  'Palermo International':             'Palerme',
+  'Prague Open':                       'Prague',
+  'Warsaw Open':                       'Varsovie',
+  'Granby':                            'Granby — Canada',
+  'San Jose':                          'San José',
+  'Rogers Cup':                        'Rogers Cup (Canada)',
+};
+function tName(raw){ return TOURN_MAP[raw] || raw; }
 
 /* ════════ DÉMO ════════ */
 const DEMO=[
@@ -484,6 +553,22 @@ async function fetchAll(){
   return DEMO;
 }
 
+/* ════════ RECHERCHE ════════ */
+let searchQuery='';
+function setSearch(val){
+  searchQuery=val.toLowerCase().trim();
+  document.getElementById('search-clear').classList.toggle('show', searchQuery.length>0);
+  // En mode recherche : repasser sur "Tous" pour ne pas rater de résultats
+  if(searchQuery){ activeTour='all'; activeTournament='all'; buildTournamentTabs(allMatches); }
+  render();
+}
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').classList.remove('show');
+  searchQuery='';
+  render();
+}
+
 /* ════════ RENDU ════════ */
 let allMatches=[], activeFilter='all', activeTour='all', activeTournament='all';
 
@@ -531,7 +616,7 @@ function buildTournamentTabs(matches){
   for(const [key,t] of sorted){
     const dot=t.hasLive?'<span class="t-live-dot"></span>':'';
     const isOn=activeTournament===key?' on':'';
-    html+=`<button class="t-btn ${activeTour.toLowerCase()}-tab${isOn}" onclick="setTournament('${key.replace(/'/g,"\\'")}',this)">${dot}${t.name}</button>`;
+    html+=`<button class="t-btn ${activeTour.toLowerCase()}-tab${isOn}" onclick="setTournament('${key.replace(/'/g,"\\'")}',this)">${dot}${tName(t.name)}</button>`;
   }
   detail.innerHTML=html;
   detail.style.display='flex';
@@ -584,7 +669,7 @@ function renderMatch(m){
   return `
     <div class="match ${cls}">
       <div class="m-head">
-        <span class="m-round">${m.round||m.tournament}</span>
+        <span class="m-round">${m.round||tName(m.tournament)}</span>
         <span class="m-status ${sCls}">${sTxt}</span>
       </div>
       <div class="m-body">
@@ -615,6 +700,10 @@ function render(){
   let data = activeFilter==='all' ? allMatches : allMatches.filter(m=>m.status===activeFilter);
   if(activeTour!=='all') data=data.filter(m=>m.tour===activeTour);
   if(activeTournament!=='all') data=data.filter(m=>m.tournament===activeTournament);
+  if(searchQuery) data=data.filter(m=>
+    m.p1.name.toLowerCase().includes(searchQuery)||
+    m.p2.name.toLowerCase().includes(searchQuery)
+  );
 
   if(!data.length){
     el.innerHTML='<div class="state"><div class="ico">🎾</div><p>Aucun match pour ce filtre.</p></div>';
@@ -635,7 +724,7 @@ function render(){
   for(const g of sorted){
     html+=`<div class="group-header">
       <span class="tour-badge ${g.tour.toLowerCase()}">${g.tour}</span>
-      ${g.name}
+      ${tName(g.name)}
       ${g.hasLive?'<span class="live-pill" style="margin-left:4px">Live</span>':''}
     </div>`;
     html+=g.matches.map(renderMatch).join('');
