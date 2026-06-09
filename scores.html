@@ -383,8 +383,15 @@ async function fetchAll(){
     const r=await fetch(`/tennis-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
     if(r.ok){
       const data=await r.json();
-      const matches=(data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
-      if(matches.length>0){console.log(`✅ JSON local: ${matches.length} matchs`);return matches;}
+      let matches=[];
+      if(data.source==='tennisendirect'){
+        // Format tennisendirect — déjà dans le format interne
+        matches=(data.events||[]).filter(ev=>ev?.p1?.name&&ev?.p2?.name);
+      } else {
+        // Format Sofascore (fallback legacy)
+        matches=(data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
+      }
+      if(matches.length>0){console.log(`✅ JSON local (${data.source||'ss'}): ${matches.length} matchs`);return matches;}
     }
   }catch(e){console.warn('JSON local:',e.message);}
 
