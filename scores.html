@@ -306,7 +306,7 @@ function parseLivescoresHTML(html){
     if(seen.has(mid)) continue;
     seen.add(mid);
 
-    const tour = (cat.startsWith('wta') || cat==='wta') ? 'WTA' : 'ATP';
+    const tour = cat.startsWith('wta') ? 'WTA' : 'ATP';
     const tournament = cap(tourn);
     const p1Name = cap(p1s);
     const p2Name = cap(p2s);
@@ -316,28 +316,41 @@ function parseLivescoresHTML(html){
     // Sauter les matchs annulés ou retirés
     if(/Canc\.|Retired|W\.O\./i.test(raw)) continue;
 
-    // Statut
+    // ── Statut ──────────────────────────────────────────────────────────
+    // livescores.com : les éléments enfants sont collés dans textContent.
+    // "FT" = terminé. Une heure "21:00" = programmé. Sinon = en cours.
     let status = 'scheduled';
-    if(/^FT\b/i.test(raw)) status = 'finished';
-    else {
-      // En cours : le texte commence par un chiffre ou contient un score visible
-      const afterStatus = raw.replace(/^(FT|Live|Fin\.?|Int\.|Susp\.)\s*/i,'');
-      if(/^\d/.test(afterStatus) && !/^\d{2}:\d{2}/.test(afterStatus)) status = 'live';
+    // Chercher le premier texte non-vide parmi les nœuds enfants directs
+    let firstChunk = '';
+    for(const node of link.childNodes){
+      const t = (node.textContent||'').trim();
+      if(t){ firstChunk = t; break; }
+    }
+    // Fallback : début du textContent complet
+    if(!firstChunk) firstChunk = raw.slice(0,10);
+
+    if(/^FT$/i.test(firstChunk) || raw.startsWith('FT')){
+      status = 'finished';
+    } else if(/^\d{1,2}:\d{2}$/.test(firstChunk)){
+      status = 'scheduled';
+    } else {
+      status = 'live';
     }
 
-    // Extraire les nombres (scores de sets)
-    // On supprime d'abord le préfixe de statut et l'heure éventuelle
-    const stripped = raw
-      .replace(/^(FT|Live|Fin\.?|Int\.|Susp\.)\s*/i,'')
-      .replace(/\d{2}:\d{2}/g,'');
-    const nums = (stripped.match(/\d+/g)||[]).map(Number);
+    // ── Scores ──────────────────────────────────────────────────────────
+    // Les scores sont dans des éléments FEUILLES séparés (ex : <span>6</span>).
+    // textContent les colle ("6644") → on cherche les feuilles à 1-2 chiffres.
+    const nums = [];
+    link.querySelectorAll('*').forEach(el => {
+      if(el.children.length === 0){
+        const t = el.textContent.trim();
+        if(/^\d{1,2}$/.test(t)) nums.push(parseInt(t));
+      }
+    });
 
-    // Scores : livescores affiche P1_s1 P2_s1 P1_s2 P2_s2 ... (alternés)
-    // On prend les paires successives, max 5 sets
+    // Paires alternées P1/P2 par set (max 5)
     const p1Sets=[], p2Sets=[];
     for(let i=0; i+1<nums.length && p1Sets.length<5; i+=2){
-      // Ignorer les nombres > 7 qui sont des scores de tie-break (ex : 10 dans un super tie-break)
-      // On les garde mais on les limite pour l'affichage
       p1Sets.push(nums[i]);
       p2Sets.push(nums[i+1]);
     }
@@ -349,7 +362,6 @@ function parseLivescoresHTML(html){
     if(status==='finished') timeInfo='Terminé';
     else if(status==='live') timeInfo='En cours';
     else {
-      // Chercher une heure dans le texte original
       const hm = raw.match(/(\d{1,2}:\d{2})/);
       timeInfo = hm ? hm[1] : '';
     }
