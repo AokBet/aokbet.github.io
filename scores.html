@@ -285,7 +285,7 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <div class="page-head">
   <div class="eyebrow">📡 Scores en temps réel</div>
   <h1>Scores <span class="gradient">Live</span></h1>
-  <p>Tennis ATP/WTA · Football — mis à jour toutes les 5 minutes.</p>
+  <p>Tennis ATP · Football — mis à jour toutes les 5 minutes.</p>
   <!-- Sélecteur de sport -->
   <div class="sport-tabs">
     <button class="sport-btn on" onclick="setSport('tennis',this)">🎾 Tennis</button>
@@ -322,7 +322,6 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <div class="tourn-tabs" id="tourn-tabs-tour">
   <button class="t-btn on" onclick="setTour('all',this)">🎾 Tous</button>
   <button class="t-btn atp-tab" onclick="setTour('ATP',this)">ATP</button>
-  <button class="t-btn wta-tab" onclick="setTour('WTA',this)">WTA</button>
 </div>
 <!-- Onglets tournoi (niveau 2 — visible après clic ATP/WTA) -->
 <div class="tourn-tabs" id="tourn-tabs-detail" style="display:none;margin-top:-6px;"></div>
@@ -693,15 +692,11 @@ function setFilter(f,btn){
 function buildTournamentTabs(matches){
   // Ligne 1 — toujours présente, met à jour les points live
   const atpLive = matches.filter(m=>m.tour==='ATP'&&m.status==='live').length;
-  const wtaLive = matches.filter(m=>m.tour==='WTA'&&m.status==='live').length;
   document.querySelectorAll('#tourn-tabs-tour .t-btn').forEach(btn=>{
     const tour = btn.textContent.replace(/●\s*/,'').trim();
     if(tour==='ATP'){
       btn.innerHTML=(atpLive?'<span class="t-live-dot"></span>':'')+'ATP';
       btn.classList.toggle('on', activeTour==='ATP');
-    } else if(tour==='WTA'){
-      btn.innerHTML=(wtaLive?'<span class="t-live-dot"></span>':'')+'WTA';
-      btn.classList.toggle('on', activeTour==='WTA');
     } else {
       btn.classList.toggle('on', activeTour==='all');
     }
@@ -846,7 +841,7 @@ function render(){
 /* ════════ CHARGEMENT ════════ */
 async function load(){
   try{
-    allMatches = await fetchAll();
+    allMatches = (await fetchAll()).filter(m=>m.tour!=='WTA');
     const live = allMatches.filter(m=>m.status==='live').length;
     document.getElementById('count-live').textContent=live;
     document.getElementById('count-total').textContent=allMatches.length;
@@ -869,32 +864,77 @@ setInterval(load, 30000);
 
 /* ── Dictionnaire compétitions ── */
 const COMP_MAP = {
-  'England Premier League':   'Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-  'France Ligue 1':           'Ligue 1 🇫🇷',
-  'Spain La Liga':            'La Liga 🇪🇸',
-  'Germany Bundesliga':       'Bundesliga 🇩🇪',
-  'Italy Serie A':            'Serie A 🇮🇹',
-  'Champions League':         'Ligue des Champions ⭐',
-  'Uefa Champions League':    'Ligue des Champions ⭐',
-  'Europa League':            'Europa League',
-  'Uefa Europa League':       'Europa League',
-  'Conference League':        'Conference League',
-  'Uefa Europa Conference League': 'Conference League',
-  'Portugal Primeira Liga':   'Liga Portugal 🇵🇹',
-  'Netherlands Eredivisie':   'Eredivisie 🇳🇱',
-  'Belgium First Division A': 'Pro League 🇧🇪',
-  'Scotland Premiership':     'Premiership 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  'Turkey Super Lig':         'Süper Lig 🇹🇷',
-  'Russia Premier League':    'Premier League 🇷🇺',
-  'Brazil Serie A':           'Série A 🇧🇷',
-  'Argentina Primera Division': 'Primera División 🇦🇷',
-  'Usa Mls':                  'MLS 🇺🇸',
-  'World Cup':                'Coupe du Monde 🌍',
-  'European Championship':    'Euro 🇪🇺',
-  'Copa America':             'Copa América',
-  'Africa Cup Of Nations':    'CAN 🌍',
+  // Internationales
+  'World Cup':                        'Coupe du Monde 🌍',
+  'Fifa World Cup':                   'Coupe du Monde 🌍',
+  'European Championship':            'Euro 🇪🇺',
+  'Uefa European Championship':       'Euro 🇪🇺',
+  'Copa America':                     'Copa América 🌎',
+  'Africa Cup Of Nations':            'CAN 🌍',
+  'Uefa Nations League':              'Ligue des Nations 🇪🇺',
+  // Coupes européennes
+  'Champions League':                 'Ligue des Champions ⭐',
+  'Uefa Champions League':            'Ligue des Champions ⭐',
+  'Europa League':                    'Europa League 🟠',
+  'Uefa Europa League':               'Europa League 🟠',
+  'Conference League':                'Conference League',
+  'Uefa Europa Conference League':    'Conference League',
+  // Angleterre
+  'England Premier League':           'Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'England Championship':             'Championship 🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'England League One':               'League One 🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'England Fa Cup':                   'FA Cup 🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  // Espagne
+  'Spain La Liga':                    'La Liga 🇪🇸',
+  'Spain Segunda Division':           'Segunda 🇪🇸',
+  'Spain Copa Del Rey':               'Copa del Rey 🇪🇸',
+  // Allemagne
+  'Germany Bundesliga':               'Bundesliga 🇩🇪',
+  'Germany 2. Bundesliga':            '2. Bundesliga 🇩🇪',
+  'Germany Dfb Pokal':                'DFB-Pokal 🇩🇪',
+  // France
+  'France Ligue 1':                   'Ligue 1 🇫🇷',
+  'France Ligue 2':                   'Ligue 2 🇫🇷',
+  'France Coupe De France':           'Coupe de France 🇫🇷',
+  // Italie
+  'Italy Serie A':                    'Serie A 🇮🇹',
+  'Italy Serie B':                    'Serie B 🇮🇹',
+  'Italy Coppa Italia':               'Coppa Italia 🇮🇹',
+  // Autres Europe
+  'Portugal Primeira Liga':           'Liga Portugal 🇵🇹',
+  'Netherlands Eredivisie':           'Eredivisie 🇳🇱',
+  'Belgium First Division A':         'Pro League 🇧🇪',
+  'Scotland Premiership':             'Premiership 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Turkey Super Lig':                 'Süper Lig 🇹🇷',
+  'Russia Premier League':            'Premier League 🇷🇺',
+  // Amériques
+  'Brazil Serie A':                   'Série A 🇧🇷',
+  'Argentina Primera Division':       'Primera División 🇦🇷',
+  'Usa Mls':                          'MLS 🇺🇸',
+  // Amicaux
+  'International Friendlies':        'Amicaux internationaux 🌐',
+  'Featured International Friendlies': 'Amicaux internationaux 🌐',
 };
 function cName(raw){ return COMP_MAP[raw] || raw; }
+
+/* ── Priorité de tri des compétitions ── */
+const COMP_PRIORITY = [
+  'World Cup','Fifa World Cup',
+  'European Championship','Uefa European Championship',
+  'Copa America','Africa Cup Of Nations','Uefa Nations League',
+  'Champions League','Uefa Champions League',
+  'Europa League','Uefa Europa League',
+  'Conference League','Uefa Europa Conference League',
+  'England Premier League','Spain La Liga','Germany Bundesliga','France Ligue 1','Italy Serie A',
+  'England Championship','Spain Segunda Division','Germany 2. Bundesliga','France Ligue 2','Italy Serie B',
+  'Portugal Primeira Liga','Netherlands Eredivisie','Belgium First Division A','Scotland Premiership',
+  'Turkey Super Lig','Russia Premier League',
+  'Brazil Serie A','Argentina Primera Division','Usa Mls',
+];
+function compOrder(name){
+  const i=COMP_PRIORITY.indexOf(name);
+  return i===-1 ? 999 : i;
+}
 
 /* ── État football ── */
 let allFootMatches=[], activeFilterFoot='all', activeCompFoot='all', searchQueryFoot='';
@@ -930,7 +970,10 @@ function buildCompTabs(matches){
     if(!comps[m.competition]) comps[m.competition]={name:m.competition,hasLive:false};
     if(m.status==='live') comps[m.competition].hasLive=true;
   }
-  const sorted=Object.entries(comps).sort(([,a],[,b])=>(b.hasLive?1:0)-(a.hasLive?1:0));
+  const sorted=Object.entries(comps).sort(([ka,a],[kb,b])=>{
+    if(a.hasLive!==b.hasLive) return b.hasLive?1:-1;
+    return compOrder(ka)-compOrder(kb);
+  });
   let html=`<button class="t-btn${activeCompFoot==='all'?' on':''}" onclick="setCompFoot('all',this)">⚽ Toutes les compétitions</button>`;
   for(const [key,c] of sorted){
     const dot=c.hasLive?'<span class="t-live-dot"></span>':'';
@@ -985,7 +1028,10 @@ function renderFoot(){
     groups[m.competition].matches.push(m);
     if(m.status==='live') groups[m.competition].hasLive=true;
   }
-  const sorted=Object.values(groups).sort((a,b)=>(b.hasLive?1:0)-(a.hasLive?1:0));
+  const sorted=Object.values(groups).sort((a,b)=>{
+    if(a.hasLive!==b.hasLive) return b.hasLive?1:-1;
+    return compOrder(a.name)-compOrder(b.name);
+  });
   let html='';
   for(const g of sorted){
     html+=`<div class="group-header">
