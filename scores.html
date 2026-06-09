@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AokBet — Tennis Live</title>
+<title>AokBet — Scores Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -95,6 +95,43 @@ a{text-decoration:none;color:inherit;}
 #tourn-tabs-tour .t-btn{font-size:.85rem;padding:8px 22px;font-weight:800;}
 .pick-msg{
   text-align:center;padding:48px 16px;color:var(--muted);font-size:.88rem;
+}
+
+/* SPORT SELECTOR */
+.sport-tabs{display:flex;gap:12px;margin-top:20px;margin-bottom:28px;}
+.sport-btn{
+  display:flex;align-items:center;gap:8px;padding:12px 28px;border-radius:14px;
+  font-size:1rem;font-weight:900;cursor:pointer;font-family:Inter,sans-serif;
+  transition:all .2s;border:2px solid var(--line);background:var(--card2);color:var(--muted);
+  letter-spacing:-.01em;
+}
+.sport-btn:hover{color:var(--text);background:var(--card);}
+.sport-btn.on{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;border-color:transparent;box-shadow:0 6px 20px rgba(39,242,138,.2);}
+.sport-btn.foot.on{background:linear-gradient(135deg,#44aaff,#96d4ff);color:#04080f;border-color:transparent;box-shadow:0 6px 20px rgba(68,170,255,.2);}
+
+/* MATCH FOOT */
+.ft-card{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  margin-bottom:8px;overflow:hidden;transition:border-color .18s,transform .15s;
+}
+.ft-card:hover{border-color:rgba(68,170,255,.3);transform:translateY(-1px);}
+.ft-card.is-live{border-left:3px solid var(--red);}
+.ft-card.is-finished{opacity:.65;}
+.ft-body{
+  padding:12px 16px;display:grid;
+  grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
+}
+.ft-team{font-size:.9rem;font-weight:800;}
+.ft-team.winner{color:#44aaff;}
+.ft-goals{
+  font-size:1.3rem;font-weight:900;text-align:center;min-width:32px;
+  color:var(--text);
+}
+.ft-goals.live{color:var(--red);}
+.ft-minute{
+  font-size:.7rem;font-weight:800;color:var(--red);text-align:center;
+  background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.25);
+  border-radius:6px;padding:1px 6px;
 }
 .t-btn{
   white-space:nowrap;background:var(--card2);border:1px solid var(--line);
@@ -246,10 +283,18 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <main>
 <div class="container">
 <div class="page-head">
-  <div class="eyebrow">🎾 Scores en temps réel</div>
-  <h1>Tennis <span class="gradient">Live</span></h1>
-  <p>ATP + WTA — tous tournois, mis à jour toutes les 30 secondes.</p>
+  <div class="eyebrow">📡 Scores en temps réel</div>
+  <h1>Scores <span class="gradient">Live</span></h1>
+  <p>Tennis ATP/WTA · Football — mis à jour toutes les 5 minutes.</p>
+  <!-- Sélecteur de sport -->
+  <div class="sport-tabs">
+    <button class="sport-btn on" onclick="setSport('tennis',this)">🎾 Tennis</button>
+    <button class="sport-btn foot" onclick="setSport('football',this)">⚽ Football</button>
+  </div>
 </div>
+
+<!-- ══════════ SECTION TENNIS ══════════ -->
+<div id="section-tennis">
 
 <!-- Statut -->
 <div class="status-bar">
@@ -290,10 +335,57 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   <button class="f-btn" onclick="setFilter('finished',this)">✅ Terminés</button>
 </div>
 
-<!-- Liste -->
+<!-- Liste tennis -->
 <div id="list">
   <div class="state"><div class="spinner"></div><p>Chargement…</p></div>
 </div>
+
+</div><!-- /section-tennis -->
+
+<!-- ══════════ SECTION FOOTBALL ══════════ -->
+<div id="section-football" style="display:none">
+
+<!-- Statut foot -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="pulse"></div>
+    <div class="status-text">
+      <span id="foot-count-live">—</span> en cours ·
+      <span id="foot-count-total">—</span> matchs au total
+    </div>
+  </div>
+  <div class="refresh-time">Màj : <span id="foot-last-update">—</span></div>
+</div>
+
+<div class="banner" id="foot-banner"></div>
+
+<!-- Recherche foot -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="foot-search-input" placeholder="Rechercher une équipe…" oninput="setSearchFoot(this.value)" autocomplete="off">
+  <button class="search-clear" id="foot-search-clear" onclick="clearSearchFoot()">✕</button>
+</div>
+
+<!-- Onglets compétitions foot -->
+<div class="tourn-tabs" id="foot-comp-tabs" style="flex-wrap:wrap;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;">
+  <button class="t-btn on" onclick="setCompFoot('all',this)">⚽ Toutes les compétitions</button>
+</div>
+
+<!-- Filtres foot -->
+<div class="filters">
+  <button class="f-btn on" onclick="setFilterFoot('all',this)">Tous</button>
+  <button class="f-btn" onclick="setFilterFoot('live',this)">🔴 En cours</button>
+  <button class="f-btn" onclick="setFilterFoot('scheduled',this)">🕐 À venir</button>
+  <button class="f-btn" onclick="setFilterFoot('finished',this)">✅ Terminés</button>
+</div>
+
+<!-- Liste foot -->
+<div id="foot-list">
+  <div class="state"><div class="spinner"></div><p>Chargement…</p></div>
+</div>
+
+</div><!-- /section-football -->
+
 </div>
 </main>
 
@@ -545,6 +637,13 @@ async function fetchAll(){
     if(r.ok){
       const data = await r.json();
       const matches = (data.events||[]).filter(ev=>ev?.p1?.name&&ev?.p2?.name);
+      // Reclassifier "live" sans score → "scheduled" (matchs futurs mal détectés)
+      matches.forEach(m=>{
+        if(m.status==='live' && (!m.p1.sets||m.p1.sets.length===0)){
+          m.status='scheduled';
+          if(!m.timeInfo||m.timeInfo==='En cours') m.timeInfo='À venir';
+        }
+      });
       if(matches.length>0){
         console.log(`✅ JSON local (GitHub Actions) : ${matches.length} matchs`);
         return matches;
@@ -763,6 +862,184 @@ async function load(){
 
 load();
 setInterval(load, 30000);
+
+/* ════════════════════════════════════════════════════
+   FOOTBALL
+════════════════════════════════════════════════════ */
+
+/* ── Dictionnaire compétitions ── */
+const COMP_MAP = {
+  'England Premier League':   'Premier League 🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'France Ligue 1':           'Ligue 1 🇫🇷',
+  'Spain La Liga':            'La Liga 🇪🇸',
+  'Germany Bundesliga':       'Bundesliga 🇩🇪',
+  'Italy Serie A':            'Serie A 🇮🇹',
+  'Champions League':         'Ligue des Champions ⭐',
+  'Uefa Champions League':    'Ligue des Champions ⭐',
+  'Europa League':            'Europa League',
+  'Uefa Europa League':       'Europa League',
+  'Conference League':        'Conference League',
+  'Uefa Europa Conference League': 'Conference League',
+  'Portugal Primeira Liga':   'Liga Portugal 🇵🇹',
+  'Netherlands Eredivisie':   'Eredivisie 🇳🇱',
+  'Belgium First Division A': 'Pro League 🇧🇪',
+  'Scotland Premiership':     'Premiership 🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Turkey Super Lig':         'Süper Lig 🇹🇷',
+  'Russia Premier League':    'Premier League 🇷🇺',
+  'Brazil Serie A':           'Série A 🇧🇷',
+  'Argentina Primera Division': 'Primera División 🇦🇷',
+  'Usa Mls':                  'MLS 🇺🇸',
+  'World Cup':                'Coupe du Monde 🌍',
+  'European Championship':    'Euro 🇪🇺',
+  'Copa America':             'Copa América',
+  'Africa Cup Of Nations':    'CAN 🌍',
+};
+function cName(raw){ return COMP_MAP[raw] || raw; }
+
+/* ── État football ── */
+let allFootMatches=[], activeFilterFoot='all', activeCompFoot='all', searchQueryFoot='';
+
+function setSearchFoot(val){
+  searchQueryFoot=val.toLowerCase().trim();
+  document.getElementById('foot-search-clear').classList.toggle('show',searchQueryFoot.length>0);
+  renderFoot();
+}
+function clearSearchFoot(){
+  document.getElementById('foot-search-input').value='';
+  document.getElementById('foot-search-clear').classList.remove('show');
+  searchQueryFoot='';
+  renderFoot();
+}
+function setFilterFoot(f,btn){
+  activeFilterFoot=f;
+  document.querySelectorAll('#section-football .f-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFoot();
+}
+function setCompFoot(key,btn){
+  activeCompFoot=key;
+  document.querySelectorAll('#foot-comp-tabs .t-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFoot();
+}
+
+function buildCompTabs(matches){
+  const tabs=document.getElementById('foot-comp-tabs');
+  const comps={};
+  for(const m of matches){
+    if(!comps[m.competition]) comps[m.competition]={name:m.competition,hasLive:false};
+    if(m.status==='live') comps[m.competition].hasLive=true;
+  }
+  const sorted=Object.entries(comps).sort(([,a],[,b])=>(b.hasLive?1:0)-(a.hasLive?1:0));
+  let html=`<button class="t-btn${activeCompFoot==='all'?' on':''}" onclick="setCompFoot('all',this)">⚽ Toutes les compétitions</button>`;
+  for(const [key,c] of sorted){
+    const dot=c.hasLive?'<span class="t-live-dot"></span>':'';
+    const isOn=activeCompFoot===key?' on':'';
+    const safe=key.replace(/'/g,"\\'");
+    html+=`<button class="t-btn${isOn}" onclick="setCompFoot('${safe}',this)">${dot}${cName(c.name)}</button>`;
+  }
+  tabs.innerHTML=html;
+}
+
+function renderFootMatch(m){
+  const live=m.status==='live', fin=m.status==='finished';
+  const cls=live?'is-live':fin?'is-finished':'';
+  const sCls=live?'s-live':fin?'s-done':'s-pre';
+  const sTxt=live?(m.timeInfo||'Live'):fin?'FT':(m.timeInfo||'À venir');
+
+  const g1 = m.t1.goals !== null && m.t1.goals !== undefined ? m.t1.goals : (m.status!=='scheduled'?'–':'');
+  const g2 = m.t2.goals !== null && m.t2.goals !== undefined ? m.t2.goals : (m.status!=='scheduled'?'–':'');
+  const gCls = live ? 'ft-goals live' : 'ft-goals';
+
+  return `
+    <div class="ft-card ${cls}">
+      <div class="m-head">
+        <span class="m-round">${cName(m.competition)}</span>
+        <span class="m-status ${sCls}">${sTxt}</span>
+      </div>
+      <div class="ft-body">
+        <span class="ft-team${m.t1.win?' winner':''}">${m.t1.name}</span>
+        <span class="${gCls}">${g1}</span>
+        <span class="ft-team${m.t2.win?' winner':''}">${m.t2.name}</span>
+        <span class="${gCls}">${g2}</span>
+      </div>
+    </div>`;
+}
+
+function renderFoot(){
+  const el=document.getElementById('foot-list');
+  let data=activeFilterFoot==='all' ? allFootMatches : allFootMatches.filter(m=>m.status===activeFilterFoot);
+  if(activeCompFoot!=='all') data=data.filter(m=>m.competition===activeCompFoot);
+  if(searchQueryFoot) data=data.filter(m=>
+    m.t1.name.toLowerCase().includes(searchQueryFoot)||
+    m.t2.name.toLowerCase().includes(searchQueryFoot)
+  );
+  if(!data.length){
+    el.innerHTML='<div class="state"><div class="ico">⚽</div><p>Aucun match pour ce filtre.</p></div>';
+    return;
+  }
+  // Grouper par compétition
+  const groups={};
+  for(const m of data){
+    if(!groups[m.competition]) groups[m.competition]={name:m.competition,matches:[],hasLive:false};
+    groups[m.competition].matches.push(m);
+    if(m.status==='live') groups[m.competition].hasLive=true;
+  }
+  const sorted=Object.values(groups).sort((a,b)=>(b.hasLive?1:0)-(a.hasLive?1:0));
+  let html='';
+  for(const g of sorted){
+    html+=`<div class="group-header">
+      <span class="tour-badge" style="background:rgba(68,170,255,.12);color:#44aaff;border:1px solid rgba(68,170,255,.25)">⚽</span>
+      ${cName(g.name)}
+      ${g.hasLive?'<span class="live-pill" style="margin-left:4px">Live</span>':''}
+    </div>`;
+    html+=g.matches.map(renderFootMatch).join('');
+  }
+  el.innerHTML=html;
+}
+
+async function loadFoot(){
+  try{
+    const r=await fetch(`/football-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
+    if(r.ok){
+      const data=await r.json();
+      allFootMatches=(data.events||[]).filter(ev=>ev?.t1?.name&&ev?.t2?.name);
+      // Reclassifier live sans buts → scheduled
+      allFootMatches.forEach(m=>{
+        if(m.status==='live'&&m.t1.goals===null&&m.t2.goals===null){
+          m.status='scheduled';
+          if(!m.timeInfo||m.timeInfo==='Live') m.timeInfo='À venir';
+        }
+      });
+      const live=allFootMatches.filter(m=>m.status==='live').length;
+      document.getElementById('foot-count-live').textContent=live;
+      document.getElementById('foot-count-total').textContent=allFootMatches.length;
+      document.getElementById('foot-last-update').textContent=
+        new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      buildCompTabs(allFootMatches);
+      renderFoot();
+    } else {
+      document.getElementById('foot-list').innerHTML=
+        '<div class="state"><div class="ico">⚽</div><p>Données football non disponibles — workflow à configurer.</p></div>';
+    }
+  }catch(e){
+    document.getElementById('foot-list').innerHTML=
+      '<div class="state"><div class="ico">⚽</div><p>Chargement…</p></div>';
+  }
+}
+
+/* ── Sélecteur de sport ── */
+let activeSport='tennis';
+function setSport(sport,btn){
+  activeSport=sport;
+  document.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('section-tennis').style.display=sport==='tennis'?'block':'none';
+  document.getElementById('section-football').style.display=sport==='football'?'block':'none';
+  if(sport==='football'&&allFootMatches.length===0) loadFoot();
+}
+
+setInterval(()=>{ if(activeSport==='football') loadFoot(); }, 30000);
 </script>
 </body>
 </html>
