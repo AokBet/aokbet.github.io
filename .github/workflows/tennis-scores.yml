@@ -97,17 +97,33 @@ jobs:
           soup = BeautifulSoup(r.text, 'lxml')
 
           # ── Find main scores list ────────────────────────────────────
+          # Strategy: find a <li> that IS a tournament header, then get its parent
           main_ul = None
-          for ul in soup.find_all('ul'):
-              txt = ul.get_text(' ', strip=True)[:500]
-              if re.search(r'\b(hommes|femmes)\b', txt, re.I) and 'Sets 1 2' in txt:
-                  main_ul = ul
+          all_lis = soup.find_all('li')
+          print(f"Total <li> elements on page: {len(all_lis)}", file=sys.stderr)
+
+          for li in all_lis:
+              t = li.get_text(' ', strip=True)
+              if 'Sets 1 2' in t and re.search(r'\b(hommes|femmes)\b', t, re.I) and len(t) < 400:
+                  main_ul = li.parent
+                  print(f"Found match container: {main_ul.name}, tag sample: {t[:80]}", file=sys.stderr)
                   break
+
+          if not main_ul:
+              # Fallback: look for any li with "Sets 1 2"
+              for li in all_lis:
+                  t = li.get_text(' ', strip=True)
+                  if 'Sets 1 2' in t and len(t) < 400:
+                      main_ul = li.parent
+                      print(f"Fallback container found: {main_ul.name}", file=sys.stderr)
+                      break
 
           if not main_ul:
               print("Could not find scores list – saving empty file", file=sys.stderr)
               with open('tennis-live.json', 'w') as f:
-                  json.dump({"source": "tennisendirect", "events": [], "updatedAt": datetime.now(timezone.utc).isoformat()}, f)
+                  json.dump({"source": "tennisendirect", "events": [],
+                             "error": "container_not_found",
+                             "updatedAt": datetime.now(timezone.utc).isoformat()}, f)
               sys.exit(0)
 
           # ── Parse items ─────────────────────────────────────────────
@@ -117,6 +133,10 @@ jobs:
           pending_p1 = None
 
           items = main_ul.find_all('li', recursive=False)
+          if len(items) < 3:
+              # Some pages nest differently – try all li descendants
+              items = main_ul.find_all('li')
+          print(f"Items to parse: {len(items)}", file=sys.stderr)
 
           for li in items:
               text = li.get_text(' ', strip=True)
@@ -255,7 +275,10 @@ jobs:
           }
           with open('tennis-live.json', 'w', encoding='utf-8') as f:
               json.dump(output, f, ensure_ascii=False)
-          print(f"✅ {len(events)} matches written")
+          print(f"✅ {len(events)} matches written to tennis-live.json")
+          if events:
+              sample = events[0]
+              print(f"   Sample: {sample['p1']['name']} vs {sample['p2']['name']} [{sample['tournament']}]")
           PYEOF
 
       - name: Commit si modifié
