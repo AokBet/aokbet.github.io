@@ -301,15 +301,150 @@ function isMainTourEvent(ev){
   return !skip.some(x=>n.includes(x)||c.includes(x));
 }
 
-/* ════════════ SOFASCORE FETCH (multi-proxy) ════════════ */
+/* ════════════ TENNISENDIRECT — PARSER HTML CÔTÉ CLIENT ════════════ */
+const TED_SURFACE={gazon:'grass','terre battue':'clay',dur:'hard',indoor:'hard'};
+const TED_CC={
+  Germany:'DE',France:'FR',Spain:'ES',Italy:'IT','United Kingdom':'GB',USA:'US',
+  Russia:'RU',Australia:'AU',Argentina:'AR',Switzerland:'CH',Austria:'AT',Canada:'CA',
+  Serbia:'RS',Greece:'GR',Norway:'NO','Czech Republic':'CZ',Poland:'PL',Holland:'NL',
+  Netherlands:'NL',Belgium:'BE',Hungary:'HU',Slovakia:'SK',Croatia:'HR',Georgia:'GE',
+  Kazakhstan:'KZ',Brazil:'BR',Chile:'CL',Japan:'JP','South Korea':'KR',
+  'South Africa':'ZA',Bulgaria:'BG',Romania:'RO',Ukraine:'UA',Portugal:'PT',
+  Sweden:'SE',Finland:'FI',Denmark:'DK',Belarus:'BY',Tunisia:'TN',Turkey:'TR',
+  China:'CN','Bosnia and Herzeg.':'BA',Morocco:'MA',
+};
+
+function tedTokens(text,name){
+  let t=text;
+  for(let i=0;i<3;i++) t=t.replace(name,'');
+  t=t.replace(/\bserve\b/gi,'').replace(/\[[^\]]*\]/g,'')
+     .replace(/\b(1er|2ème|3ème|qualif\.?|tour|Quart|Demi|Finale|Interrompu|H2H)\b/gi,'')
+     .replace(/\d{2}:\d{2}/g,'').replace(/\d{2}\.\d{2}\.\d{2}/g,'');
+  return t.match(/\b(\d{1,3}|A)\b/g)||[];
+}
+
+function tedScores(toks){
+  if(!toks.length) return{setsWon:0,sets:[],game:'0'};
+  const G={'0':'0','15':'15','30':'30','40':'40','A':'A'};
+  let setsWon=0,t=[...toks];
+  if(t[0]&&/^\d$/.test(t[0])&&+t[0]<=3){setsWon=+t.shift();}
+  if(!t.length) return{setsWon,sets:[],game:'0'};
+  const game=G[t[t.length-1]]||'0';
+  const sets=t.slice(0,-1).map(Number).filter(n=>!isNaN(n));
+  return{setsWon,sets,game};
+}
+
+function parseTEDHTML(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  // Find container: parent of a li that has "Sets 1 2" + hommes/femmes
+  let container=null;
+  for(const li of doc.querySelectorAll('li')){
+    const t=li.textContent||'';
+    if(t.includes('Sets 1 2')&&/\b(hommes|femmes)\b/i.test(t)&&t.length<400){
+      container=li.parentElement; break;
+    }
+  }
+  if(!container){console.warn('TED: container not found');return[];}
+
+  const events=[],items=container.querySelectorAll(':scope > li');
+  let matchId=1,curT={name:'',tour:'ATP',surface:'hard',cc:''},pending=null;
+
+  for(const li of items){
+    const text=li.textContent||'';
+    if(!text.trim()) continue;
+
+    // ─ Tournament header ─
+    if(text.includes('Sets 1 2')&&/\b(hommes|femmes)\b/i.test(text)&&text.length<400){
+      pending=null;
+      const tour=/\bfemmes\b/i.test(text)?'WTA':'ATP';
+      let surface='hard';
+      for(const[s,v] of Object.entries(TED_SURFACE)){if(text.toLowerCase().includes(s)){surface=v;break;}}
+      let tournName='',cc='';
+      for(const a of li.querySelectorAll('a')){
+        const href=a.href||'';
+        if(href.includes('/hommes/')||href.includes('/femmes/')){
+          const parts=(a.title||'').split(' - ');
+          tournName=parts.length>=2?parts.slice(0,2).join(' - '):a.textContent.trim();
+          break;
+        }
+      }
+      for(const[country,code] of Object.entries(TED_CC)){if(text.includes(country)){cc=code;break;}}
+      curT={name:tournName,tour,surface,cc};
+      continue;
+    }
+
+    // ─ Player row ─
+    const pLinks=[...li.querySelectorAll('a')].filter(a=>/\/(atp|wta)\/[^/]+\/?$/.test(a.href||''));
+    if(!pLinks.length) continue;
+
+    const name=pLinks[0].textContent.trim();
+    const serving=/\bserve\b/i.test(text);
+    const qualifier=((text.match(/\[([^\]]{1,10})\]/g)||[]).find(q=>!q.includes('H2H'))||'').replace(/[\[\]]/g,'');
+    const hasTime=/\d{2}:\d{2}/.test(text);
+
+    if(hasTime){
+      if(pending) pending=null;
+      const tm=text.match(/(\d{2}:\d{2})/);
+      let round='';
+      for(const r of['1er tour','2ème tour','Quart','Demi','Finale','qualif.']){
+        if(text.toLowerCase().includes(r.toLowerCase())){round=r;break;}
+      }
+      const sc=tedScores(tedTokens(text,name));
+      pending={name,qualifier,serving,...sc,time:tm?tm[1]:'',round};
+    } else if(pending){
+      const sc2=tedScores(tedTokens(text,name));
+      const p=pending;
+      const bothEmpty=!p.sets.length&&!sc2.sets.length;
+      let status=bothEmpty?'scheduled':'live';
+      let w1=false,w2=false;
+      if((p.setsWon>=2||sc2.setsWon>=2)&&p.setsWon!==sc2.setsWon){
+        status='finished'; w1=p.setsWon>sc2.setsWon; w2=!w1;
+      }
+      events.push({
+        id:matchId++,tour:curT.tour,tournament:curT.name,surface:curT.surface,
+        status,round:p.round,
+        timeInfo:status==='scheduled'?p.time:status==='live'?'En cours':'Terminé',
+        p1:{name:p.name,qualifier:p.qualifier,cc:curT.cc,serving:p.serving,
+            sets:p.sets,setsWon:p.setsWon,game:status==='live'?p.game:'',win:w1},
+        p2:{name,qualifier,cc:'',serving,
+            sets:sc2.sets,setsWon:sc2.setsWon,game:status==='live'?sc2.game:'',win:w2},
+      });
+      pending=null;
+    }
+  }
+  return events;
+}
+
+async function fetchTED(){
+  const url='https://www.tennisendirect.net/';
+  const proxies=[
+    ()=>fetch(`https://api.allorigins.win/raw?url=${enc(url)}`,{signal:sig(18000)}),
+    ()=>fetch(`https://corsproxy.io/?${enc(url)}`,{signal:sig(18000)}),
+    ()=>fetch(`https://api.allorigins.win/get?url=${enc(url)}`,{signal:sig(18000)})
+          .then(r=>r.json()).then(w=>({ok:true,text:()=>Promise.resolve(w.contents)})),
+    ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${enc(url)}`,{signal:sig(18000)}),
+    ()=>fetch(`https://thingproxy.freeboard.io/fetch/${url}`,{signal:sig(18000)}),
+  ];
+  const errs=[];
+  for(const fn of proxies){
+    try{
+      const r=await fn();
+      if(!r.ok) throw new Error('status:'+r.status);
+      const html=await r.text();
+      if(!html.includes('Sets 1 2')) throw new Error('no match data in response');
+      const m=parseTEDHTML(html);
+      if(m.length>0){console.log(`✅ TED via proxy: ${m.length} matchs`);return m;}
+    }catch(e){errs.push(e.message);console.warn('TED proxy:',e.message);}
+  }
+  throw new Error('TED all proxies failed: '+errs.join(' | '));
+}
+
+/* ════════════ SOFASCORE (legacy fallback) ════════════ */
 async function ssFetch(url){
   const tries=[
     ()=>fetch(url,{signal:sig(8000),cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('direct:'+r.status);return r.json();}),
     ()=>fetch(`https://api.allorigins.win/raw?url=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('ao-raw:'+r.status);return r.json();}),
-    ()=>fetch(`https://api.allorigins.win/get?url=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('ao-get:'+r.status);return r.json();}).then(w=>{const d=JSON.parse(w.contents);return d;}),
     ()=>fetch(`https://corsproxy.io/?${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('corsproxy:'+r.status);return r.json();}),
-    ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${enc(url)}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('codetabs:'+r.status);return r.json();}),
-    ()=>fetch(`https://thingproxy.freeboard.io/fetch/${url}`,{signal:sig(14000)}).then(r=>{if(!r.ok)throw new Error('thingproxy:'+r.status);return r.json();}),
   ];
   const errors=[];
   for(const fn of tries){
@@ -323,87 +458,66 @@ function parseSSEvent(ev){
   if(!ev?.homeTeam||!ev?.awayTeam) return null;
   const st=ev.status?.type||'notstarted';
   const status=st==='inprogress'?'live':st==='finished'?'finished':'scheduled';
-  // Nom du tournoi
   const uName=ev.tournament?.uniqueTournament?.name||'';
   const catName=ev.tournament?.category?.name||'';
-  const seasonName=ev.season?.name||'';
-  const combined=(uName+' '+catName+' '+seasonName).toLowerCase();
-  // Détecter ATP / WTA
-  const tour=combined.includes('wta')||combined.includes('women')||combined.includes('femmes')?'WTA':'ATP';
-  const location=catName&&!uName.toLowerCase().includes(catName.toLowerCase())?` (${catName})`:'';
-  const tournament=(uName||catName||'Tennis')+location;
-  // Scores par set
-  const hs=ev.homeScore||{}, as=ev.awayScore||{};
+  const combined=(uName+' '+catName).toLowerCase();
+  const tour=combined.includes('wta')||combined.includes('women')?'WTA':'ATP';
+  const tournament=uName||catName||'Tennis';
+  const hs=ev.homeScore||{},as=ev.awayScore||{};
   const sets1=[],sets2=[];
   for(let i=1;i<=5;i++){
     const k=`period${i}`;
     if(hs[k]!==undefined&&as[k]!==undefined){sets1.push(Number(hs[k]));sets2.push(Number(as[k]));}
   }
   const won=(a,b)=>a.reduce((n,v,i)=>n+(v>(b[i]??0)?1:0),0);
-  // Heure / statut
   let timeInfo='';
   if(status==='live') timeInfo=ev.status?.description||'En cours';
-  else if(status==='scheduled'){
-    const d=new Date(ev.startTimestamp*1000);
-    timeInfo=isNaN(d)?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  } else timeInfo='Terminé';
+  else if(status==='scheduled'){const d=new Date(ev.startTimestamp*1000);timeInfo=isNaN(d)?'—':d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
+  else timeInfo='Terminé';
   const w1=status==='finished'&&won(sets1,sets2)>won(sets2,sets1);
   const w2=status==='finished'&&won(sets2,sets1)>won(sets1,sets2);
-  return{
-    id:ev.id, tour, tournament, status, timeInfo,
-    round:ev.roundInfo?.name||'',
-    p1:{
-      name:ev.homeTeam.shortName||ev.homeTeam.name||'—',
-      cc:(ev.homeTeam.country?.alpha2||'').toUpperCase(),
-      serving:ev.serving===1,
-      sets:sets1, setsWon:won(sets1,sets2),
-      game:status==='live'?String(hs.display??hs.current??''):'',
-      win:w1
-    },
-    p2:{
-      name:ev.awayTeam.shortName||ev.awayTeam.name||'—',
-      cc:(ev.awayTeam.country?.alpha2||'').toUpperCase(),
-      serving:ev.serving===2,
-      sets:sets2, setsWon:won(sets2,sets1),
-      game:status==='live'?String(as.display??as.current??''):'',
-      win:w2
-    }
-  };
-}
-
-async function fetchSofascore(){
-  const data=await ssFetch(`https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${TODAY}`);
-  return (data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
+  return{id:ev.id,tour,tournament,status,timeInfo,round:ev.roundInfo?.name||'',
+    p1:{name:ev.homeTeam.shortName||ev.homeTeam.name||'—',cc:(ev.homeTeam.country?.alpha2||'').toUpperCase(),
+        serving:ev.serving===1,sets:sets1,setsWon:won(sets1,sets2),
+        game:status==='live'?String(hs.display??hs.current??''):'',win:w1},
+    p2:{name:ev.awayTeam.shortName||ev.awayTeam.name||'—',cc:(ev.awayTeam.country?.alpha2||'').toUpperCase(),
+        serving:ev.serving===2,sets:sets2,setsWon:won(sets2,sets1),
+        game:status==='live'?String(as.display??as.current??''):'',win:w2}};
 }
 
 /* ════════════ FETCH ALL ════════════ */
 async function fetchAll(){
-  // 1. Fichier local mis à jour par GitHub Actions (même origine = pas de CORS)
+  // 1. JSON local (GitHub Actions — si jamais ça marche un jour)
   try{
     const r=await fetch(`/tennis-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
     if(r.ok){
       const data=await r.json();
       let matches=[];
       if(data.source==='tennisendirect'){
-        // Format tennisendirect — déjà dans le format interne
         matches=(data.events||[]).filter(ev=>ev?.p1?.name&&ev?.p2?.name);
-      } else {
-        // Format Sofascore (fallback legacy)
-        matches=(data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
+      } else if((data.events||[]).length>0){
+        matches=data.events.filter(isMainTourEvent||Boolean).map(parseSSEvent).filter(Boolean);
       }
-      if(matches.length>0){console.log(`✅ JSON local (${data.source||'ss'}): ${matches.length} matchs`);return matches;}
+      if(matches.length>0){console.log(`✅ JSON local: ${matches.length} matchs`);return matches;}
     }
   }catch(e){console.warn('JSON local:',e.message);}
 
-  // 2. Sofascore via proxies
+  // 2. TennisEnDirect via proxy CORS (depuis ton navigateur — IP résidentielle)
   try{
-    const ss=await fetchSofascore();
-    if(ss.length>0){console.log(`✅ Sofascore proxy: ${ss.length} matchs`);return ss;}
+    const m=await fetchTED();
+    if(m.length>0) return m;
+  }catch(e){console.warn('TED:',e.message);}
+
+  // 3. Sofascore via proxy (legacy)
+  try{
+    const data=await ssFetch(`https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/${TODAY}`);
+    const ss=(data.events||[]).filter(isMainTourEvent).map(parseSSEvent).filter(Boolean);
+    if(ss.length>0){console.log(`✅ Sofascore: ${ss.length} matchs`);return ss;}
   }catch(e){console.warn('Sofascore:',e.message);}
 
-  // 3. Démo + message
+  // 4. Démo
   const banner=document.getElementById('banner');
-  banner.innerHTML='⚠️ <div><strong>Données en cours de chargement</strong> — Le fichier de scores sera disponible dans quelques minutes après la première exécution de GitHub Actions. <a href="https://github.com/aokcasino/aokbet.github.io/actions" target="_blank" style="color:var(--gold);text-decoration:underline">Voir les Actions →</a></div>';
+  banner.innerHTML='⚠️ <div><strong>Scores indisponibles</strong> — Les services de scores sont momentanément inaccessibles. Réessai automatique dans 30s.</div>';
   banner.classList.add('show');
   return DEMO;
 }
