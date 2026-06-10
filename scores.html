@@ -897,6 +897,7 @@ function closeMenu(){
 const COMP_MAP = {
   // Internationales
   'World Cup':                        'Coupe du Monde 🌍',
+  'World Cup 2026':                   'Coupe du Monde 2026 🌍',
   'Fifa World Cup':                   'Coupe du Monde 🌍',
   'European Championship':            'Euro 🇪🇺',
   'Uefa European Championship':       'Euro 🇪🇺',
@@ -950,7 +951,7 @@ function cName(raw){ return COMP_MAP[raw] || raw; }
 
 /* ── Priorité de tri des compétitions ── */
 const COMP_PRIORITY = [
-  'World Cup','Fifa World Cup',
+  'World Cup','World Cup 2026','Fifa World Cup',
   'European Championship','Uefa European Championship',
   'Copa America','Africa Cup Of Nations','Uefa Nations League',
   'Champions League','Uefa Champions League',
