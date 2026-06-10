@@ -41,19 +41,14 @@ jobs:
 
           now   = datetime.now(timezone.utc)
           today = now.strftime('%Y-%m-%d')
-          # Générer les 7 prochains jours (format YYYY-MM-DD)
-          future_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, 8)]
-
-          urls_to_fetch = [
-              # Page principale (aujourd'hui)
-              'https://www.livescores.com/football/',
-              # Page dédiée Coupe du Monde (tous les matchs du tournoi)
-              'https://www.livescores.com/football/world-cup-2026/',
-          ]
-          # Pour chaque jour futur : deux formats d'URL (chemin + query param)
-          for d in future_dates:
+          # 14 jours (phase de groupes Coupe du Monde dure ~16 jours)
+          # On utilise uniquement les URLs datées en chemin : /football/YYYY-MM-DD/
+          # La page ?d=DATE renvoie toujours le même contenu → ignorée
+          # La page world-cup-2026/ (sans date) tagguerait tous ses matchs "aujourd'hui" → ignorée
+          urls_to_fetch = ['https://www.livescores.com/football/']  # page du jour (matchs en cours)
+          for i in range(0, 15):  # aujourd'hui + 14 jours
+              d = (now + timedelta(days=i)).strftime('%Y-%m-%d')
               urls_to_fetch.append(f'https://www.livescores.com/football/{d}/')
-              urls_to_fetch.append(f'https://www.livescores.com/football/?d={d}')
 
           def extract_date(url):
               m = re.search(r'(\d{4}-\d{2}-\d{2})', url)
