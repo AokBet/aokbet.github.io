@@ -37,9 +37,11 @@ a{text-decoration:none;color:inherit;}
 .nav{height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.25rem;}
 .brand img{width:36px;height:36px;border-radius:8px;object-fit:cover;}
-.navlinks{display:flex;gap:20px;color:var(--muted);font-weight:700;font-size:.88rem;}
-.navlinks a:hover{color:#fff;}
-.navlinks a.here{color:var(--green);}
+.navlinks{display:flex;gap:2px;color:var(--muted);font-weight:700;font-size:.82rem;align-items:center;flex-wrap:nowrap;}
+.navlinks a{padding:6px 9px;border-radius:8px;transition:.18s;white-space:nowrap;}
+.navlinks a:hover{color:#fff;background:rgba(255,255,255,.06);}
+.navlinks a.here{color:var(--green);background:rgba(39,242,138,.1);}
+.navlinks a.prono-link{color:var(--gold);}
 .btn{display:inline-flex;align-items:center;border:none;border-radius:999px;padding:11px 20px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.88rem;}
 .btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 8px 24px rgba(39,242,138,.2);}
 .btn:hover{transform:translateY(-1px);}
@@ -300,8 +302,9 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <a href="index.html">Accueil</a>
     <a href="index.html#performances">Performances</a>
     <a href="index.html#abonnements">Abonnements</a>
-    <a href="scores.html" class="here">🎾 Tennis Live</a>
     <a href="index.html#telegram">Telegram</a>
+    <a href="scores.html" class="here">🎾 Scores Live</a>
+    <a href="pronos.html" class="prono-link">🎯 Pronostics</a>
   </nav>
   <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -313,8 +316,9 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   <a href="index.html" onclick="closeMenu()">Accueil</a>
   <a href="index.html#performances" onclick="closeMenu()">Performances</a>
   <a href="index.html#abonnements" onclick="closeMenu()">Abonnements</a>
-  <a href="scores.html" class="here" onclick="closeMenu()">🎾 Tennis Live</a>
   <a href="index.html#telegram" onclick="closeMenu()">Telegram</a>
+  <a href="scores.html" class="here" onclick="closeMenu()">🎾 Scores Live</a>
+  <a href="pronos.html" onclick="closeMenu()">🎯 Pronostics</a>
 </div>
 
 <main>
