@@ -70,18 +70,23 @@ jobs:
 
           for link in soup.find_all('a', href=True):
               href = link['href']
-              # URL pattern football: /football/competition/team1-vs-team2/id/
+              # URL pattern football: /football/[comp-path]/team1-vs-team2/id/
+              # On utilise [^/]+ pour les équipes afin d'éviter que des segments de chemin
+              # supplémentaires (ex: featured-international-friendlies/argentina) soient
+              # capturés comme nom d'équipe.
               m = re.match(
-                  r'^/football/([^/]+)/(.+)-vs-(.+)/(\d{5,9})/?$',
+                  r'^/football/(.+)/([^/]+)-vs-([^/]+)/(\d{5,9})/?$',
                   href
               )
               if not m:
                   continue
-              comp_slug, t1s, t2s, mid = m.groups()
+              comp_path, t1s, t2s, mid = m.groups()
               if mid in seen:
                   continue
               seen.add(mid)
 
+              # Utiliser le dernier segment du chemin compétition
+              comp_slug = comp_path.split('/')[-1]
               competition = cap(comp_slug)
               t1_name = cap(t1s)
               t2_name = cap(t2s)
