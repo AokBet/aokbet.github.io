@@ -54,120 +54,115 @@ jobs:
               urls_to_fetch.append(f'https://www.livescores.com/football/{d}/')
               urls_to_fetch.append(f'https://www.livescores.com/football/?d={d}')
 
-          all_html = []
+          def extract_date(url):
+              m = re.search(r'(\d{4}-\d{2}-\d{2})', url)
+              return m.group(1) if m else None
+
+          # Fetch toutes les URLs
+          fetched_pages = []
           for url in urls_to_fetch:
               try:
                   r = requests.get(url, headers=HEADERS, timeout=25)
                   r.raise_for_status()
                   print(f"Fetch OK {url} — {len(r.text)} octets", file=sys.stderr)
                   if '-vs-' in r.text:
-                      all_html.append(r.text)
+                      fetched_pages.append((url, r.text))
               except Exception as e:
                   print(f"Fetch error {url}: {e}", file=sys.stderr)
 
-          if not all_html:
+          if not fetched_pages:
               print("Aucune source disponible", file=sys.stderr)
               sys.exit(0)
 
           events = []
           seen = set()
 
-          combined = '\n'.join(all_html)
-          soup = BeautifulSoup(combined, 'lxml')
+          # Traiter les pages datées EN PREMIER pour que chaque match hérite de la bonne date
+          dated   = [(u, h) for u, h in fetched_pages if extract_date(u)]
+          general = [(u, h) for u, h in fetched_pages if not extract_date(u)]
 
-          for link in soup.find_all('a', href=True):
-              href = link['href']
-              # URL pattern football: /football/[comp-path]/team1-vs-team2/id/
-              # On utilise [^/]+ pour les équipes afin d'éviter que des segments de chemin
-              # supplémentaires (ex: featured-international-friendlies/argentina) soient
-              # capturés comme nom d'équipe.
-              m = re.match(
-                  r'^/football/(.+)/([^/]+)-vs-([^/]+)/(\d{5,9})/?$',
-                  href
-              )
-              if not m:
-                  continue
-              comp_path, t1s, t2s, mid = m.groups()
-              if mid in seen:
-                  continue
-              seen.add(mid)
+          for url, html in dated + general:
+              url_date = extract_date(url) or today
+              soup = BeautifulSoup(html, 'lxml')
+              for link in soup.find_all('a', href=True):
+                  href = link['href']
+                  # URL pattern: /football/[comp-path]/team1-vs-team2/id/
+                  # [^/]+ pour les équipes → empêche les segments de chemin dans le nom
+                  lm = re.match(
+                      r'^/football/(.+)/([^/]+)-vs-([^/]+)/(\d{5,9})/?$',
+                      href
+                  )
+                  if not lm:
+                      continue
+                  comp_path, t1s, t2s, mid = lm.groups()
+                  if mid in seen:
+                      continue
+                  seen.add(mid)
 
-              # Utiliser le premier segment du chemin compétition
-              # ex: "world-cup-2026/group-a" → "world-cup-2026" → "World Cup 2026"
-              comp_slug = comp_path.split('/')[0]
-              competition = cap(comp_slug)
-              t1_name = cap(t1s)
-              t2_name = cap(t2s)
+                  # Premier segment = compétition principale
+                  # ex: "world-cup-2026/group-a" → "world-cup-2026" → "World Cup 2026"
+                  comp_slug = comp_path.split('/')[0]
+                  competition = cap(comp_slug)
+                  t1_name = cap(t1s)
+                  t2_name = cap(t2s)
 
-              raw = link.get_text(strip=True)
+                  raw = link.get_text(strip=True)
 
-              # ── Statut ────────────────────────────────────────────────
-              # "FT" = terminé, minute "45'" = en cours, heure "21:00" = programmé
-              first_child_text = ''
-              for child in link.children:
-                  t = child.get_text(strip=True) if hasattr(child, 'get_text') else str(child).strip()
-                  if t:
-                      first_child_text = t
-                      break
+                  # ── Statut ──────────────────────────────────────────
+                  first_child_text = ''
+                  for child in link.children:
+                      ct = child.get_text(strip=True) if hasattr(child, 'get_text') else str(child).strip()
+                      if ct:
+                          first_child_text = ct
+                          break
 
-              if first_child_text in ('FT', 'AET', 'Pen') or raw.startswith('FT') or raw.startswith('AET'):
-                  status = 'finished'
-                  time_info = 'FT'
-              elif re.match(r"^\d{1,3}'$", first_child_text) or re.match(r"^\d{1,3}\+\d+'?$", first_child_text):
-                  # Minute de jeu ex: "45'" ou "90+2'"
-                  status = 'live'
-                  time_info = first_child_text
-              elif re.match(r'^\d{1,2}:\d{2}$', first_child_text):
-                  status = 'scheduled'
-                  time_info = first_child_text
-              elif first_child_text in ('HT', 'MI-TEMPS'):
-                  status = 'live'
-                  time_info = 'Mi-temps'
-              else:
-                  # Chercher heure dans le texte brut
-                  hm = re.search(r'(\d{1,2}:\d{2})', raw)
-                  if hm:
-                      status = 'scheduled'
-                      time_info = hm.group(1)
-                  else:
+                  if first_child_text in ('FT', 'AET', 'Pen') or raw.startswith('FT') or raw.startswith('AET'):
+                      status = 'finished'
+                      time_info = 'FT'
+                  elif re.match(r"^\d{1,3}'$", first_child_text) or re.match(r"^\d{1,3}\+\d+'?$", first_child_text):
                       status = 'live'
-                      time_info = first_child_text or 'Live'
+                      time_info = first_child_text
+                  elif re.match(r'^\d{1,2}:\d{2}$', first_child_text):
+                      status = 'scheduled'
+                      time_info = first_child_text
+                  elif first_child_text in ('HT', 'MI-TEMPS'):
+                      status = 'live'
+                      time_info = 'Mi-temps'
+                  else:
+                      hm = re.search(r'(\d{1,2}:\d{2})', raw)
+                      if hm:
+                          status = 'scheduled'
+                          time_info = hm.group(1)
+                      else:
+                          status = 'live'
+                          time_info = first_child_text or 'Live'
 
-              # ── Buts ────────────────────────────────────────────────
-              # livescores football : 2 nombres = buts domicile / extérieur
-              leaf_nums = []
-              for el in link.find_all(True):
-                  if not el.find():
-                      t = el.get_text(strip=True)
-                      if re.match(r'^\d{1,2}$', t):
-                          leaf_nums.append(int(t))
+                  # ── Buts ────────────────────────────────────────────
+                  leaf_nums = []
+                  for el in link.find_all(True):
+                      if not el.find():
+                          nt = el.get_text(strip=True)
+                          if re.match(r'^\d{1,2}$', nt):
+                              leaf_nums.append(int(nt))
 
-              # Pour un match de foot terminé/en cours : 2 nombres (t1_goals, t2_goals)
-              t1_goals = None
-              t2_goals = None
-              if len(leaf_nums) >= 2 and status != 'scheduled':
-                  t1_goals = leaf_nums[0]
-                  t2_goals = leaf_nums[1]
+                  t1_goals = None
+                  t2_goals = None
+                  if len(leaf_nums) >= 2 and status != 'scheduled':
+                      t1_goals = leaf_nums[0]
+                      t2_goals = leaf_nums[1]
 
-              t1_win = status == 'finished' and t1_goals is not None and t1_goals > t2_goals
-              t2_win = status == 'finished' and t2_goals is not None and t2_goals > t1_goals
+                  t1_win = status == 'finished' and t1_goals is not None and t1_goals > t2_goals
+                  t2_win = status == 'finished' and t2_goals is not None and t2_goals > t1_goals
 
-              events.append({
-                  'id': mid,
-                  'competition': competition,
-                  'status': status,
-                  'timeInfo': time_info,
-                  't1': {
-                      'name': t1_name,
-                      'goals': t1_goals,
-                      'win': t1_win,
-                  },
-                  't2': {
-                      'name': t2_name,
-                      'goals': t2_goals,
-                      'win': t2_win,
-                  },
-              })
+                  events.append({
+                      'id': mid,
+                      'competition': competition,
+                      'date': url_date,
+                      'status': status,
+                      'timeInfo': time_info,
+                      't1': {'name': t1_name, 'goals': t1_goals, 'win': t1_win},
+                      't2': {'name': t2_name, 'goals': t2_goals, 'win': t2_win},
+                  })
 
           output = {
               'source': 'livescores',
