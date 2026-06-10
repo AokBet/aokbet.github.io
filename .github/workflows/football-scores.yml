@@ -39,7 +39,8 @@ jobs:
           def cap(slug):
               return ' '.join(w.capitalize() for w in slug.replace('-', ' ').split())
 
-          now = datetime.now(timezone.utc)
+          now   = datetime.now(timezone.utc)
+          today = now.strftime('%Y-%m-%d')
           # Générer les 7 prochains jours (format YYYY-MM-DD)
           future_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, 8)]
 
