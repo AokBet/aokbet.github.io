@@ -34,9 +34,10 @@ a{text-decoration:none;color:inherit;}
 .nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.35rem;}
 .brand img{width:38px;height:38px;border-radius:9px;object-fit:cover;}
-.navlinks{display:flex;gap:20px;color:var(--muted);font-weight:700;font-size:.9rem;}
-.navlinks a:hover{color:#fff;}
-.navlinks a.active{color:var(--green);}
+.navlinks{display:flex;gap:6px;color:var(--muted);font-weight:700;font-size:.85rem;}
+.navlinks a{padding:6px 12px;border-radius:8px;transition:.18s;}
+.navlinks a:hover{color:#fff;background:rgba(255,255,255,.06);}
+.navlinks a.active{color:var(--green);background:rgba(39,242,138,.1);}
 .navlinks a.live-link{color:var(--green);}
 .btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:12px 22px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.9rem;text-decoration:none;}
 .btn:hover{transform:translateY(-2px);}
@@ -59,7 +60,8 @@ a{text-decoration:none;color:inherit;}
 /* ── PAGE HEADER ── */
 .page-header{padding:44px 0 28px;}
 .page-header h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:900;letter-spacing:-.05em;line-height:1;}
-.page-header p{color:var(--muted);margin-top:10px;font-size:.95rem;line-height:1.6;max-width:560px;}
+.page-header p{color:var(--muted);margin-top:10px;font-size:.95rem;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:600px){.page-header p{white-space:normal;}}
 
 /* ── PSEUDO BAR ── */
 .pseudo-bar{
@@ -143,14 +145,48 @@ a{text-decoration:none;color:inherit;}
 .validate-hint{font-size:.82rem;color:var(--muted);font-weight:600;}
 .validate-count{font-size:.82rem;color:var(--green);font-weight:800;}
 
+.m-score{
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px 14px;flex-wrap:wrap;
+}
+.score-label{font-size:.73rem;font-weight:700;color:var(--muted);white-space:nowrap;}
+.score-inputs{display:flex;align-items:center;gap:6px;}
+.score-inp{
+  width:46px;padding:7px 6px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(255,255,255,.06);color:var(--text);
+  font-family:Inter,sans-serif;font-size:.88rem;font-weight:800;
+  text-align:center;outline:none;transition:.18s;
+}
+.score-inp:focus{border-color:rgba(39,242,138,.5);background:rgba(39,242,138,.05);}
+.score-inp:disabled{opacity:.5;cursor:default;}
+.score-inp[readonly]{opacity:.7;cursor:default;}
+.score-sep{color:var(--muted);font-weight:900;font-size:.85rem;}
+.score-hint{font-size:.68rem;color:var(--gold);font-weight:700;margin-left:2px;}
+
 .m-result{
   padding:6px 16px 13px;font-size:.78rem;font-weight:700;
   display:flex;align-items:center;gap:6px;
 }
 .m-result.won{color:var(--green);}
+.m-result.exact{color:var(--gold);}
 .m-result.lost{color:var(--red);}
 .m-result.neutral{color:var(--muted);}
 .m-warn{padding:0 16px 12px;font-size:.73rem;color:var(--muted);}
+
+/* ── POINTS LEGEND ── */
+.pts-legend{
+  display:flex;gap:10px;flex-wrap:wrap;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;
+  padding:14px 18px;margin-bottom:28px;
+}
+.pts-item{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700;}
+.pts-badge{
+  padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:900;
+  white-space:nowrap;
+}
+.pts-gold{background:rgba(255,213,74,.15);color:var(--gold);}
+.pts-green{background:rgba(39,242,138,.12);color:var(--green);}
+.pts-muted{background:rgba(255,255,255,.06);color:var(--muted);}
 
 /* ── LEADERBOARD ── */
 .lb-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:60px;}
@@ -261,6 +297,13 @@ a{text-decoration:none;color:inherit;}
     </div>
   </div>
 
+  <!-- POINTS LEGEND -->
+  <div class="pts-legend">
+    <div class="pts-item"><span class="pts-badge pts-gold">🎯 Score exact</span> 5 pts</div>
+    <div class="pts-item"><span class="pts-badge pts-green">✅ Victoire</span> 3 pts</div>
+    <div class="pts-item"><span class="pts-badge pts-muted">❌ Défaite</span> 0 pt</div>
+  </div>
+
   <!-- MATCHES -->
   <div class="sec-title">⚽ Matchs de la semaine</div>
   <div class="matches-list" id="matches-container">
@@ -303,8 +346,13 @@ const CSV_VOTES  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?t
 let allMatches = [];
 let leaderboard = [];
 let myPseudo  = localStorage.getItem('aokbet_pseudo') || '';
-let myVotes   = JSON.parse(localStorage.getItem('aokbet_votes') || '{}'); // confirmés
-let pendingVotes = {}; // sélectionnés mais pas encore soumis
+// myVotes : {matchId: {result:'1', score1:'2', score2:'1'}} — confirmés
+let myVotes   = JSON.parse(localStorage.getItem('aokbet_votes') || '{}');
+// Migrate old string format → object format
+Object.keys(myVotes).forEach(k => {
+  if (typeof myVotes[k] === 'string') myVotes[k] = { result: myVotes[k], score1:'', score2:'' };
+});
+let pendingVotes = {}; // {matchId: {result:'', score1:'', score2:''}}
 
 // ── Boot ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -384,39 +432,55 @@ async function loadData() {
     ]);
 
     // Parse matchs (skip header row)
+    // Colonnes: ID | Date | Équipe1 | Équipe2 | Sport | Résultat | Score1 | Score2
     const matchRows = parseCsv(matchesCsv).slice(1);
     allMatches = matchRows
       .filter(r => r[0] && r[2])
       .map(r => ({
         id:     r[0].trim(),
-        date:   r[1].trim().substring(0, 10),  // YYYY-MM-DD
+        date:   r[1].trim().substring(0, 10),
         team1:  r[2].trim(),
         team2:  r[3].trim(),
         sport:  (r[4] || 'foot').trim().toLowerCase(),
-        result: r[5] && r[5].trim() ? r[5].trim() : null
+        result: r[5] && r[5].trim() ? r[5].trim() : null,
+        score1: r[6] ? r[6].trim() : '',
+        score2: r[7] ? r[7].trim() : ''
       }));
 
     // Parse votes & compute leaderboard
+    // Colonnes: Timestamp | Pseudo | Match ID | Vote | Score1 | Score2
     const voteRows = votesCsv ? parseCsv(votesCsv).slice(1) : [];
     const results = {};
-    allMatches.forEach(m => { if (m.result) results[m.id] = m.result; });
+    allMatches.forEach(m => {
+      if (m.result) results[m.id] = { result: m.result, score1: m.score1, score2: m.score2 };
+    });
 
     const scores = {};
     voteRows.forEach(r => {
       const pseudo  = (r[1] || '').trim();
       const matchId = (r[2] || '').trim();
       const vote    = (r[3] || '').trim();
+      const vs1     = (r[4] || '').trim();
+      const vs2     = (r[5] || '').trim();
       if (!pseudo || !matchId || !vote) return;
-      if (!scores[pseudo]) scores[pseudo] = { pseudo, pts: 0, correct: 0, total: 0 };
+      if (!scores[pseudo]) scores[pseudo] = { pseudo, pts: 0, correct: 0, exact: 0, total: 0 };
       scores[pseudo].total++;
-      if (results[matchId] !== undefined && vote === results[matchId]) {
-        scores[pseudo].pts += 3;
-        scores[pseudo].correct += 1;
+      const res = results[matchId];
+      if (res && vote === res.result) {
+        // Score exact (résultat + score) → 5pts ; résultat seul → 3pts
+        if (vs1 !== '' && vs2 !== '' && vs1 === res.score1 && vs2 === res.score2) {
+          scores[pseudo].pts += 5;
+          scores[pseudo].exact   += 1;
+          scores[pseudo].correct += 1;
+        } else {
+          scores[pseudo].pts += 3;
+          scores[pseudo].correct += 1;
+        }
       }
     });
 
     leaderboard = Object.values(scores)
-      .sort((a,b) => b.pts - a.pts || b.correct - a.correct || a.pseudo.localeCompare(b.pseudo))
+      .sort((a,b) => b.pts - a.pts || b.exact - a.exact || b.correct - a.correct || a.pseudo.localeCompare(b.pseudo))
       .map((s, i) => ({ ...s, rank: i + 1 }));
 
     renderMatches();
@@ -442,8 +506,8 @@ function renderMatches() {
 
 function matchCard(m) {
   const hasResult = !!m.result;
-  const myVote    = myVotes[m.id]   || null; // confirmé
-  const pending   = pendingVotes[m.id] || null; // sélectionné, pas encore soumis
+  const myVote    = myVotes[m.id]      || null; // {result, score1, score2} — confirmé
+  const pending   = pendingVotes[m.id] || null; // idem, pas encore soumis
   const icon      = m.sport === 'tennis' ? '🎾' : '⚽';
 
   // Date label
@@ -458,17 +522,20 @@ function matchCard(m) {
   let badge = '';
   if      (hasResult) badge = `<span class="m-badge badge-done">Terminé</span>`;
   else if (myVote)    badge = `<span class="m-badge badge-voted">✓ Confirmé</span>`;
-  else if (pending)   badge = `<span class="m-badge badge-pending">⏳ Sélectionné</span>`;
+  else if (pending && pending.result) badge = `<span class="m-badge badge-pending">⏳ Sélectionné</span>`;
   else                badge = `<span class="m-badge badge-open">Ouvert</span>`;
 
-  // Buttons
+  // Vote buttons
   const opts = m.sport === 'tennis'
     ? [['1', m.team1], ['2', m.team2]]
     : [['1', m.team1], ['N', 'Nul'], ['2', m.team2]];
 
+  const confirmedResult = myVote ? myVote.result : null;
+  const pendingResult   = pending ? pending.result : null;
+
   const btns = opts.map(([val, lbl]) => {
-    const isMyVote  = myVote === val;
-    const isPending = pending === val;
+    const isMyVote  = confirmedResult === val;
+    const isPending = pendingResult === val;
     const isCorrect = hasResult && m.result === val;
     const isWrong   = hasResult && isMyVote && !isCorrect;
     let cls = 'v-btn';
@@ -480,15 +547,46 @@ function matchCard(m) {
     return `<button class="${cls}" ${dis} onclick="selectVote('${m.id}','${val}')">${esc(lbl)}</button>`;
   }).join('');
 
+  // Score inputs (visibles si match ouvert et pas encore confirmé)
+  let scoreSection = '';
+  if (!hasResult && !myVote && m.sport !== 'tennis') {
+    const s1 = pending ? (pending.score1 || '') : '';
+    const s2 = pending ? (pending.score2 || '') : '';
+    const dis = pending && pending.result ? '' : 'disabled';
+    scoreSection = `
+      <div class="m-score">
+        <span class="score-label">Score exact :</span>
+        <div class="score-inputs">
+          <input class="score-inp" type="number" min="0" max="30" placeholder="0" value="${s1}" ${dis}
+                 oninput="updateScore('${m.id}','score1',this.value)" id="s1-${m.id}"/>
+          <span class="score-sep">—</span>
+          <input class="score-inp" type="number" min="0" max="30" placeholder="0" value="${s2}" ${dis}
+                 oninput="updateScore('${m.id}','score2',this.value)" id="s2-${m.id}"/>
+        </div>
+        <span class="score-hint">+5 pts si exact</span>
+      </div>`;
+  } else if (!hasResult && myVote && myVote.score1 !== '') {
+    scoreSection = `<div class="m-score"><span class="score-label">Score prédit :</span>
+      <span style="font-weight:800;color:var(--gold)">${esc(myVote.score1)} — ${esc(myVote.score2)}</span></div>`;
+  }
+
   // Result info
   let resultInfo = '';
   if (hasResult) {
     const rName = m.result === '1' ? m.team1 : m.result === '2' ? m.team2 : 'Match nul';
+    const scoreStr = (m.score1 !== '' && m.score2 !== '') ? ` (${m.score1}–${m.score2})` : '';
     if (myVote) {
-      const won = myVote === m.result;
-      resultInfo = `<div class="m-result ${won?'won':'lost'}">${won ? '✅ Bon pronostic ! +3 pts' : `❌ Résultat : ${esc(rName)}`}</div>`;
+      const won = myVote.result === m.result;
+      if (won) {
+        const exactScore = myVote.score1 !== '' && myVote.score1 === m.score1 && myVote.score2 === m.score2;
+        resultInfo = exactScore
+          ? `<div class="m-result exact">🎯 Score exact ! +5 pts</div>`
+          : `<div class="m-result won">✅ Bon pronostic ! +3 pts</div>`;
+      } else {
+        resultInfo = `<div class="m-result lost">❌ Résultat : ${esc(rName)}${scoreStr}</div>`;
+      }
     } else {
-      resultInfo = `<div class="m-result neutral">Résultat : ${esc(rName)}</div>`;
+      resultInfo = `<div class="m-result neutral">Résultat : ${esc(rName)}${scoreStr}</div>`;
     }
   }
 
@@ -505,18 +603,27 @@ function matchCard(m) {
         <div class="t-name">${esc(m.team2)}</div>
       </div>
       <div class="m-btns">${btns}</div>
-      ${resultInfo}${warn}
+      ${scoreSection}${resultInfo}${warn}
     </div>`;
 }
 
-// ── Sélection (sans soumettre) ────────────────────────
+// ── Sélection du résultat (sans soumettre) ────────────
 function selectVote(matchId, val) {
   if (!myPseudo) { showToast('⚠️ Entre ton pseudo d\'abord !', true); return; }
-  if (myVotes[matchId]) return; // déjà confirmé, on ne peut plus changer
+  if (myVotes[matchId]) return; // déjà confirmé
+  if (!pendingVotes[matchId]) pendingVotes[matchId] = { result: '', score1: '', score2: '' };
   // Clic sur le même bouton = désélectionner
-  if (pendingVotes[matchId] === val) delete pendingVotes[matchId];
-  else pendingVotes[matchId] = val;
+  if (pendingVotes[matchId].result === val) pendingVotes[matchId].result = '';
+  else pendingVotes[matchId].result = val;
+  // Nettoyer si rien de sélectionné
+  if (!pendingVotes[matchId].result) delete pendingVotes[matchId];
   renderMatches();
+}
+
+// ── Mise à jour du score prédit ───────────────────────
+function updateScore(matchId, field, value) {
+  if (!pendingVotes[matchId]) return;
+  pendingVotes[matchId][field] = value;
 }
 
 // ── Bouton Valider ────────────────────────────────────
@@ -546,8 +653,14 @@ function submitAllVotes() {
   showToast('🎯 Pronostics validés !');
 
   // Envoyer au serveur via Image trick (contourne CORS à 100%)
-  Object.entries(toSubmit).forEach(([matchId, vote]) => {
-    const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(vote)}&t=${Date.now()}`;
+  Object.entries(toSubmit).forEach(([matchId, v]) => {
+    const url = `${SCRIPT_URL}?action=vote`
+      + `&pseudo=${encodeURIComponent(myPseudo)}`
+      + `&matchId=${encodeURIComponent(matchId)}`
+      + `&vote=${encodeURIComponent(v.result)}`
+      + `&score1=${encodeURIComponent(v.score1 || '')}`
+      + `&score2=${encodeURIComponent(v.score2 || '')}`
+      + `&t=${Date.now()}`;
     new Image().src = url;
   });
 
@@ -573,7 +686,7 @@ function renderLeaderboard() {
         <div class="lb-name ${isMe?'me':''}">${esc(p.pseudo)}${isMe ? ' 👈' : ''}</div>
         <div class="lb-right">
           <div class="lb-pts">${p.pts} pts</div>
-          <div class="lb-detail">${p.correct} / ${p.total} correct${p.correct > 1?'s':''}</div>
+          <div class="lb-detail">${p.correct}/${p.total} ✅${p.exact > 0 ? ` · ${p.exact} 🎯` : ''}</div>
         </div>
       </div>`;
   }).join('');
