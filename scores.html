@@ -307,7 +307,7 @@ footer{padding:32px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 <div class="page-head">
   <div class="eyebrow">📡 Scores en temps réel</div>
   <h1>Scores <span class="gradient">Live</span></h1>
-  <p>Tennis ATP · Football — mis à jour toutes les 5 minutes.</p>
+  <p>Tennis ATP · Coupe du Monde 2026 🌍 — mis à jour toutes les 5 minutes.</p>
   <!-- Sélecteur de sport -->
   <div class="sport-tabs">
     <button class="sport-btn on" onclick="setSport('tennis',this)">🎾 Tennis</button>
@@ -1049,7 +1049,7 @@ function renderFoot(){
     m.t2.name.toLowerCase().includes(searchQueryFoot)
   );
   if(!data.length){
-    el.innerHTML='<div class="state"><div class="ico">⚽</div><p>Aucun match pour ce filtre.</p></div>';
+    el.innerHTML='<div class="state"><div class="ico">🌍</div><p>Aucun match Coupe du Monde pour ce filtre.</p></div>';
     return;
   }
   // Grouper par compétition
@@ -1080,7 +1080,11 @@ async function loadFoot(){
     const r=await fetch(`/football-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
     if(r.ok){
       const data=await r.json();
-      allFootMatches=(data.events||[]).filter(ev=>ev?.t1?.name&&ev?.t2?.name);
+      // Garder uniquement la Coupe du Monde
+      allFootMatches=(data.events||[]).filter(ev=>
+        ev?.t1?.name && ev?.t2?.name &&
+        /world.?cup|coupe.du.monde/i.test(ev.competition||'')
+      );
       // Reclassifier live sans buts → scheduled
       allFootMatches.forEach(m=>{
         if(m.status==='live'&&m.t1.goals===null&&m.t2.goals===null){
@@ -1097,7 +1101,7 @@ async function loadFoot(){
       renderFoot();
     } else {
       document.getElementById('foot-list').innerHTML=
-        '<div class="state"><div class="ico">⚽</div><p>Données football non disponibles — workflow à configurer.</p></div>';
+        '<div class="state"><div class="ico">🌍</div><p>Données Coupe du Monde non disponibles — workflow à configurer.</p></div>';
     }
   }catch(e){
     document.getElementById('foot-list').innerHTML=
