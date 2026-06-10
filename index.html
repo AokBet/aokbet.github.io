@@ -662,9 +662,9 @@ function showExitPopup() {
   localStorage.setItem('aokbet_exit_shown', '1');
   document.getElementById('exit-overlay').style.display = 'flex';
 }
-// Desktop : souris vers la barre du navigateur
-document.addEventListener('mouseleave', function(e) {
-  if ((e.clientY <= 0 || e.relatedTarget === null) && !exitShown) showExitPopup();
+// Desktop : souris proche du bord haut (< 20px)
+document.addEventListener('mousemove', function(e) {
+  if (e.clientY < 20 && !exitShown) showExitPopup();
 });
 // Fallback : touche Échap
 document.addEventListener('keydown', function(e) {
