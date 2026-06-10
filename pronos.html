@@ -273,6 +273,9 @@ a{text-decoration:none;color:inherit;}
 //  CONFIG — colle ici l'URL de ton Apps Script déployé
 // ════════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPhpHkhWJ5X8sIoxjxXp0p-xvlnawJhXspyLVJJsTtxCzZqC8z9GpUoBM4Vu2ZZdw/exec';
+const SHEET_ID   = '17k38DmdZviHkAxcmNMabBABBQ9rJ5iKasliOeDUZyyg';
+const CSV_MATCHS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Matchs`;
+const CSV_VOTES  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Votes`;
 
 // ── State ────────────────────────────────────────────
 let allMatches = [];
@@ -320,32 +323,84 @@ function editPseudo() {
   document.getElementById('pseudo-input').focus();
 }
 
-// ── JSONP (contourne CORS) ────────────────────────────
-let _cbCount = 0;
-function jsonp(url) {
-  return new Promise((resolve, reject) => {
-    const cb = '__aokbet_' + (++_cbCount);
-    const s  = document.createElement('script');
-    const timer = setTimeout(() => { reject(new Error('timeout')); cleanup(); }, 10000);
-    window[cb] = (data) => { clearTimeout(timer); resolve(data); cleanup(); };
-    s.onerror = () => { clearTimeout(timer); reject(new Error('script error')); cleanup(); };
-    function cleanup() { delete window[cb]; if (s.parentNode) s.parentNode.removeChild(s); }
-    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-    document.head.appendChild(s);
-  });
+// ── CSV Parser ───────────────────────────────────────
+function parseCsv(text) {
+  const rows = [];
+  let i = 0;
+  while (i < text.length) {
+    const row = [];
+    while (i < text.length && text[i] !== '\n') {
+      if (text[i] === '"') {
+        i++; let cell = '';
+        while (i < text.length) {
+          if (text[i] === '"' && text[i+1] === '"') { cell += '"'; i += 2; }
+          else if (text[i] === '"') { i++; break; }
+          else { cell += text[i++]; }
+        }
+        row.push(cell);
+        if (text[i] === ',') i++;
+      } else {
+        let cell = '';
+        while (i < text.length && text[i] !== ',' && text[i] !== '\n') cell += text[i++];
+        row.push(cell.trim());
+        if (text[i] === ',') i++;
+      }
+    }
+    if (text[i] === '\n') i++;
+    if (row.length > 0 && !(row.length === 1 && row[0] === '')) rows.push(row);
+  }
+  return rows;
 }
 
 // ── Data ─────────────────────────────────────────────
 async function loadData() {
   try {
-    const data = await jsonp(`${SCRIPT_URL}?action=data&t=${Date.now()}`);
-    allMatches  = data.matches    || [];
-    leaderboard = data.leaderboard || [];
+    const [matchesCsv, votesCsv] = await Promise.all([
+      fetch(CSV_MATCHS + '&t=' + Date.now()).then(r => r.text()),
+      fetch(CSV_VOTES  + '&t=' + Date.now()).then(r => r.text()).catch(() => '')
+    ]);
+
+    // Parse matchs (skip header row)
+    const matchRows = parseCsv(matchesCsv).slice(1);
+    allMatches = matchRows
+      .filter(r => r[0] && r[2])
+      .map(r => ({
+        id:     r[0].trim(),
+        date:   r[1].trim().substring(0, 10),  // YYYY-MM-DD
+        team1:  r[2].trim(),
+        team2:  r[3].trim(),
+        sport:  (r[4] || 'foot').trim().toLowerCase(),
+        result: r[5] && r[5].trim() ? r[5].trim() : null
+      }));
+
+    // Parse votes & compute leaderboard
+    const voteRows = votesCsv ? parseCsv(votesCsv).slice(1) : [];
+    const results = {};
+    allMatches.forEach(m => { if (m.result) results[m.id] = m.result; });
+
+    const scores = {};
+    voteRows.forEach(r => {
+      const pseudo  = (r[1] || '').trim();
+      const matchId = (r[2] || '').trim();
+      const vote    = (r[3] || '').trim();
+      if (!pseudo || !matchId || !vote) return;
+      if (!scores[pseudo]) scores[pseudo] = { pseudo, pts: 0, correct: 0, total: 0 };
+      scores[pseudo].total++;
+      if (results[matchId] !== undefined && vote === results[matchId]) {
+        scores[pseudo].pts += 3;
+        scores[pseudo].correct += 1;
+      }
+    });
+
+    leaderboard = Object.values(scores)
+      .sort((a,b) => b.pts - a.pts || b.correct - a.correct || a.pseudo.localeCompare(b.pseudo))
+      .map((s, i) => ({ ...s, rank: i + 1 }));
+
     renderMatches();
     renderLeaderboard();
   } catch(e) {
     document.getElementById('matches-container').innerHTML =
-      `<div class="loading-box" style="color:var(--red)">❌ Impossible de charger les données.<br><span style="font-size:.8rem">Vérifie l'URL du script.</span></div>`;
+      `<div class="loading-box" style="color:var(--red)">❌ Impossible de charger les données.<br><span style="font-size:.8rem">Vérifie que la Google Sheet est bien partagée publiquement.</span></div>`;
   }
 }
 
@@ -433,37 +488,18 @@ async function vote(matchId, val) {
   }
   if (myVotes[matchId]) { showToast('Déjà voté pour ce match !', true); return; }
 
-  // Optimistic
+  // Optimistic update
   myVotes[matchId] = val;
   localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
   renderMatches();
+  showToast('🎯 Pronostic enregistré !');
 
-  try {
-    const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(val)}&t=${Date.now()}`;
-    const data = await jsonp(url);
+  // Fire-and-forget (no-cors contourne CORS, on ne lit pas la réponse)
+  const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(val)}&t=${Date.now()}`;
+  fetch(url, { mode: 'no-cors' }).catch(() => {});
 
-    if (data.error === 'already_voted') {
-      showToast('✅ Pronostic déjà enregistré !');
-    } else if (data.error === 'match_closed') {
-      showToast('⛔ Ce match est fermé', true);
-      delete myVotes[matchId];
-      localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
-      renderMatches();
-    } else if (data.error) {
-      showToast('Erreur : ' + data.error, true);
-      delete myVotes[matchId];
-      localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
-      renderMatches();
-    } else {
-      showToast('🎯 Pronostic enregistré !');
-      setTimeout(loadData, 800);
-    }
-  } catch(e) {
-    showToast('Erreur réseau — réessaie', true);
-    delete myVotes[matchId];
-    localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
-    renderMatches();
-  }
+  // Refresh après 2s pour voir les votes des autres
+  setTimeout(loadData, 2000);
 }
 
 // ── Render Leaderboard ───────────────────────────────
