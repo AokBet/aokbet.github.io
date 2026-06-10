@@ -216,28 +216,35 @@ a{text-decoration:none;color:inherit;}
 .s-done{background:rgba(39,242,138,.1);color:var(--green);border:1px solid rgba(39,242,138,.2);}
 .s-pre{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--line);}
 
-.m-body{padding:12px 16px;}
-.scoreboard{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;}
-.player{display:flex;align-items:center;gap:8px;}
-.flag{font-size:1rem;}
+.m-body{padding:10px 14px;}
+
+/* ── Ligne joueur ── */
+.sc-row{display:flex;align-items:center;gap:7px;padding:5px 0;}
+.sc-row+.sc-row{border-top:1px solid rgba(255,255,255,.04);}
+.flag{font-size:.95rem;flex-shrink:0;}
 .dot-serve{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 5px rgba(255,213,74,.5);}
 .dot-off{width:7px;height:7px;flex-shrink:0;}
-.pname{font-size:.9rem;font-weight:800;}
+.pname{font-size:.88rem;font-weight:800;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .pname.winner{color:var(--green);}
 
-.scores{display:flex;gap:6px;justify-content:flex-end;align-items:center;}
-.set{min-width:22px;text-align:center;font-size:.85rem;font-weight:700;color:var(--muted);}
-.set.w{color:var(--text);font-weight:900;}
-.set.cur{color:var(--text);}
-.game{
-  min-width:30px;text-align:center;font-size:.85rem;font-weight:900;
+/* ── Colonnes de score (droite) ── */
+.sc-scores{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.sc-div{width:1px;height:14px;background:rgba(255,255,255,.12);border-radius:1px;}
+/* Sets gagnés */
+.sc-sw{min-width:14px;text-align:center;font-size:.9rem;font-weight:900;color:var(--text);}
+/* Score d'un set (terminé ou en cours) */
+.sc-s{min-width:22px;text-align:center;font-size:.88rem;font-weight:700;color:var(--muted);}
+.sc-s.w{color:var(--text);font-weight:900;}   /* set gagné */
+.sc-s.cur{color:var(--text);font-weight:800;} /* set en cours */
+/* Points en cours (jeu actuel) */
+.sc-g{min-width:30px;text-align:center;font-size:.82rem;font-weight:900;
   background:rgba(39,242,138,.1);color:var(--green);
-  border:1px solid rgba(39,242,138,.22);border-radius:5px;padding:1px 5px;
-}
+  border:1px solid rgba(39,242,138,.22);border-radius:5px;padding:1px 6px;}
+.sc-g-ph{min-width:30px;} /* placeholder pour alignement */
 
 .m-foot{
-  padding:5px 16px 10px;border-top:1px solid rgba(255,255,255,.04);margin-top:8px;
-  display:flex;gap:14px;font-size:.71rem;color:var(--muted);
+  padding:4px 14px 9px;border-top:1px solid rgba(255,255,255,.04);margin-top:4px;
+  display:flex;gap:14px;font-size:.7rem;color:var(--muted);
 }
 
 /* SÉPARATEUR DATE */
@@ -783,48 +790,62 @@ function setTournament(key,btn){
 function renderMatch(m){
   const live=m.status==='live';
   const fin=m.status==='finished';
+  const sch=m.status==='scheduled';
   const cls=live?'is-live':fin?'is-finished':'';
   const sCls=live?'s-live':fin?'s-done':'s-pre';
   const sTxt=live?'Live':fin?'Terminé':(m.timeInfo||'Programmé');
 
+  const p1sets=m.p1.sets||[], p2sets=m.p2.sets||[];
+  const maxS=Math.max(p1sets.length,p2sets.length);
+  // Label du set en cours
+  const setLabel=live&&maxS>0?`Set ${maxS} · `:'';
+
   function row(p,opp){
+    const sets=p.sets||[], oSets=opp.sets||[];
+
+    // Colonne sets gagnés
+    const swHtml=sch?'':
+      `<span class="sc-sw">${p.setsWon||0}</span><span class="sc-div"></span>`;
+
+    // Colonnes scores de set
     let sHtml='';
-    if(p.sets && p.sets.length>0){
-      sHtml=p.sets.map((s,i)=>{
-        const cur=live&&i===p.sets.length-1;
-        const win=fin&&s>(opp.sets[i]??0);
-        return `<span class="set${cur?' cur':win?' w':''}">${s}</span>`;
-      }).join('');
-    } else if(m.status!=='scheduled'){
-      sHtml='<span class="set" style="opacity:.35">–</span>';
+    if(maxS>0){
+      for(let i=0;i<maxS;i++){
+        const s=sets[i]??'';
+        const os=oSets[i]??'';
+        const isCur=live&&i===maxS-1;
+        const won=!isCur&&fin&&s!==''&&parseInt(s)>parseInt(os===''?0:os);
+        sHtml+=`<span class="sc-s${isCur?' cur':won?' w':''}">${s!==''?s:'–'}</span>`;
+      }
+    } else if(!sch){
+      sHtml='<span class="sc-s" style="opacity:.3">–</span>';
     }
-    const gHtml=live&&p.game?`<span class="game">${p.game}</span>`:'';
+
+    // Colonne points du jeu en cours
+    const gHtml=live
+      ? `<span class="sc-div"></span><span class="sc-g">${p.game||'0'}</span>`
+      : `<span class="sc-g-ph"></span>`;
+
     return `
-      <div class="player">
-        ${p.cc?`<span class="flag">${f(p.cc)}</span>`:''}
+      <div class="sc-row">
+        <span class="flag">${p.cc?f(p.cc):''}</span>
         ${p.serving?'<span class="dot-serve"></span>':'<span class="dot-off"></span>'}
         <span class="pname${p.win?' winner':''}">${p.name}</span>
-      </div>
-      <div class="scores">${sHtml}${gHtml}</div>`;
+        <div class="sc-scores">${swHtml}${sHtml}${gHtml}</div>
+      </div>`;
   }
 
   return `
     <div class="match ${cls}">
       <div class="m-head">
-        <span class="m-round">${m.round||tName(m.tournament)}</span>
+        <span class="m-round">${setLabel}${tName(m.tournament)}</span>
         <span class="m-status ${sCls}">${sTxt}</span>
       </div>
       <div class="m-body">
-        <div class="scoreboard">
-          ${row(m.p1,m.p2)}
-          ${row(m.p2,m.p1)}
-        </div>
+        ${row(m.p1,m.p2)}
+        ${row(m.p2,m.p1)}
       </div>
-      ${m.status!=='scheduled'?`
-      <div class="m-foot">
-        <span>Sets : ${m.p1.setsWon}–${m.p2.setsWon}</span>
-        ${live?`<span>⏱ ${m.timeInfo}</span>`:''}
-      </div>`:''}
+      ${fin?`<div class="m-foot"><span>Sets : ${m.p1.setsWon}–${m.p2.setsWon}</span></div>`:''}
     </div>`;
 }
 
