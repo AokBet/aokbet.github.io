@@ -1081,10 +1081,13 @@ async function loadFoot(){
     const r=await fetch(`/football-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
     if(r.ok){
       const data=await r.json();
-      // Garder uniquement la Coupe du Monde
+      // Garder uniquement la Coupe du Monde, exclure les placeholders (Winner Sf 1, Loser Qf 2…)
+      const PLACEHOLDER = /^(winner|loser)\s+(sf|qf|r\d+|16|8|4)\s*\d*/i;
       allFootMatches=(data.events||[]).filter(ev=>
         ev?.t1?.name && ev?.t2?.name &&
-        /world.?cup|coupe.du.monde/i.test(ev.competition||'')
+        /world.?cup|coupe.du.monde/i.test(ev.competition||'') &&
+        !PLACEHOLDER.test(ev.t1.name) &&
+        !PLACEHOLDER.test(ev.t2.name)
       );
       // Reclassifier live sans buts → scheduled
       allFootMatches.forEach(m=>{
@@ -1092,6 +1095,14 @@ async function loadFoot(){
           m.status='scheduled';
           if(!m.timeInfo||m.timeInfo==='Live') m.timeInfo='À venir';
         }
+      });
+      // Trier : live en premier, puis à venir par heure, puis terminés
+      allFootMatches.sort((a,b)=>{
+        const order = s => s==='live'?0:s==='scheduled'?1:2;
+        if(order(a.status)!==order(b.status)) return order(a.status)-order(b.status);
+        // Tri par heure pour les matchs à venir
+        const t = m => { const hm=(m.timeInfo||'').match(/(\d{1,2}):(\d{2})/); return hm?parseInt(hm[1])*60+parseInt(hm[2]):999; };
+        return t(a)-t(b);
       });
       const live=allFootMatches.filter(m=>m.status==='live').length;
       document.getElementById('foot-count-live').textContent=live;
