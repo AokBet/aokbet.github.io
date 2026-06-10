@@ -240,6 +240,14 @@ a{text-decoration:none;color:inherit;}
   display:flex;gap:14px;font-size:.71rem;color:var(--muted);
 }
 
+/* SÉPARATEUR DATE */
+.date-sep{
+  font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--gold);padding:22px 4px 8px;
+  border-bottom:1px solid rgba(255,213,74,.2);margin-bottom:10px;
+}
+.date-sep:first-child{padding-top:4px;}
+
 /* ÉTATS */
 .state{text-align:center;padding:60px 16px;color:var(--muted);}
 .state .ico{font-size:2.8rem;margin-bottom:12px;}
@@ -1041,6 +1049,13 @@ function renderFootMatch(m){
     </div>`;
 }
 
+function formatMatchDate(d){
+  try{
+    const dt=new Date(d+'T12:00:00Z');
+    return dt.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  }catch(e){return d;}
+}
+
 function renderFoot(){
   const el=document.getElementById('foot-list');
   let data=activeFilterFoot==='all' ? allFootMatches : allFootMatches.filter(m=>m.status===activeFilterFoot);
@@ -1053,25 +1068,27 @@ function renderFoot(){
     el.innerHTML='<div class="state"><div class="ico">🌍</div><p>Aucun match Coupe du Monde pour ce filtre.</p></div>';
     return;
   }
-  // Grouper par compétition
-  const groups={};
+  // Grouper par date
+  const byDate={};
   for(const m of data){
-    if(!groups[m.competition]) groups[m.competition]={name:m.competition,matches:[],hasLive:false};
-    groups[m.competition].matches.push(m);
-    if(m.status==='live') groups[m.competition].hasLive=true;
+    const d=m.date||'unknown';
+    if(!byDate[d]) byDate[d]=[];
+    byDate[d].push(m);
   }
-  const sorted=Object.values(groups).sort((a,b)=>{
-    if(a.hasLive!==b.hasLive) return b.hasLive?1:-1;
-    return compOrder(a.name)-compOrder(b.name);
+  // Trier les dates : live / aujourd'hui en premier, puis chronologique
+  const today=new Date().toISOString().slice(0,10);
+  const dateKeys=Object.keys(byDate).sort((a,b)=>{
+    // 'unknown' → fin
+    if(a==='unknown') return 1;
+    if(b==='unknown') return -1;
+    return a.localeCompare(b);
   });
   let html='';
-  for(const g of sorted){
-    html+=`<div class="group-header">
-      <span class="tour-badge" style="background:rgba(68,170,255,.12);color:#44aaff;border:1px solid rgba(68,170,255,.25)">⚽</span>
-      ${cName(g.name)}
-      ${g.hasLive?'<span class="live-pill" style="margin-left:4px">Live</span>':''}
-    </div>`;
-    html+=g.matches.map(renderFootMatch).join('');
+  for(const d of dateKeys){
+    const isToday=d===today;
+    const label=isToday?'🔴 Aujourd\'hui — '+formatMatchDate(d):formatMatchDate(d);
+    html+=`<div class="date-sep">${label}</div>`;
+    html+=byDate[d].map(renderFootMatch).join('');
   }
   el.innerHTML=html;
 }
@@ -1081,13 +1098,15 @@ async function loadFoot(){
     const r=await fetch(`/football-live.json?_=${Date.now()}`,{cache:'no-cache',signal:sig(8000)});
     if(r.ok){
       const data=await r.json();
-      // Garder uniquement la Coupe du Monde, exclure les placeholders (Winner Sf 1, Loser Qf 2…)
+      // Garder uniquement la Coupe du Monde
+      // Exclure : placeholders "Winner Sf 1", "Loser Qf 2" et identifiants encodés (contenant des chiffres)
       const PLACEHOLDER = /^(winner|loser)\s+(sf|qf|r\d+|16|8|4)\s*\d*/i;
+      const HAS_DIGIT = /\d/;
       allFootMatches=(data.events||[]).filter(ev=>
         ev?.t1?.name && ev?.t2?.name &&
         /world.?cup|coupe.du.monde/i.test(ev.competition||'') &&
-        !PLACEHOLDER.test(ev.t1.name) &&
-        !PLACEHOLDER.test(ev.t2.name)
+        !PLACEHOLDER.test(ev.t1.name) && !PLACEHOLDER.test(ev.t2.name) &&
+        !HAS_DIGIT.test(ev.t1.name) && !HAS_DIGIT.test(ev.t2.name)
       );
       // Reclassifier live sans buts → scheduled
       allFootMatches.forEach(m=>{
