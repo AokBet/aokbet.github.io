@@ -578,11 +578,16 @@ function parseLivescoresHTML(html){
 
     // ── Scores ──────────────────────────────────────────────────────────
     // Méthode 1 : éléments feuilles avec 1-2 chiffres
+    // On exclut 15, 30, 40 (scores de jeu tennis) pour ne garder que les scores de sets
+    const GAME_SCORES = new Set([15,30,40]);
     let nums = [];
     link.querySelectorAll('*').forEach(el => {
       if(el.children.length === 0){
         const t = el.textContent.trim();
-        if(/^\d{1,2}$/.test(t)) nums.push(parseInt(t));
+        if(/^\d{1,2}$/.test(t)){
+          const n = parseInt(t);
+          if(!GAME_SCORES.has(n)) nums.push(n);
+        }
       }
     });
     // Méthode 2 (fallback) : digits collés ex "6644" → [6,6,4,4]
@@ -595,9 +600,10 @@ function parseLivescoresHTML(html){
     }
 
     // livescores.com groupe les scores par joueur : [p1_s1, p1_s2, ..., p2_s1, p2_s2, ...]
-    // → on coupe au milieu. Si impair (tiebreak en trop), on retire le dernier chiffre.
-    if(nums.length % 2 !== 0) nums.pop();
-    const half = nums.length / 2;
+    // On coupe au milieu en arrondi supérieur (Math.ceil) pour gérer le set en cours
+    // qui peut n'avoir qu'un score (celui de p1) sans encore de score p2.
+    // Ex: [4, 2, 7] → p1=[4,2], p2=[7] ✓  au lieu de pop(7) → p1=[4], p2=[2] ✗
+    const half = Math.ceil(nums.length / 2);
     const p1Sets = nums.slice(0, Math.min(half, 5));
     const p2Sets = nums.slice(half, half + Math.min(half, 5));
 
