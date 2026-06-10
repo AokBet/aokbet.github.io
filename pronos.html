@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AokBet — Pronostics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070d;
+  --card:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.12);
+  --text:#f7f8fb;
+  --muted:#a7afbb;
+  --green:#27f28a;
+  --gold:#ffd54a;
+  --red:#f87171;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:Inter,sans-serif;
+  background:radial-gradient(circle at top left,rgba(39,242,138,.15),transparent 30%),
+             radial-gradient(circle at top right,rgba(69,163,255,.12),transparent 30%),#05070d;
+  color:var(--text);overflow-x:hidden;min-height:100vh;
+}
+a{text-decoration:none;color:inherit;}
+.container{width:min(860px,calc(100% - 28px));margin:auto;}
+
+/* ── NAV ── */
+.topbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(5,7,13,.88);border-bottom:1px solid var(--line);}
+.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.35rem;}
+.brand img{width:38px;height:38px;border-radius:9px;object-fit:cover;}
+.navlinks{display:flex;gap:20px;color:var(--muted);font-weight:700;font-size:.9rem;}
+.navlinks a:hover{color:#fff;}
+.navlinks a.active{color:var(--green);}
+.navlinks a.live-link{color:var(--green);}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:12px 22px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.9rem;text-decoration:none;}
+.btn:hover{transform:translateY(-2px);}
+.btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 10px 28px rgba(39,242,138,.25);}
+.btn-outline{background:transparent;border:2px solid var(--green);color:var(--green);}
+
+/* ── HAMBURGER ── */
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0;}
+.hamburger span{display:block;height:2px;background:var(--text);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(5,7,13,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);z-index:99;padding:16px 0;}
+.mobile-menu.open{display:block;}
+.mobile-menu a{display:block;padding:14px 24px;font-weight:700;font-size:1rem;color:var(--muted);border-bottom:1px solid rgba(255,255,255,.05);}
+.mobile-menu a:last-child{border-bottom:none;}
+.mobile-menu a:hover,.mobile-menu a:active{color:#fff;background:rgba(255,255,255,.04);}
+.mobile-menu a.active,.mobile-menu a.live-link{color:var(--green);}
+
+/* ── PAGE HEADER ── */
+.page-header{padding:44px 0 28px;}
+.page-header h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:900;letter-spacing:-.05em;line-height:1;}
+.page-header p{color:var(--muted);margin-top:10px;font-size:.95rem;line-height:1.6;max-width:560px;}
+
+/* ── PSEUDO BAR ── */
+.pseudo-bar{
+  background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;
+  padding:16px 20px;margin-bottom:24px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.pseudo-bar label{font-weight:700;font-size:.88rem;color:var(--muted);white-space:nowrap;}
+.pseudo-input{
+  flex:1;min-width:140px;
+  background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;color:var(--text);font-family:Inter,sans-serif;
+  font-size:.9rem;font-weight:700;outline:none;transition:.2s;
+}
+.pseudo-input:focus{border-color:rgba(39,242,138,.5);background:rgba(39,242,138,.05);}
+.pseudo-input::placeholder{color:var(--muted);font-weight:500;}
+.pseudo-saved{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:700;}
+.pseudo-saved .change-btn{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;padding:3px 10px;border-radius:6px;font-family:Inter,sans-serif;font-weight:700;text-decoration:underline;}
+.pseudo-saved .change-btn:hover{color:var(--text);}
+
+/* ── PRIZE BANNER ── */
+.prize-banner{
+  background:linear-gradient(135deg,rgba(255,213,74,.1),rgba(39,242,138,.06));
+  border:1px solid rgba(255,213,74,.25);border-radius:16px;
+  padding:16px 20px;margin-bottom:28px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.prize-icon{font-size:1.8rem;flex-shrink:0;}
+.prize-banner strong{display:block;font-size:.92rem;font-weight:900;color:var(--gold);margin-bottom:3px;}
+.prize-banner span{font-size:.8rem;color:var(--muted);line-height:1.5;}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:1.25rem;font-weight:900;letter-spacing:-.03em;margin-bottom:16px;}
+.sec-sub{color:var(--muted);font-size:.85rem;margin-bottom:16px;line-height:1.55;}
+
+/* ── MATCH CARDS ── */
+.matches-list{display:grid;gap:12px;margin-bottom:44px;}
+.match-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.2s;}
+.match-card.is-open{border-color:rgba(39,242,138,.18);}
+.match-card.is-done{opacity:.8;}
+
+.m-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px 0;
+  font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);
+}
+.m-badge{padding:3px 10px;border-radius:999px;font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;}
+.badge-open{background:rgba(39,242,138,.15);color:var(--green);}
+.badge-voted{background:rgba(255,213,74,.12);color:var(--gold);}
+.badge-done{background:rgba(255,255,255,.08);color:var(--muted);}
+
+.m-teams{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:16px 16px 14px;text-align:center;
+}
+.t-name{flex:1;font-size:1rem;font-weight:900;line-height:1.2;}
+.vs{color:var(--muted);font-size:.82rem;font-weight:700;flex-shrink:0;}
+
+.m-btns{display:flex;gap:7px;padding:0 16px 16px;}
+.v-btn{
+  flex:1;padding:11px 6px;border-radius:11px;border:2px solid var(--line);
+  background:rgba(255,255,255,.04);color:var(--text);
+  font-family:Inter,sans-serif;font-size:.83rem;font-weight:800;
+  cursor:pointer;transition:.18s;text-align:center;line-height:1.2;
+}
+.v-btn:hover:not([disabled]){border-color:rgba(39,242,138,.5);background:rgba(39,242,138,.07);color:var(--green);}
+.v-btn[disabled]{cursor:default;}
+.v-btn.my-vote{border-color:var(--green);background:rgba(39,242,138,.14);color:var(--green);}
+.v-btn.my-vote.wrong{border-color:var(--red);background:rgba(248,113,113,.12);color:var(--red);}
+.v-btn.correct{border-color:var(--gold);background:rgba(255,213,74,.1);color:var(--gold);}
+
+.m-result{
+  padding:6px 16px 13px;font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;gap:6px;
+}
+.m-result.won{color:var(--green);}
+.m-result.lost{color:var(--red);}
+.m-result.neutral{color:var(--muted);}
+.m-warn{padding:0 16px 12px;font-size:.73rem;color:var(--muted);}
+
+/* ── LEADERBOARD ── */
+.lb-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:60px;}
+.lb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.05);
+}
+.lb-row:last-child{border-bottom:none;}
+.lb-row.is-first{background:rgba(255,213,74,.04);}
+.lb-rank{width:24px;font-size:.88rem;font-weight:900;color:var(--muted);flex-shrink:0;text-align:center;}
+.lb-medal{font-size:1.1rem;width:22px;flex-shrink:0;text-align:center;}
+.lb-name{flex:1;font-weight:800;font-size:.92rem;}
+.lb-name.me{color:var(--green);}
+.lb-right{text-align:right;flex-shrink:0;}
+.lb-pts{font-size:1rem;font-weight:900;color:var(--green);}
+.lb-detail{font-size:.69rem;color:var(--muted);font-weight:600;margin-top:1px;}
+.lb-empty{padding:36px;text-align:center;color:var(--muted);font-size:.88rem;}
+
+/* ── LOADING / TOAST ── */
+.loading-box{text-align:center;padding:44px;color:var(--muted);font-size:.88rem;}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{
+  position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:rgba(39,242,138,.15);border:1px solid rgba(39,242,138,.35);
+  color:var(--green);padding:11px 22px;border-radius:999px;
+  font-weight:800;font-size:.86rem;z-index:500;
+  opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:rgba(248,113,113,.15);border-color:rgba(248,113,113,.35);color:var(--red);}
+
+/* ── FLOAT CTA ── */
+.float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
+
+/* ── MOBILE ── */
+@media(max-width:860px){
+  .navlinks{display:none;}
+  .hamburger{display:flex;}
+}
+@media(max-width:560px){
+  .page-header{padding:30px 0 22px;}
+  .m-teams{padding:14px 12px 12px;gap:8px;}
+  .t-name{font-size:.9rem;}
+  .m-btns{padding:0 10px 13px;gap:5px;}
+  .v-btn{padding:10px 5px;font-size:.78rem;}
+  .lb-row{padding:11px 14px;gap:8px;}
+  .prize-banner{gap:10px;}
+  .pseudo-bar{padding:13px 14px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <img src="logo.png" alt="AokBet">
+      <span>AokBet</span>
+    </a>
+    <nav class="navlinks">
+      <a href="index.html">Accueil</a>
+      <a href="index.html#performances">Performances</a>
+      <a href="index.html#abonnements">Abonnements</a>
+      <a href="index.html#telegram">Telegram</a>
+      <a href="scores.html" class="live-link">🎾 Scores Live</a>
+      <a href="pronos.html" class="active">🎯 Pronostics</a>
+    </nav>
+    <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="index.html" onclick="closeMenu()">Accueil</a>
+  <a href="index.html#performances" onclick="closeMenu()">Performances</a>
+  <a href="index.html#abonnements" onclick="closeMenu()">Abonnements</a>
+  <a href="index.html#telegram" onclick="closeMenu()">Telegram</a>
+  <a href="scores.html" class="live-link" onclick="closeMenu()">🎾 Scores Live</a>
+  <a href="pronos.html" class="active" onclick="closeMenu()">🎯 Pronostics</a>
+</div>
+
+<main>
+<div class="container">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1>🎯 Pronostics</h1>
+    <p>Fais tes pronostics chaque jour — le meilleur du classement repart avec <strong style="color:var(--gold)">1 semaine VIP offerte</strong>.</p>
+  </div>
+
+  <!-- PSEUDO BAR -->
+  <div class="pseudo-bar" id="pseudo-bar">
+    <label>Ton pseudo :</label>
+    <input class="pseudo-input" id="pseudo-input" type="text" placeholder="Choisis un pseudo…" maxlength="25" autocomplete="off"
+      onkeydown="if(event.key==='Enter')savePseudo()"/>
+    <button class="btn btn-primary" onclick="savePseudo()" style="padding:10px 18px;font-size:.85rem;">Valider</button>
+  </div>
+
+  <!-- PRIZE BANNER -->
+  <div class="prize-banner">
+    <div class="prize-icon">🏆</div>
+    <div>
+      <strong>1 semaine VIP offerte au meilleur de la semaine</strong>
+      <span>Classement remis à zéro chaque lundi. Pronostiquez juste pour grimper. Le leader de dimanche soir remporte l'accès VIP gratuit.</span>
+    </div>
+  </div>
+
+  <!-- MATCHES -->
+  <div class="sec-title">⚽ Matchs de la semaine</div>
+  <div class="matches-list" id="matches-container">
+    <div class="loading-box"><div class="spinner"></div><br>Chargement des matchs…</div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="sec-title">🏆 Classement de la semaine</div>
+  <p class="sec-sub">Mis à jour en temps réel dès qu'un résultat tombe. +3 pts par bon pronostic.</p>
+  <div class="lb-card" id="lb-container">
+    <div class="lb-empty">Chargement du classement…</div>
+  </div>
+
+</div>
+</main>
+
+<div class="toast" id="toast"></div>
+<a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
+
+<script>
+// ════════════════════════════════════════════════════
+//  CONFIG — colle ici l'URL de ton Apps Script déployé
+// ════════════════════════════════════════════════════
+const SCRIPT_URL = 'COLLE_ICI_TON_URL_APPS_SCRIPT';
+
+// ── State ────────────────────────────────────────────
+let allMatches = [];
+let leaderboard = [];
+let myPseudo = localStorage.getItem('aokbet_pseudo') || '';
+let myVotes  = JSON.parse(localStorage.getItem('aokbet_votes') || '{}'); // {matchId: vote}
+
+// ── Boot ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initPseudoBar();
+  loadData();
+  setInterval(loadData, 30000); // refresh toutes les 30s
+});
+
+// ── Pseudo ───────────────────────────────────────────
+function initPseudoBar() {
+  const bar = document.getElementById('pseudo-bar');
+  if (myPseudo) {
+    bar.innerHTML = `
+      <div class="pseudo-saved">
+        👤 Pseudo&nbsp;: <strong style="color:var(--text)">${esc(myPseudo)}</strong>
+        <button class="change-btn" onclick="editPseudo()">Modifier</button>
+      </div>`;
+  }
+}
+
+function savePseudo() {
+  const inp = document.getElementById('pseudo-input');
+  const val = (inp ? inp.value : '').trim();
+  if (!val) { showToast('Entre un pseudo !', true); return; }
+  myPseudo = val;
+  localStorage.setItem('aokbet_pseudo', val);
+  initPseudoBar();
+  showToast('✅ Pseudo enregistré : ' + val);
+  renderMatches();
+}
+
+function editPseudo() {
+  const bar = document.getElementById('pseudo-bar');
+  bar.innerHTML = `
+    <label>Ton pseudo :</label>
+    <input class="pseudo-input" id="pseudo-input" type="text" value="${esc(myPseudo)}" maxlength="25" autocomplete="off"
+      onkeydown="if(event.key==='Enter')savePseudo()"/>
+    <button class="btn btn-primary" onclick="savePseudo()" style="padding:10px 18px;font-size:.85rem;">Valider</button>`;
+  document.getElementById('pseudo-input').focus();
+}
+
+// ── Data ─────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=data&t=${Date.now()}`);
+    const data = await res.json();
+    allMatches  = data.matches    || [];
+    leaderboard = data.leaderboard || [];
+    renderMatches();
+    renderLeaderboard();
+  } catch(e) {
+    document.getElementById('matches-container').innerHTML =
+      `<div class="loading-box" style="color:var(--red)">❌ Impossible de charger les données.<br><span style="font-size:.8rem">Vérifie l'URL du script.</span></div>`;
+  }
+}
+
+// ── Render Matches ───────────────────────────────────
+function renderMatches() {
+  const box = document.getElementById('matches-container');
+  if (!allMatches.length) {
+    box.innerHTML = `<div class="loading-box">Aucun match disponible pour l'instant.</div>`;
+    return;
+  }
+  const sorted = [...allMatches].sort((a,b) => a.date.localeCompare(b.date));
+  box.innerHTML = sorted.map(matchCard).join('');
+}
+
+function matchCard(m) {
+  const hasResult = !!m.result;
+  const myVote    = myVotes[m.id] || null;
+  const icon      = m.sport === 'tennis' ? '🎾' : '⚽';
+
+  // Date label
+  let dateLbl = m.date;
+  try {
+    const dt = new Date(m.date + 'T12:00:00Z');
+    dateLbl = dt.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+    dateLbl = dateLbl[0].toUpperCase() + dateLbl.slice(1);
+  } catch(e){}
+
+  // Badge
+  let badge = '';
+  if      (hasResult)  badge = `<span class="m-badge badge-done">Terminé</span>`;
+  else if (myVote)     badge = `<span class="m-badge badge-voted">✓ Voté</span>`;
+  else                 badge = `<span class="m-badge badge-open">Ouvert</span>`;
+
+  // Buttons
+  const opts = m.sport === 'tennis'
+    ? [['1', m.team1], ['2', m.team2]]
+    : [['1', m.team1], ['N', 'Nul'], ['2', m.team2]];
+
+  const btns = opts.map(([val, lbl]) => {
+    const isMyVote  = myVote === val;
+    const isCorrect = hasResult && m.result === val;
+    const isWrong   = hasResult && isMyVote && !isCorrect;
+    let cls = 'v-btn';
+    if (isMyVote && !isWrong) cls += ' my-vote';
+    if (isWrong)              cls += ' my-vote wrong';
+    if (!isMyVote && isCorrect) cls += ' correct';
+    const dis = (hasResult || !!myVote) ? 'disabled' : '';
+    return `<button class="${cls}" ${dis} onclick="vote('${m.id}','${val}')">${esc(lbl)}</button>`;
+  }).join('');
+
+  // Result info
+  let resultInfo = '';
+  if (hasResult) {
+    const rName = m.result === '1' ? m.team1 : m.result === '2' ? m.team2 : 'Match nul';
+    if (myVote) {
+      const won = myVote === m.result;
+      resultInfo = `<div class="m-result ${won?'won':'lost'}">${won ? '✅ Bon pronostic ! +3 pts' : `❌ Résultat : ${esc(rName)}`}</div>`;
+    } else {
+      resultInfo = `<div class="m-result neutral">Résultat : ${esc(rName)}</div>`;
+    }
+  }
+
+  // No pseudo warning
+  const warn = (!myPseudo && !myVote && !hasResult)
+    ? `<div class="m-warn">⚠️ Entre ton pseudo en haut pour voter</div>` : '';
+
+  return `
+    <div class="match-card ${hasResult ? 'is-done' : 'is-open'}">
+      <div class="m-head"><span>${icon} ${dateLbl}</span>${badge}</div>
+      <div class="m-teams">
+        <div class="t-name">${esc(m.team1)}</div>
+        <div class="vs">VS</div>
+        <div class="t-name">${esc(m.team2)}</div>
+      </div>
+      <div class="m-btns">${btns}</div>
+      ${resultInfo}${warn}
+    </div>`;
+}
+
+// ── Vote ─────────────────────────────────────────────
+async function vote(matchId, val) {
+  if (!myPseudo) {
+    showToast('⚠️ Entre ton pseudo d\'abord !', true);
+    return;
+  }
+  if (myVotes[matchId]) { showToast('Déjà voté pour ce match !', true); return; }
+
+  // Optimistic
+  myVotes[matchId] = val;
+  localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+  renderMatches();
+
+  try {
+    const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(val)}&t=${Date.now()}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.error === 'already_voted') {
+      showToast('✅ Pronostic déjà enregistré !');
+    } else if (data.error === 'match_closed') {
+      showToast('⛔ Ce match est fermé', true);
+      delete myVotes[matchId];
+      localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+      renderMatches();
+    } else if (data.error) {
+      showToast('Erreur : ' + data.error, true);
+      delete myVotes[matchId];
+      localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+      renderMatches();
+    } else {
+      showToast('🎯 Pronostic enregistré !');
+      setTimeout(loadData, 800);
+    }
+  } catch(e) {
+    showToast('Erreur réseau — réessaie', true);
+    delete myVotes[matchId];
+    localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+    renderMatches();
+  }
+}
+
+// ── Render Leaderboard ───────────────────────────────
+function renderLeaderboard() {
+  const box = document.getElementById('lb-container');
+  if (!leaderboard.length) {
+    box.innerHTML = `<div class="lb-empty">Aucun vote pour l'instant — sois le premier ! 🎯</div>`;
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  box.innerHTML = leaderboard.map((p, i) => {
+    const isMe   = myPseudo && p.pseudo.toLowerCase() === myPseudo.toLowerCase();
+    const medal  = medals[i] || '';
+    const rankTxt = i >= 3 ? (i+1) : '';
+    return `
+      <div class="lb-row ${i===0?'is-first':''}">
+        <div class="lb-rank">${rankTxt}</div>
+        <div class="lb-medal">${medal}</div>
+        <div class="lb-name ${isMe?'me':''}">${esc(p.pseudo)}${isMe ? ' 👈' : ''}</div>
+        <div class="lb-right">
+          <div class="lb-pts">${p.pts} pts</div>
+          <div class="lb-detail">${p.correct} / ${p.total} correct${p.correct > 1?'s':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Utils ─────────────────────────────────────────────
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (isErr ? ' err' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleMenu(){
+  document.getElementById('hamburger').classList.toggle('open');
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function closeMenu(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-menu').classList.remove('open');
+}
+</script>
+</body>
+</html>
