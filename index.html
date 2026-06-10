@@ -652,27 +652,26 @@ function submitLead(source) {
 }
 
 // ── EXIT POPUP ─────────────────────────────────
-let exitShown = localStorage.getItem('aokbet_exit_shown');
+let exitShown = !!localStorage.getItem('aokbet_exit_shown');
 function closeExitPopup() {
   document.getElementById('exit-overlay').style.display = 'none';
 }
-if (!exitShown) {
-  document.addEventListener('mouseleave', function(e) {
-    if (e.clientY < 5 && !exitShown) {
-      exitShown = true;
-      localStorage.setItem('aokbet_exit_shown', '1');
-      document.getElementById('exit-overlay').style.display = 'flex';
-    }
-  });
-  // Sur mobile : déclenche après 40s de visite
-  setTimeout(function() {
-    if (!exitShown) {
-      exitShown = true;
-      localStorage.setItem('aokbet_exit_shown', '1');
-      document.getElementById('exit-overlay').style.display = 'flex';
-    }
-  }, 40000);
+function showExitPopup() {
+  if (exitShown) return;
+  exitShown = true;
+  localStorage.setItem('aokbet_exit_shown', '1');
+  document.getElementById('exit-overlay').style.display = 'flex';
 }
+// Desktop : souris vers la barre du navigateur
+document.addEventListener('mouseleave', function(e) {
+  if ((e.clientY <= 0 || e.relatedTarget === null) && !exitShown) showExitPopup();
+});
+// Fallback : touche Échap
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && !exitShown) showExitPopup();
+});
+// Mobile : après 35s de visite
+setTimeout(function() { showExitPopup(); }, 35000);
 </script>
 </body>
 </html>
