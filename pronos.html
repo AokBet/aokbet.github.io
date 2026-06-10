@@ -130,6 +130,18 @@ a{text-decoration:none;color:inherit;}
 .v-btn.my-vote{border-color:var(--green);background:rgba(39,242,138,.14);color:var(--green);}
 .v-btn.my-vote.wrong{border-color:var(--red);background:rgba(248,113,113,.12);color:var(--red);}
 .v-btn.correct{border-color:var(--gold);background:rgba(255,213,74,.1);color:var(--gold);}
+.v-btn.pending{border-color:rgba(255,213,74,.7);background:rgba(255,213,74,.1);color:var(--gold);}
+.badge-pending{background:rgba(255,213,74,.12);color:var(--gold);}
+
+/* ── VALIDATE BUTTON ── */
+.validate-section{margin-bottom:36px;}
+.validate-btn-wrap{
+  background:linear-gradient(135deg,rgba(39,242,138,.08),rgba(39,242,138,.04));
+  border:1px solid rgba(39,242,138,.25);border-radius:18px;
+  padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.validate-hint{font-size:.82rem;color:var(--muted);font-weight:600;}
+.validate-count{font-size:.82rem;color:var(--green);font-weight:800;}
 
 .m-result{
   padding:6px 16px 13px;font-size:.78rem;font-weight:700;
@@ -255,6 +267,19 @@ a{text-decoration:none;color:inherit;}
     <div class="loading-box"><div class="spinner"></div><br>Chargement des matchs…</div>
   </div>
 
+  <!-- VALIDATE BUTTON (apparaît quand des votes sont en attente) -->
+  <div class="validate-section" id="validate-section" style="display:none;">
+    <div class="validate-btn-wrap">
+      <div>
+        <div class="validate-count" id="validate-count"></div>
+        <div class="validate-hint">Tu peux encore modifier tes choix avant de valider.</div>
+      </div>
+      <button class="btn btn-primary" id="validate-btn" onclick="submitAllVotes()" style="padding:14px 28px;font-size:.95rem;white-space:nowrap;">
+        ✅ Valider
+      </button>
+    </div>
+  </div>
+
   <!-- LEADERBOARD -->
   <div class="sec-title">🏆 Classement de la semaine</div>
   <p class="sec-sub">Mis à jour en temps réel dès qu'un résultat tombe. +3 pts par bon pronostic.</p>
@@ -269,9 +294,6 @@ a{text-decoration:none;color:inherit;}
 <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
 
 <script>
-// ════════════════════════════════════════════════════
-//  CONFIG — colle ici l'URL de ton Apps Script déployé
-// ════════════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPhpHkhWJ5X8sIoxjxXp0p-xvlnawJhXspyLVJJsTtxCzZqC8z9GpUoBM4Vu2ZZdw/exec';
 const SHEET_ID   = '17k38DmdZviHkAxcmNMabBABBQ9rJ5iKasliOeDUZyyg';
 const CSV_MATCHS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Matchs`;
@@ -280,14 +302,15 @@ const CSV_VOTES  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?t
 // ── State ────────────────────────────────────────────
 let allMatches = [];
 let leaderboard = [];
-let myPseudo = localStorage.getItem('aokbet_pseudo') || '';
-let myVotes  = JSON.parse(localStorage.getItem('aokbet_votes') || '{}'); // {matchId: vote}
+let myPseudo  = localStorage.getItem('aokbet_pseudo') || '';
+let myVotes   = JSON.parse(localStorage.getItem('aokbet_votes') || '{}'); // confirmés
+let pendingVotes = {}; // sélectionnés mais pas encore soumis
 
 // ── Boot ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initPseudoBar();
   loadData();
-  setInterval(loadData, 30000); // refresh toutes les 30s
+  setInterval(loadData, 30000);
 });
 
 // ── Pseudo ───────────────────────────────────────────
@@ -409,15 +432,18 @@ function renderMatches() {
   const box = document.getElementById('matches-container');
   if (!allMatches.length) {
     box.innerHTML = `<div class="loading-box">Aucun match disponible pour l'instant.</div>`;
+    renderValidateBtn();
     return;
   }
   const sorted = [...allMatches].sort((a,b) => a.date.localeCompare(b.date));
   box.innerHTML = sorted.map(matchCard).join('');
+  renderValidateBtn();
 }
 
 function matchCard(m) {
   const hasResult = !!m.result;
-  const myVote    = myVotes[m.id] || null;
+  const myVote    = myVotes[m.id]   || null; // confirmé
+  const pending   = pendingVotes[m.id] || null; // sélectionné, pas encore soumis
   const icon      = m.sport === 'tennis' ? '🎾' : '⚽';
 
   // Date label
@@ -430,9 +456,10 @@ function matchCard(m) {
 
   // Badge
   let badge = '';
-  if      (hasResult)  badge = `<span class="m-badge badge-done">Terminé</span>`;
-  else if (myVote)     badge = `<span class="m-badge badge-voted">✓ Voté</span>`;
-  else                 badge = `<span class="m-badge badge-open">Ouvert</span>`;
+  if      (hasResult) badge = `<span class="m-badge badge-done">Terminé</span>`;
+  else if (myVote)    badge = `<span class="m-badge badge-voted">✓ Confirmé</span>`;
+  else if (pending)   badge = `<span class="m-badge badge-pending">⏳ Sélectionné</span>`;
+  else                badge = `<span class="m-badge badge-open">Ouvert</span>`;
 
   // Buttons
   const opts = m.sport === 'tennis'
@@ -441,14 +468,16 @@ function matchCard(m) {
 
   const btns = opts.map(([val, lbl]) => {
     const isMyVote  = myVote === val;
+    const isPending = pending === val;
     const isCorrect = hasResult && m.result === val;
     const isWrong   = hasResult && isMyVote && !isCorrect;
     let cls = 'v-btn';
-    if (isMyVote && !isWrong) cls += ' my-vote';
-    if (isWrong)              cls += ' my-vote wrong';
-    if (!isMyVote && isCorrect) cls += ' correct';
+    if (isMyVote && !isWrong)    cls += ' my-vote';
+    if (isWrong)                 cls += ' my-vote wrong';
+    if (!isMyVote && isCorrect)  cls += ' correct';
+    if (isPending)               cls += ' pending';
     const dis = (hasResult || !!myVote) ? 'disabled' : '';
-    return `<button class="${cls}" ${dis} onclick="vote('${m.id}','${val}')">${esc(lbl)}</button>`;
+    return `<button class="${cls}" ${dis} onclick="selectVote('${m.id}','${val}')">${esc(lbl)}</button>`;
   }).join('');
 
   // Result info
@@ -480,26 +509,49 @@ function matchCard(m) {
     </div>`;
 }
 
-// ── Vote ─────────────────────────────────────────────
-async function vote(matchId, val) {
-  if (!myPseudo) {
-    showToast('⚠️ Entre ton pseudo d\'abord !', true);
-    return;
-  }
-  if (myVotes[matchId]) { showToast('Déjà voté pour ce match !', true); return; }
-
-  // Optimistic update
-  myVotes[matchId] = val;
-  localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+// ── Sélection (sans soumettre) ────────────────────────
+function selectVote(matchId, val) {
+  if (!myPseudo) { showToast('⚠️ Entre ton pseudo d\'abord !', true); return; }
+  if (myVotes[matchId]) return; // déjà confirmé, on ne peut plus changer
+  // Clic sur le même bouton = désélectionner
+  if (pendingVotes[matchId] === val) delete pendingVotes[matchId];
+  else pendingVotes[matchId] = val;
   renderMatches();
-  showToast('🎯 Pronostic enregistré !');
+}
 
-  // Fire-and-forget (no-cors contourne CORS, on ne lit pas la réponse)
-  const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(val)}&t=${Date.now()}`;
-  fetch(url, { mode: 'no-cors' }).catch(() => {});
+// ── Bouton Valider ────────────────────────────────────
+function renderValidateBtn() {
+  const section = document.getElementById('validate-section');
+  const count   = Object.keys(pendingVotes).length;
+  if (count > 0) {
+    section.style.display = 'block';
+    document.getElementById('validate-count').textContent =
+      `${count} pronostic${count > 1 ? 's' : ''} en attente`;
+  } else {
+    section.style.display = 'none';
+  }
+}
 
-  // Refresh après 2s pour voir les votes des autres
-  setTimeout(loadData, 2000);
+// ── Soumettre tous les votes en attente ───────────────
+function submitAllVotes() {
+  if (!myPseudo) { showToast('⚠️ Entre ton pseudo d\'abord !', true); return; }
+  const toSubmit = { ...pendingVotes };
+  if (!Object.keys(toSubmit).length) return;
+
+  // Confirmer localement
+  Object.assign(myVotes, toSubmit);
+  localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+  pendingVotes = {};
+  renderMatches();
+  showToast('🎯 Pronostics validés !');
+
+  // Envoyer au serveur via Image trick (contourne CORS à 100%)
+  Object.entries(toSubmit).forEach(([matchId, vote]) => {
+    const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(vote)}&t=${Date.now()}`;
+    new Image().src = url;
+  });
+
+  setTimeout(loadData, 2500);
 }
 
 // ── Render Leaderboard ───────────────────────────────
