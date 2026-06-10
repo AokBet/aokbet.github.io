@@ -439,6 +439,24 @@ async function loadData() {
       .sort((a,b) => b.pts - a.pts || b.exact - a.exact || b.correct - a.correct || a.pseudo.localeCompare(b.pseudo))
       .map((s, i) => ({ ...s, rank: i + 1 }));
 
+    // Sync localStorage : retire les votes "confirmés" localement mais absents du Sheet
+    if (myPseudo) {
+      const sheetVotes = new Set();
+      voteRows.forEach(r => {
+        const p = (r[1] || '').trim().toLowerCase();
+        const m = (r[2] || '').trim();
+        if (p === myPseudo.toLowerCase() && m) sheetVotes.add(m);
+      });
+      let changed = false;
+      Object.keys(myVotes).forEach(matchId => {
+        if (!sheetVotes.has(matchId)) {
+          delete myVotes[matchId];
+          changed = true;
+        }
+      });
+      if (changed) localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
+    }
+
     renderMatches();
     renderLeaderboard();
   } catch(e) {
