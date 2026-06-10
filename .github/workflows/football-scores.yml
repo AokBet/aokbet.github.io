@@ -39,12 +39,24 @@ jobs:
           def cap(slug):
               return ' '.join(w.capitalize() for w in slug.replace('-', ' ').split())
 
-          tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime('%Y-%m-%d')
+          today     = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+          tomorrow  = (datetime.now(timezone.utc) + timedelta(days=1)).strftime('%Y-%m-%d')
+          in2days   = (datetime.now(timezone.utc) + timedelta(days=2)).strftime('%Y-%m-%d')
+          in3days   = (datetime.now(timezone.utc) + timedelta(days=3)).strftime('%Y-%m-%d')
+          in4days   = (datetime.now(timezone.utc) + timedelta(days=4)).strftime('%Y-%m-%d')
+          in5days   = (datetime.now(timezone.utc) + timedelta(days=5)).strftime('%Y-%m-%d')
 
           urls_to_fetch = [
+              # Page principale (aujourd'hui)
               'https://www.livescores.com/football/',
-              f'https://www.livescores.com/football/?d={tomorrow}',
+              # Page dédiée Coupe du Monde (tous les matchs du tournoi)
+              'https://www.livescores.com/football/world-cup-2026/',
+              # Jours suivants
               f'https://www.livescores.com/football/{tomorrow}/',
+              f'https://www.livescores.com/football/{in2days}/',
+              f'https://www.livescores.com/football/{in3days}/',
+              f'https://www.livescores.com/football/{in4days}/',
+              f'https://www.livescores.com/football/{in5days}/',
           ]
 
           all_html = []
@@ -85,8 +97,9 @@ jobs:
                   continue
               seen.add(mid)
 
-              # Utiliser le dernier segment du chemin compétition
-              comp_slug = comp_path.split('/')[-1]
+              # Utiliser le premier segment du chemin compétition
+              # ex: "world-cup-2026/group-a" → "world-cup-2026" → "World Cup 2026"
+              comp_slug = comp_path.split('/')[0]
               competition = cap(comp_slug)
               t1_name = cap(t1s)
               t2_name = cap(t2s)
