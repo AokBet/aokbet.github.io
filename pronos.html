@@ -28,22 +28,20 @@ body{
 }
 a{text-decoration:none;color:inherit;}
 .container{width:min(860px,calc(100% - 28px));margin:auto;}
-
 /* ── NAV ── */
 .topbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(5,7,13,.88);border-bottom:1px solid var(--line);}
-.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.35rem;}
+.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.35rem;flex-shrink:0;}
 .brand img{width:38px;height:38px;border-radius:9px;object-fit:cover;}
-.navlinks{display:flex;gap:6px;color:var(--muted);font-weight:700;font-size:.85rem;}
-.navlinks a{padding:6px 12px;border-radius:8px;transition:.18s;}
+.navlinks{display:flex;gap:2px;color:var(--muted);font-weight:700;font-size:.82rem;align-items:center;flex-wrap:nowrap;}
+.navlinks a{padding:6px 9px;border-radius:8px;transition:.18s;white-space:nowrap;}
 .navlinks a:hover{color:#fff;background:rgba(255,255,255,.06);}
 .navlinks a.active{color:var(--green);background:rgba(39,242,138,.1);}
 .navlinks a.live-link{color:var(--green);}
-.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:12px 22px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.9rem;text-decoration:none;}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:12px 22px;font-weight:900;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;font-size:.9rem;text-decoration:none;flex-shrink:0;}
 .btn:hover{transform:translateY(-2px);}
 .btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 10px 28px rgba(39,242,138,.25);}
 .btn-outline{background:transparent;border:2px solid var(--green);color:var(--green);}
-
 /* ── HAMBURGER ── */
 .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0;}
 .hamburger span{display:block;height:2px;background:var(--text);border-radius:2px;transition:.3s;}
@@ -56,13 +54,11 @@ a{text-decoration:none;color:inherit;}
 .mobile-menu a:last-child{border-bottom:none;}
 .mobile-menu a:hover,.mobile-menu a:active{color:#fff;background:rgba(255,255,255,.04);}
 .mobile-menu a.active,.mobile-menu a.live-link{color:var(--green);}
-
 /* ── PAGE HEADER ── */
 .page-header{padding:44px 0 28px;}
 .page-header h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:900;letter-spacing:-.05em;line-height:1;}
 .page-header p{color:var(--muted);margin-top:10px;font-size:.95rem;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media(max-width:600px){.page-header p{white-space:normal;}}
-
 /* ── PSEUDO BAR ── */
 .pseudo-bar{
   background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;
@@ -81,7 +77,6 @@ a{text-decoration:none;color:inherit;}
 .pseudo-saved{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:700;}
 .pseudo-saved .change-btn{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;padding:3px 10px;border-radius:6px;font-family:Inter,sans-serif;font-weight:700;text-decoration:underline;}
 .pseudo-saved .change-btn:hover{color:var(--text);}
-
 /* ── PRIZE BANNER ── */
 .prize-banner{
   background:linear-gradient(135deg,rgba(255,213,74,.1),rgba(39,242,138,.06));
@@ -92,17 +87,14 @@ a{text-decoration:none;color:inherit;}
 .prize-icon{font-size:1.8rem;flex-shrink:0;}
 .prize-banner strong{display:block;font-size:.92rem;font-weight:900;color:var(--gold);margin-bottom:3px;}
 .prize-banner span{font-size:.8rem;color:var(--muted);line-height:1.5;}
-
 /* ── SECTION TITLE ── */
 .sec-title{font-size:1.25rem;font-weight:900;letter-spacing:-.03em;margin-bottom:16px;}
 .sec-sub{color:var(--muted);font-size:.85rem;margin-bottom:16px;line-height:1.55;}
-
 /* ── MATCH CARDS ── */
 .matches-list{display:grid;gap:12px;margin-bottom:44px;}
 .match-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.2s;}
 .match-card.is-open{border-color:rgba(39,242,138,.18);}
 .match-card.is-done{opacity:.8;}
-
 .m-head{
   display:flex;align-items:center;justify-content:space-between;
   padding:11px 16px 0;
@@ -112,14 +104,13 @@ a{text-decoration:none;color:inherit;}
 .badge-open{background:rgba(39,242,138,.15);color:var(--green);}
 .badge-voted{background:rgba(255,213,74,.12);color:var(--gold);}
 .badge-done{background:rgba(255,255,255,.08);color:var(--muted);}
-
+.badge-pending{background:rgba(255,213,74,.12);color:var(--gold);}
 .m-teams{
   display:flex;align-items:center;justify-content:center;gap:12px;
   padding:16px 16px 14px;text-align:center;
 }
 .t-name{flex:1;font-size:1rem;font-weight:900;line-height:1.2;}
 .vs{color:var(--muted);font-size:.82rem;font-weight:700;flex-shrink:0;}
-
 .m-btns{display:flex;gap:7px;padding:0 16px 16px;}
 .v-btn{
   flex:1;padding:11px 6px;border-radius:11px;border:2px solid var(--line);
@@ -133,8 +124,6 @@ a{text-decoration:none;color:inherit;}
 .v-btn.my-vote.wrong{border-color:var(--red);background:rgba(248,113,113,.12);color:var(--red);}
 .v-btn.correct{border-color:var(--gold);background:rgba(255,213,74,.1);color:var(--gold);}
 .v-btn.pending{border-color:rgba(255,213,74,.7);background:rgba(255,213,74,.1);color:var(--gold);}
-.badge-pending{background:rgba(255,213,74,.12);color:var(--gold);}
-
 /* ── VALIDATE BUTTON ── */
 .validate-section{margin-bottom:36px;}
 .validate-btn-wrap{
@@ -144,7 +133,7 @@ a{text-decoration:none;color:inherit;}
 }
 .validate-hint{font-size:.82rem;color:var(--muted);font-weight:600;}
 .validate-count{font-size:.82rem;color:var(--green);font-weight:800;}
-
+/* ── SCORE INPUTS ── */
 .m-score{
   display:flex;align-items:center;gap:10px;
   padding:0 16px 14px;flex-wrap:wrap;
@@ -159,10 +148,8 @@ a{text-decoration:none;color:inherit;}
 }
 .score-inp:focus{border-color:rgba(39,242,138,.5);background:rgba(39,242,138,.05);}
 .score-inp:disabled{opacity:.5;cursor:default;}
-.score-inp[readonly]{opacity:.7;cursor:default;}
 .score-sep{color:var(--muted);font-weight:900;font-size:.85rem;}
 .score-hint{font-size:.68rem;color:var(--gold);font-weight:700;margin-left:2px;}
-
 .m-result{
   padding:6px 16px 13px;font-size:.78rem;font-weight:700;
   display:flex;align-items:center;gap:6px;
@@ -172,7 +159,6 @@ a{text-decoration:none;color:inherit;}
 .m-result.lost{color:var(--red);}
 .m-result.neutral{color:var(--muted);}
 .m-warn{padding:0 16px 12px;font-size:.73rem;color:var(--muted);}
-
 /* ── POINTS LEGEND ── */
 .pts-legend{
   display:flex;gap:10px;flex-wrap:wrap;
@@ -180,14 +166,10 @@ a{text-decoration:none;color:inherit;}
   padding:14px 18px;margin-bottom:28px;
 }
 .pts-item{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700;}
-.pts-badge{
-  padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:900;
-  white-space:nowrap;
-}
+.pts-badge{padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:900;white-space:nowrap;}
 .pts-gold{background:rgba(255,213,74,.15);color:var(--gold);}
 .pts-green{background:rgba(39,242,138,.12);color:var(--green);}
 .pts-muted{background:rgba(255,255,255,.06);color:var(--muted);}
-
 /* ── LEADERBOARD ── */
 .lb-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:60px;}
 .lb-row{
@@ -204,7 +186,6 @@ a{text-decoration:none;color:inherit;}
 .lb-pts{font-size:1rem;font-weight:900;color:var(--green);}
 .lb-detail{font-size:.69rem;color:var(--muted);font-weight:600;margin-top:1px;}
 .lb-empty{padding:36px;text-align:center;color:var(--muted);font-size:.88rem;}
-
 /* ── LOADING / TOAST ── */
 .loading-box{text-align:center;padding:44px;color:var(--muted);font-size:.88rem;}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px;}
@@ -218,10 +199,8 @@ a{text-decoration:none;color:inherit;}
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.err{background:rgba(248,113,113,.15);border-color:rgba(248,113,113,.35);color:var(--red);}
-
 /* ── FLOAT CTA ── */
 .float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
-
 /* ── MOBILE ── */
 @media(max-width:860px){
   .navlinks{display:none;}
@@ -240,7 +219,6 @@ a{text-decoration:none;color:inherit;}
 </style>
 </head>
 <body>
-
 <!-- ── NAV ── -->
 <header class="topbar">
   <div class="container nav">
@@ -270,16 +248,13 @@ a{text-decoration:none;color:inherit;}
   <a href="scores.html" class="live-link" onclick="closeMenu()">🎾 Scores Live</a>
   <a href="pronos.html" class="active" onclick="closeMenu()">🎯 Pronostics</a>
 </div>
-
 <main>
 <div class="container">
-
   <!-- PAGE HEADER -->
   <div class="page-header">
     <h1>🎯 Pronostics</h1>
     <p>Fais tes pronostics chaque jour — le meilleur du classement repart avec <strong style="color:var(--gold)">1 semaine VIP offerte</strong>.</p>
   </div>
-
   <!-- PSEUDO BAR -->
   <div class="pseudo-bar" id="pseudo-bar">
     <label>Ton pseudo :</label>
@@ -287,7 +262,6 @@ a{text-decoration:none;color:inherit;}
       onkeydown="if(event.key==='Enter')savePseudo()"/>
     <button class="btn btn-primary" onclick="savePseudo()" style="padding:10px 18px;font-size:.85rem;">Valider</button>
   </div>
-
   <!-- PRIZE BANNER -->
   <div class="prize-banner">
     <div class="prize-icon">🏆</div>
@@ -296,72 +270,61 @@ a{text-decoration:none;color:inherit;}
       <span>Classement remis à zéro chaque lundi. Pronostiquez juste pour grimper. Le leader de dimanche soir remporte l'accès VIP gratuit.</span>
     </div>
   </div>
-
   <!-- POINTS LEGEND -->
   <div class="pts-legend">
     <div class="pts-item"><span class="pts-badge pts-gold">🎯 Score exact</span> 5 pts</div>
     <div class="pts-item"><span class="pts-badge pts-green">✅ Victoire</span> 3 pts</div>
     <div class="pts-item"><span class="pts-badge pts-muted">❌ Défaite</span> 0 pt</div>
   </div>
-
   <!-- MATCHES -->
   <div class="sec-title">⚽ Matchs de la semaine</div>
   <div class="matches-list" id="matches-container">
     <div class="loading-box"><div class="spinner"></div><br>Chargement des matchs…</div>
   </div>
-
-  <!-- VALIDATE BUTTON (apparaît quand des votes sont en attente) -->
+  <!-- VALIDATE BUTTON -->
   <div class="validate-section" id="validate-section" style="display:none;">
     <div class="validate-btn-wrap">
       <div>
         <div class="validate-count" id="validate-count"></div>
         <div class="validate-hint">Tu peux encore modifier tes choix avant de valider.</div>
       </div>
-      <button class="btn btn-primary" id="validate-btn" onclick="submitAllVotes()" style="padding:14px 28px;font-size:.95rem;white-space:nowrap;">
+      <button class="btn btn-primary" onclick="submitAllVotes()" style="padding:14px 28px;font-size:.95rem;white-space:nowrap;">
         ✅ Valider
       </button>
     </div>
   </div>
-
   <!-- LEADERBOARD -->
   <div class="sec-title">🏆 Classement de la semaine</div>
-  <p class="sec-sub">Mis à jour en temps réel dès qu'un résultat tombe. +3 pts par bon pronostic.</p>
+  <p class="sec-sub">Mis à jour en temps réel dès qu'un résultat tombe. +3 pts par bon pronostic, +5 pts pour le score exact.</p>
   <div class="lb-card" id="lb-container">
     <div class="lb-empty">Chargement du classement…</div>
   </div>
-
 </div>
 </main>
-
 <div class="toast" id="toast"></div>
 <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
-
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-r3aMfrQ9gR1HSIQpJnTw4s_jGF1VETMV8ObfiN8jIXFSy9RBxBB3sh8LicSytLdj/exec';
 const SHEET_ID   = '17k38DmdZviHkAxcmNMabBABBQ9rJ5iKasliOeDUZyyg';
 const CSV_MATCHS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Matchs`;
 const CSV_VOTES  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Votes`;
 
-// ── State ────────────────────────────────────────────
-let allMatches = [];
+let allMatches  = [];
 let leaderboard = [];
-let myPseudo  = localStorage.getItem('aokbet_pseudo') || '';
-// myVotes : {matchId: {result:'1', score1:'2', score2:'1'}} — confirmés
-let myVotes   = JSON.parse(localStorage.getItem('aokbet_votes') || '{}');
+let myPseudo    = localStorage.getItem('aokbet_pseudo') || '';
+let myVotes     = JSON.parse(localStorage.getItem('aokbet_votes') || '{}');
 // Migrate old string format → object format
 Object.keys(myVotes).forEach(k => {
   if (typeof myVotes[k] === 'string') myVotes[k] = { result: myVotes[k], score1:'', score2:'' };
 });
-let pendingVotes = {}; // {matchId: {result:'', score1:'', score2:''}}
+let pendingVotes = {};
 
-// ── Boot ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initPseudoBar();
   loadData();
   setInterval(loadData, 30000);
 });
 
-// ── Pseudo ───────────────────────────────────────────
 function initPseudoBar() {
   const bar = document.getElementById('pseudo-bar');
   if (myPseudo) {
@@ -372,7 +335,6 @@ function initPseudoBar() {
       </div>`;
   }
 }
-
 function savePseudo() {
   const inp = document.getElementById('pseudo-input');
   const val = (inp ? inp.value : '').trim();
@@ -383,7 +345,6 @@ function savePseudo() {
   showToast('✅ Pseudo enregistré : ' + val);
   renderMatches();
 }
-
 function editPseudo() {
   const bar = document.getElementById('pseudo-bar');
   bar.innerHTML = `
@@ -431,8 +392,6 @@ async function loadData() {
       fetch(CSV_VOTES  + '&t=' + Date.now()).then(r => r.text()).catch(() => '')
     ]);
 
-    // Parse matchs (skip header row)
-    // Colonnes: ID | Date | Équipe1 | Équipe2 | Sport | Résultat | Score1 | Score2
     const matchRows = parseCsv(matchesCsv).slice(1);
     allMatches = matchRows
       .filter(r => r[0] && r[2])
@@ -447,10 +406,8 @@ async function loadData() {
         score2: r[7] ? r[7].trim() : ''
       }));
 
-    // Parse votes & compute leaderboard
-    // Colonnes: Timestamp | Pseudo | Match ID | Vote | Score1 | Score2
     const voteRows = votesCsv ? parseCsv(votesCsv).slice(1) : [];
-    const results = {};
+    const results  = {};
     allMatches.forEach(m => {
       if (m.result) results[m.id] = { result: m.result, score1: m.score1, score2: m.score2 };
     });
@@ -467,7 +424,6 @@ async function loadData() {
       scores[pseudo].total++;
       const res = results[matchId];
       if (res && vote === res.result) {
-        // Score exact (résultat + score) → 5pts ; résultat seul → 3pts
         if (vs1 !== '' && vs2 !== '' && vs1 === res.score1 && vs2 === res.score2) {
           scores[pseudo].pts += 5;
           scores[pseudo].exact   += 1;
@@ -496,8 +452,7 @@ function renderMatches() {
   const box = document.getElementById('matches-container');
   if (!allMatches.length) {
     box.innerHTML = `<div class="loading-box">Aucun match disponible pour l'instant.</div>`;
-    renderValidateBtn();
-    return;
+    renderValidateBtn(); return;
   }
   const sorted = [...allMatches].sort((a,b) => a.date.localeCompare(b.date));
   box.innerHTML = sorted.map(matchCard).join('');
@@ -506,11 +461,10 @@ function renderMatches() {
 
 function matchCard(m) {
   const hasResult = !!m.result;
-  const myVote    = myVotes[m.id]      || null; // {result, score1, score2} — confirmé
-  const pending   = pendingVotes[m.id] || null; // idem, pas encore soumis
+  const myVote    = myVotes[m.id]      || null;
+  const pending   = pendingVotes[m.id] || null;
   const icon      = m.sport === 'tennis' ? '🎾' : '⚽';
 
-  // Date label
   let dateLbl = m.date;
   try {
     const dt = new Date(m.date + 'T12:00:00Z');
@@ -518,41 +472,39 @@ function matchCard(m) {
     dateLbl = dateLbl[0].toUpperCase() + dateLbl.slice(1);
   } catch(e){}
 
-  // Badge
   let badge = '';
-  if      (hasResult) badge = `<span class="m-badge badge-done">Terminé</span>`;
-  else if (myVote)    badge = `<span class="m-badge badge-voted">✓ Confirmé</span>`;
+  if      (hasResult)             badge = `<span class="m-badge badge-done">Terminé</span>`;
+  else if (myVote)                badge = `<span class="m-badge badge-voted">✓ Confirmé</span>`;
   else if (pending && pending.result) badge = `<span class="m-badge badge-pending">⏳ Sélectionné</span>`;
-  else                badge = `<span class="m-badge badge-open">Ouvert</span>`;
+  else                            badge = `<span class="m-badge badge-open">Ouvert</span>`;
 
-  // Vote buttons
   const opts = m.sport === 'tennis'
     ? [['1', m.team1], ['2', m.team2]]
     : [['1', m.team1], ['N', 'Nul'], ['2', m.team2]];
 
-  const confirmedResult = myVote ? myVote.result : null;
+  const confirmedResult = myVote  ? myVote.result  : null;
   const pendingResult   = pending ? pending.result : null;
 
   const btns = opts.map(([val, lbl]) => {
     const isMyVote  = confirmedResult === val;
-    const isPending = pendingResult === val;
+    const isPending = pendingResult   === val;
     const isCorrect = hasResult && m.result === val;
     const isWrong   = hasResult && isMyVote && !isCorrect;
     let cls = 'v-btn';
-    if (isMyVote && !isWrong)    cls += ' my-vote';
-    if (isWrong)                 cls += ' my-vote wrong';
-    if (!isMyVote && isCorrect)  cls += ' correct';
-    if (isPending)               cls += ' pending';
+    if (isMyVote && !isWrong)   cls += ' my-vote';
+    if (isWrong)                cls += ' my-vote wrong';
+    if (!isMyVote && isCorrect) cls += ' correct';
+    if (isPending)              cls += ' pending';
     const dis = (hasResult || !!myVote) ? 'disabled' : '';
     return `<button class="${cls}" ${dis} onclick="selectVote('${m.id}','${val}')">${esc(lbl)}</button>`;
   }).join('');
 
-  // Score inputs (visibles si match ouvert et pas encore confirmé)
   let scoreSection = '';
-  if (!hasResult && !myVote && m.sport !== 'tennis') {
-    const s1 = pending ? (pending.score1 || '') : '';
-    const s2 = pending ? (pending.score2 || '') : '';
-    const dis = pending && pending.result ? '' : 'disabled';
+  if (!hasResult && m.sport !== 'tennis') {
+    const s1  = pending ? (pending.score1 || '') : (myVote ? (myVote.score1 || '') : '');
+    const s2  = pending ? (pending.score2 || '') : (myVote ? (myVote.score2 || '') : '');
+    const hasSelection = (pending && pending.result) || myVote;
+    const dis = hasSelection ? '' : 'disabled';
     scoreSection = `
       <div class="m-score">
         <span class="score-label">Score exact :</span>
@@ -565,21 +517,17 @@ function matchCard(m) {
         </div>
         <span class="score-hint">+5 pts si exact</span>
       </div>`;
-  } else if (!hasResult && myVote && myVote.score1 !== '') {
-    scoreSection = `<div class="m-score"><span class="score-label">Score prédit :</span>
-      <span style="font-weight:800;color:var(--gold)">${esc(myVote.score1)} — ${esc(myVote.score2)}</span></div>`;
   }
 
-  // Result info
   let resultInfo = '';
   if (hasResult) {
-    const rName = m.result === '1' ? m.team1 : m.result === '2' ? m.team2 : 'Match nul';
+    const rName    = m.result === '1' ? m.team1 : m.result === '2' ? m.team2 : 'Match nul';
     const scoreStr = (m.score1 !== '' && m.score2 !== '') ? ` (${m.score1}–${m.score2})` : '';
     if (myVote) {
       const won = myVote.result === m.result;
       if (won) {
-        const exactScore = myVote.score1 !== '' && myVote.score1 === m.score1 && myVote.score2 === m.score2;
-        resultInfo = exactScore
+        const exact = myVote.score1 !== '' && myVote.score1 === m.score1 && myVote.score2 === m.score2;
+        resultInfo = exact
           ? `<div class="m-result exact">🎯 Score exact ! +5 pts</div>`
           : `<div class="m-result won">✅ Bon pronostic ! +3 pts</div>`;
       } else {
@@ -590,7 +538,6 @@ function matchCard(m) {
     }
   }
 
-  // No pseudo warning
   const warn = (!myPseudo && !myVote && !hasResult)
     ? `<div class="m-warn">⚠️ Entre ton pseudo en haut pour voter</div>` : '';
 
@@ -607,29 +554,32 @@ function matchCard(m) {
     </div>`;
 }
 
-// ── Sélection du résultat (sans soumettre) ────────────
 function selectVote(matchId, val) {
   if (!myPseudo) { showToast('⚠️ Entre ton pseudo d\'abord !', true); return; }
-  if (myVotes[matchId]) return; // déjà confirmé
+  if (myVotes[matchId]) return;
   if (!pendingVotes[matchId]) pendingVotes[matchId] = { result: '', score1: '', score2: '' };
-  // Clic sur le même bouton = désélectionner
   if (pendingVotes[matchId].result === val) pendingVotes[matchId].result = '';
   else pendingVotes[matchId].result = val;
-  // Nettoyer si rien de sélectionné
   if (!pendingVotes[matchId].result) delete pendingVotes[matchId];
   renderMatches();
 }
 
-// ── Mise à jour du score prédit ───────────────────────
 function updateScore(matchId, field, value) {
-  if (!pendingVotes[matchId]) return;
+  if (!pendingVotes[matchId]) {
+    // Vote already confirmed but score not yet set — create a score-only pending entry
+    if (myVotes[matchId]) {
+      pendingVotes[matchId] = { result: '', score1: myVotes[matchId].score1 || '', score2: myVotes[matchId].score2 || '' };
+    } else {
+      return;
+    }
+  }
   pendingVotes[matchId][field] = value;
+  renderValidateBtn();
 }
 
-// ── Bouton Valider ────────────────────────────────────
 function renderValidateBtn() {
   const section = document.getElementById('validate-section');
-  const count   = Object.keys(pendingVotes).length;
+  const count = Object.keys(pendingVotes).filter(id => pendingVotes[id].result || myVotes[id]).length;
   if (count > 0) {
     section.style.display = 'block';
     document.getElementById('validate-count').textContent =
@@ -639,35 +589,30 @@ function renderValidateBtn() {
   }
 }
 
-// ── Soumettre tous les votes en attente ───────────────
 function submitAllVotes() {
   if (!myPseudo) { showToast('⚠️ Entre ton pseudo d\'abord !', true); return; }
   const toSubmit = { ...pendingVotes };
   if (!Object.keys(toSubmit).length) return;
-
-  // Confirmer localement
   Object.assign(myVotes, toSubmit);
   localStorage.setItem('aokbet_votes', JSON.stringify(myVotes));
   pendingVotes = {};
   renderMatches();
   showToast('🎯 Pronostics validés !');
-
-  // Envoyer au serveur via Image trick (contourne CORS à 100%)
   Object.entries(toSubmit).forEach(([matchId, v]) => {
+    const voteResult = v.result || (myVotes[matchId] ? myVotes[matchId].result : '');
+    if (!voteResult) return;
     const url = `${SCRIPT_URL}?action=vote`
       + `&pseudo=${encodeURIComponent(myPseudo)}`
       + `&matchId=${encodeURIComponent(matchId)}`
-      + `&vote=${encodeURIComponent(v.result)}`
+      + `&vote=${encodeURIComponent(voteResult)}`
       + `&score1=${encodeURIComponent(v.score1 || '')}`
       + `&score2=${encodeURIComponent(v.score2 || '')}`
       + `&t=${Date.now()}`;
     new Image().src = url;
   });
-
   setTimeout(loadData, 2500);
 }
 
-// ── Render Leaderboard ───────────────────────────────
 function renderLeaderboard() {
   const box = document.getElementById('lb-container');
   if (!leaderboard.length) {
@@ -676,8 +621,8 @@ function renderLeaderboard() {
   }
   const medals = ['🥇','🥈','🥉'];
   box.innerHTML = leaderboard.map((p, i) => {
-    const isMe   = myPseudo && p.pseudo.toLowerCase() === myPseudo.toLowerCase();
-    const medal  = medals[i] || '';
+    const isMe    = myPseudo && p.pseudo.toLowerCase() === myPseudo.toLowerCase();
+    const medal   = medals[i] || '';
     const rankTxt = i >= 3 ? (i+1) : '';
     return `
       <div class="lb-row ${i===0?'is-first':''}">
@@ -692,7 +637,6 @@ function renderLeaderboard() {
   }).join('');
 }
 
-// ── Utils ─────────────────────────────────────────────
 function showToast(msg, isErr = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -700,11 +644,9 @@ function showToast(msg, isErr = false) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3200);
 }
-
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function toggleMenu(){
   document.getElementById('hamburger').classList.toggle('open');
   document.getElementById('mobile-menu').classList.toggle('open');
