@@ -58,23 +58,32 @@ display:none;
 .btn-primary{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;box-shadow:0 10px 28px rgba(39,242,138,.25);}
 .btn-outline{background:transparent;border:2px solid var(--green);color:var(--green);}
 .btn-lg{padding:16px 32px;font-size:1rem;}
+/* ── HAMBURGER ── */
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0;}
+.hamburger span{display:block;height:2px;background:var(--text);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(5,7,13,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);z-index:99;padding:16px 0;}
+.mobile-menu.open{display:block;}
+.mobile-menu a{display:block;padding:14px 24px;font-weight:700;font-size:1rem;color:var(--muted);border-bottom:1px solid rgba(255,255,255,.05);}
+.mobile-menu a:last-child{border-bottom:none;}
+.mobile-menu a:hover,.mobile-menu a:active{color:#fff;background:rgba(255,255,255,.04);}
+.mobile-menu a.live-link{color:var(--green);}
 /* ── HERO ── */
 .hero{padding:60px 0 50px;}
 .eyebrow{display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(39,242,138,.08);border:1px solid rgba(39,242,138,.22);color:#c9ffe5;font-weight:800;font-size:.82rem;margin-bottom:22px;letter-spacing:.3px;}
 h1{font-size:clamp(2.6rem,7vw,5.5rem);line-height:.95;letter-spacing:-.07em;margin-bottom:20px;font-weight:900;}
 .gradient{background:linear-gradient(135deg,#fff,var(--green),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .hero-sub{color:var(--muted);font-size:1.05rem;line-height:1.7;margin-bottom:32px;max-width:600px;}
-/* Hero stats */
 .hero-stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
 .hstat{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 16px;}
 .hstat-icon{font-size:1.1rem;}
 .hstat-val{font-size:1rem;font-weight:900;color:var(--green);display:block;}
 .hstat-val.gold{color:var(--gold);}
 .hstat-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;}
-/* Hero CTAs */
 .hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
 .hero-note{font-size:.8rem;color:var(--muted);}
-/* Dernière victoire */
 .last-win{
 margin-top:40px;
 background:linear-gradient(135deg,rgba(39,242,138,.12),rgba(39,242,138,.04));
@@ -155,6 +164,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 /* ── MOBILE ── */
 @media(max-width:860px){
 .navlinks{display:none;}
+.hamburger{display:flex;}
 .screens,.plans{grid-template-columns:1fr;}
 .telegram-box{flex-direction:column;align-items:flex-start;}
 .plan.featured{transform:none;}
@@ -198,8 +208,18 @@ section{padding:44px 0;}
 <a href="scores.html" class="live-link">🎾 Scores Live</a>
 </nav>
 <a class="btn btn-primary" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Accéder au VIP</a>
+<button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+<span></span><span></span><span></span>
+</button>
 </div>
 </header>
+<div class="mobile-menu" id="mobile-menu">
+<a href="#top" onclick="closeMenu()">Accueil</a>
+<a href="#performances" onclick="closeMenu()">Performances</a>
+<a href="#abonnements" onclick="closeMenu()">Abonnements</a>
+<a href="#telegram" onclick="closeMenu()">Telegram</a>
+<a href="scores.html" class="live-link">🎾 Scores Live</a>
+</div>
 <main id="top">
 <!-- ═══════════ HERO ═══════════ -->
 <section class="hero">
@@ -207,7 +227,6 @@ section{padding:44px 0;}
 <span class="eyebrow">🏆 Tipster sportif premium • 18+</span>
 <h1>2 paris par jour.<br><span class="gradient">Résultats prouvés.</span></h1>
 <p class="hero-sub">Win rate et performances vérifiables en temps réel sur cette page. Pas de promesses — des chiffres.</p>
-<!-- Stats live -->
 <div class="hero-stats">
 <div class="hstat">
 <span class="hstat-icon">🎯</span>
@@ -238,7 +257,6 @@ section{padding:44px 0;}
 </div>
 </div>
 </div>
-<!-- CTAs -->
 <div class="hero-ctas">
 <a class="btn btn-primary btn-lg" href="https://revolut.me/aokcasino?amount=7&currency=EUR" target="_blank">
 Essayer 7 jours — 7€
@@ -248,7 +266,6 @@ Offre Velobet — accès VIP gratuit
 </a>
 </div>
 <p class="hero-note">Accès immédiat après paiement · Résiliation libre</p>
-<!-- Dernière victoire (chargée dynamiquement) -->
 <div class="last-win" id="last-win" style="display:none">
 <div>
 <div class="last-win-label">✅ Dernière victoire</div>
@@ -434,7 +451,6 @@ const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLH1BmpsGiea
 function parseCSV(text) {
   return text.trim().split("\n").slice(1).map(line => {
     const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g,""));
-    // Columns: Date(0), Match(1), Prono(2), Cote(3), Résultat(4)
     return { date:cols[0]||"", match:cols[1]||"", prono:cols[2]||"", cote:parseFloat(cols[3])||0, resultat:(cols[4]||"").toUpperCase() };
   }).filter(r => r.match && r.cote > 0);
 }
@@ -528,6 +544,14 @@ function toggleFaq(btn) {
   const a = btn.nextElementSibling, open = btn.classList.contains("open");
   document.querySelectorAll(".faq-q").forEach(b=>{ b.classList.remove("open"); b.nextElementSibling.classList.remove("show"); });
   if(!open){ btn.classList.add("open"); a.classList.add("show"); }
+}
+function toggleMenu(){
+  document.getElementById('hamburger').classList.toggle('open');
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function closeMenu(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-menu').classList.remove('open');
 }
 loadPerf();
 </script>
