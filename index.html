@@ -175,6 +175,23 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2);}
 .footer-grid{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
 .legal{margin-top:20px;color:var(--muted);line-height:1.7;font-size:.82rem;}
+/* ── EMAIL CAPTURE ── */
+#email-capture{padding:60px 0;}
+.email-box{display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;background:linear-gradient(135deg,rgba(255,213,74,.1),rgba(39,242,138,.07));border:1px solid rgba(255,213,74,.25);border-radius:28px;padding:40px 48px;}
+.email-eyebrow{display:inline-block;background:rgba(255,213,74,.15);color:var(--gold);border-radius:999px;padding:5px 14px;font-size:.75rem;font-weight:800;margin-bottom:12px;}
+.email-box-text{flex:1;min-width:260px;}
+.email-box-form{flex:1;min-width:280px;}
+.email-form{display:flex;gap:10px;flex-wrap:wrap;}
+.email-inp{flex:1;min-width:200px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:14px 20px;color:var(--text);font-size:.95rem;font-family:Inter,sans-serif;outline:none;}
+.email-inp:focus{border-color:var(--gold);}
+.email-inp::placeholder{color:var(--muted);}
+/* ── EXIT POPUP ── */
+.exit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);}
+.exit-popup{background:linear-gradient(160deg,#0d1420,#0a1a12);border:1px solid rgba(39,242,138,.3);border-radius:28px;padding:40px 36px;max-width:480px;width:100%;text-align:center;position:relative;}
+.exit-popup-close{position:absolute;top:14px;right:18px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;}
+.exit-popup h3{font-size:1.8rem;font-weight:900;margin-bottom:10px;line-height:1.1;}
+.exit-popup p{color:var(--muted);font-size:.93rem;line-height:1.65;margin-bottom:24px;}
+.exit-form{display:flex;flex-direction:column;gap:10px;}
 /* ── FLOATING CTA ── */
 .float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
 /* ── MOBILE ── */
@@ -439,6 +456,29 @@ Profiter de l'offre →
 </div>
 </div>
 </section>
+<!-- ═══════════ EMAIL CAPTURE ═══════════ -->
+<section id="email-capture">
+<div class="container">
+<div class="email-box">
+  <div class="email-box-text">
+    <div class="email-eyebrow">🎁 PARI GRATUIT</div>
+    <h2 style="font-size:clamp(1.6rem,4vw,2.8rem);margin-bottom:10px;">Reçois le prochain pari<br><span class="gradient">gratuitement</span></h2>
+    <p style="color:var(--muted);font-size:.95rem;line-height:1.6;">Laisse ton email — on t'envoie le prochain ticket VIP avant tout le monde. Sans engagement.</p>
+  </div>
+  <div class="email-box-form">
+    <div class="email-form" id="email-form">
+      <input class="email-inp" id="lead-email" type="email" placeholder="ton@email.com" autocomplete="email"/>
+      <button class="btn btn-primary" onclick="submitLead('form')">Recevoir le pari →</button>
+    </div>
+    <div id="email-success" style="display:none;color:var(--green);font-weight:800;font-size:1rem;text-align:center;padding:16px 0;">
+      ✅ C'est noté ! Tu recevras le prochain pari en avant-première.
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:10px;text-align:center;">Pas de spam · Désabonnement libre à tout moment</p>
+  </div>
+</div>
+</div>
+</section>
+
 <!-- ═══════════ CTA FINAL ═══════════ -->
 <section id="telegram">
 <div class="container">
@@ -463,6 +503,23 @@ Profiter de l'offre →
 <p class="legal">© 2026 AokBet — Réservé aux personnes majeures.<br>Les paris sportifs comportent des risques de perte d'argent. Aucun gain n'est garanti.</p>
 </div>
 </footer>
+<!-- EXIT POPUP -->
+<div class="exit-overlay" id="exit-overlay" style="display:none;">
+  <div class="exit-popup">
+    <button class="exit-popup-close" onclick="closeExitPopup()">✕</button>
+    <div style="font-size:2.5rem;margin-bottom:12px;">🎁</div>
+    <h3>Attends !<br><span class="gradient">Un pari gratuit</span><br>t'attend</h3>
+    <p>Laisse ton email et reçois le prochain ticket VIP en avant-première — sans payer quoi que ce soit.</p>
+    <div class="exit-form">
+      <input class="email-inp" id="exit-email" type="email" placeholder="ton@email.com" autocomplete="email"/>
+      <button class="btn btn-primary" style="width:100%;padding:14px;" onclick="submitLead('popup')">Recevoir le pari gratuit →</button>
+      <div id="exit-success" style="display:none;color:var(--green);font-weight:800;font-size:.95rem;text-align:center;padding:8px 0;">✅ C'est noté ! À très vite.</div>
+      <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-outline" style="width:100%;padding:13px;" onclick="closeExitPopup()">Rejoindre directement le VIP Telegram</a>
+      <button onclick="closeExitPopup()" style="background:none;border:none;color:var(--muted);font-size:.8rem;cursor:pointer;padding:4px;">Non merci, je pars sans mon pari gratuit</button>
+    </div>
+  </div>
+</div>
+
 <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLH1BmpsGieaDY6nzfD-Ut0U6RL_ybpi_px6nn2vbESpgSnXkWmod5yxjxtWzOZOt6eOV3E8Co2mXJ/pub?gid=1836212572&single=true&output=csv";
@@ -572,6 +629,50 @@ function closeMenu(){
   document.getElementById('mobile-menu').classList.remove('open');
 }
 loadPerf();
+
+// ── EMAIL LEAD ─────────────────────────────────
+const LEAD_URL = 'https://script.google.com/macros/s/AKfycby-r3aMfrQ9gR1HSIQpJnTw4s_jGF1VETMV8ObfiN8jIXFSy9RBxBB3sh8LicSytLdj/exec';
+
+function submitLead(source) {
+  const inputId = source === 'popup' ? 'exit-email' : 'lead-email';
+  const email = document.getElementById(inputId).value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById(inputId).style.borderColor = 'var(--red)';
+    return;
+  }
+  const url = `${LEAD_URL}?action=lead&email=${encodeURIComponent(email)}&source=${source}&t=${Date.now()}`;
+  new Image().src = url;
+  if (source === 'popup') {
+    document.getElementById('exit-success').style.display = 'block';
+    setTimeout(closeExitPopup, 2500);
+  } else {
+    document.getElementById('email-form').style.display = 'none';
+    document.getElementById('email-success').style.display = 'block';
+  }
+}
+
+// ── EXIT POPUP ─────────────────────────────────
+let exitShown = localStorage.getItem('aokbet_exit_shown');
+function closeExitPopup() {
+  document.getElementById('exit-overlay').style.display = 'none';
+}
+if (!exitShown) {
+  document.addEventListener('mouseleave', function(e) {
+    if (e.clientY < 5 && !exitShown) {
+      exitShown = true;
+      localStorage.setItem('aokbet_exit_shown', '1');
+      document.getElementById('exit-overlay').style.display = 'flex';
+    }
+  });
+  // Sur mobile : déclenche après 40s de visite
+  setTimeout(function() {
+    if (!exitShown) {
+      exitShown = true;
+      localStorage.setItem('aokbet_exit_shown', '1');
+      document.getElementById('exit-overlay').style.display = 'flex';
+    }
+  }, 40000);
+}
 </script>
 </body>
 </html>
