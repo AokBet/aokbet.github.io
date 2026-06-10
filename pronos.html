@@ -320,11 +320,25 @@ function editPseudo() {
   document.getElementById('pseudo-input').focus();
 }
 
+// ── JSONP (contourne CORS) ────────────────────────────
+let _cbCount = 0;
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = '__aokbet_' + (++_cbCount);
+    const s  = document.createElement('script');
+    const timer = setTimeout(() => { reject(new Error('timeout')); cleanup(); }, 10000);
+    window[cb] = (data) => { clearTimeout(timer); resolve(data); cleanup(); };
+    s.onerror = () => { clearTimeout(timer); reject(new Error('script error')); cleanup(); };
+    function cleanup() { delete window[cb]; if (s.parentNode) s.parentNode.removeChild(s); }
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+
 // ── Data ─────────────────────────────────────────────
 async function loadData() {
   try {
-    const res  = await fetch(`${SCRIPT_URL}?action=data&t=${Date.now()}`);
-    const data = await res.json();
+    const data = await jsonp(`${SCRIPT_URL}?action=data&t=${Date.now()}`);
     allMatches  = data.matches    || [];
     leaderboard = data.leaderboard || [];
     renderMatches();
@@ -426,8 +440,7 @@ async function vote(matchId, val) {
 
   try {
     const url = `${SCRIPT_URL}?action=vote&pseudo=${encodeURIComponent(myPseudo)}&matchId=${encodeURIComponent(matchId)}&vote=${encodeURIComponent(val)}&t=${Date.now()}`;
-    const res  = await fetch(url);
-    const data = await res.json();
+    const data = await jsonp(url);
 
     if (data.error === 'already_voted') {
       showToast('✅ Pronostic déjà enregistré !');
