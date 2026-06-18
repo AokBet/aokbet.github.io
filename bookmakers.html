@@ -106,11 +106,8 @@ h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1;letter-spacing:-.05em;margin-b
 .bm-card.featured-orange{border-color:rgba(255,165,0,.35);background:rgba(255,165,0,.04);}
 .bm-header{padding:28px 32px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-bottom:1px solid var(--line);}
 .bm-logo-area{display:flex;align-items:center;gap:16px;}
-.bm-logo{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:900;flex-shrink:0;}
-.bm-logo.velobet{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
-.bm-logo.betclic{background:linear-gradient(135deg,#0066cc,#0099ff);color:#fff;}
-.bm-logo.winamax{background:linear-gradient(135deg,#e8001f,#ff4444);color:#fff;}
-.bm-logo.unibet{background:linear-gradient(135deg,#00a651,#00cc66);color:#fff;}
+.bm-logo{width:56px;height:56px;border-radius:14px;overflow:hidden;flex-shrink:0;}
+.bm-logo img{width:100%;height:100%;object-fit:cover;display:block;}
 .bm-name{font-size:1.4rem;font-weight:900;}
 .bm-badge{padding:6px 14px;border-radius:999px;font-size:.75rem;font-weight:800;}
 .badge-green{background:rgba(39,242,138,.15);color:var(--green);}
@@ -215,7 +212,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <div class="bm-card" style="border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.05);">
       <div class="bm-header">
         <div class="bm-logo-area">
-          <div class="bm-logo velobet">V</div>
+          <div class="bm-logo"><img src="logo-velobet.png" alt="Velobet"></div>
           <div>
             <div class="bm-name">Velobet</div>
             <div style="color:var(--muted);font-size:.82rem;margin-top:2px;">Meilleure offre AokBet — accès VIP offert</div>
@@ -250,7 +247,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <div class="bm-card featured-blue">
       <div class="bm-header">
         <div class="bm-logo-area">
-          <div class="bm-logo betclic">B</div>
+          <div class="bm-logo"><img src="logo-betclic.png" alt="Betclic"></div>
           <div>
             <div class="bm-name">Betclic</div>
             <div style="color:var(--muted);font-size:.82rem;margin-top:2px;">Meilleur pour les débutants</div>
@@ -285,7 +282,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <div class="bm-card featured-orange">
       <div class="bm-header">
         <div class="bm-logo-area">
-          <div class="bm-logo winamax">W</div>
+          <div class="bm-logo"><img src="logo-winamax.png" alt="Winamax"></div>
           <div>
             <div class="bm-name">Winamax</div>
             <div style="color:var(--muted);font-size:.82rem;margin-top:2px;">Meilleur pour le poker & sports</div>
@@ -320,7 +317,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <div class="bm-card featured">
       <div class="bm-header">
         <div class="bm-logo-area">
-          <div class="bm-logo unibet">U</div>
+          <div class="bm-logo"><img src="logo-unibet.png" alt="Unibet"></div>
           <div>
             <div class="bm-name">Unibet</div>
             <div style="color:var(--muted);font-size:.82rem;margin-top:2px;">Meilleur pour les cotes tennis</div>
