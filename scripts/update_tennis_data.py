@@ -173,9 +173,15 @@ def parse_score_pages(pages):
             else:
                 status = "live"
 
-            name_nodes = link.select(".nf.of .vf")
-            p1_name = name_nodes[0].get_text(" ", strip=True) if len(name_nodes) > 0 else slug_label(p1_slug)
-            p2_name = name_nodes[1].get_text(" ", strip=True) if len(name_nodes) > 1 else slug_label(p2_slug)
+            team_nodes = link.select(".nf.of > .xf")
+            teams = []
+            for team_node in team_nodes[:2]:
+                members = [node.get_text(" ", strip=True) for node in team_node.select(".vf") if node.get_text(" ", strip=True)]
+                teams.append(members)
+            p1_members = teams[0] if len(teams) > 0 and teams[0] else [slug_label(p1_slug)]
+            p2_members = teams[1] if len(teams) > 1 and teams[1] else [slug_label(p2_slug)]
+            p1_name = " / ".join(p1_members)
+            p2_name = " / ".join(p2_members)
             score_groups = link.select(".pf.of > span")
             p1_sets, p1_tb = score_values(score_groups[0] if len(score_groups) > 0 else None)
             p2_sets, p2_tb = score_values(score_groups[1] if len(score_groups) > 1 else None)
@@ -210,10 +216,10 @@ def parse_score_pages(pages):
                 "round": "",
                 "timeInfo": time_info,
                 "sourceUrl": f"https://www.livescores.com{link['href']}",
-                "p1": {"name": p1_name, "key": norm_name(p1_name), "cc": "", "serving": False, "sets": p1_sets,
+                "p1": {"name": p1_name, "key": norm_name(p1_name), "members": p1_members, "cc": "", "serving": False, "sets": p1_sets,
                        "tiebreaks": p1_tb, "setsWon": p1_won, "game": p1_game,
                        "win": status == "finished" and p1_won > p2_won},
-                "p2": {"name": p2_name, "key": norm_name(p2_name), "cc": "", "serving": False, "sets": p2_sets,
+                "p2": {"name": p2_name, "key": norm_name(p2_name), "members": p2_members, "cc": "", "serving": False, "sets": p2_sets,
                        "tiebreaks": p2_tb, "setsWon": p2_won, "game": p2_game,
                        "win": status == "finished" and p2_won > p1_won},
             })
@@ -359,9 +365,55 @@ def limited_profile(name, tour):
             "style": {"label": "Profil à confirmer", "confidence": "limited"}}
 
 
+def team_profile(player, profiles, tour):
+    members = player.get("members") or [player["name"]]
+    member_profiles = [profiles.get(norm_name(name)) for name in members]
+    known = [profile for profile in member_profiles if profile]
+    if not known:
+        profile = limited_profile(player["name"], tour)
+        profile.update({"teamSize": len(members), "profileCoverage": 0,
+                        "style": {"label": "Équipe à confirmer", "confidence": "limited"}})
+        return profile
+
+    surfaces = {}
+    surface_names = set().union(*(profile.get("surfaces", {}).keys() for profile in known))
+    for surface in surface_names:
+        entries = [profile.get("surfaces", {}).get(surface) for profile in known]
+        entries = [entry for entry in entries if entry]
+        matches = sum(entry.get("matches", 0) for entry in entries)
+        wins = sum(entry.get("wins", 0) for entry in entries)
+        elo_values = [entry.get("elo") for entry in entries if entry.get("elo") is not None]
+        surfaces[surface] = {"wins": wins, "matches": matches,
+                             "winRate": round(wins / matches, 3) if matches else None,
+                             "elo": round(sum(elo_values) / len(elo_values)) if elo_values else None}
+
+    recent = sorted((match for profile in known for match in profile.get("recent", [])[:10]),
+                    key=lambda match: match.get("date", ""), reverse=True)[:10]
+    recent_wins = sum(match.get("result") == "W" for match in recent)
+    serve_values = [profile.get("serve") for profile in known if profile.get("serve")]
+    serve = None
+    if serve_values:
+        def average(key):
+            values = [item.get(key) for item in serve_values if item.get(key) is not None]
+            return round(sum(values) / len(values), 3) if values else None
+        serve = {"acesPerMatch": round(average("acesPerMatch") or 0, 1),
+                 "servicePointsWon": average("servicePointsWon"),
+                 "secondServeWon": average("secondServeWon"),
+                 "sample": sum(item.get("sample", 0) for item in serve_values)}
+
+    return {"name": player["name"], "tour": tour, "rank": None,
+            "teamSize": len(members), "profileCoverage": len(known),
+            "elo": round(sum(profile.get("elo", 1500) for profile in known) / len(known)),
+            "surfaces": surfaces, "recent": recent,
+            "form": {"wins": recent_wins, "matches": len(recent),
+                     "winRate": round(recent_wins / len(recent), 3) if recent else None},
+            "serve": serve, "style": {"label": "Équipe de double", "confidence": "estimated"}}
+
+
 def attach_analysis(event, profiles):
-    p1 = profiles.get(event["p1"]["key"]) or limited_profile(event["p1"]["name"], event["tour"])
-    p2 = profiles.get(event["p2"]["key"]) or limited_profile(event["p2"]["name"], event["tour"])
+    is_team = event["eventType"] == "doubles"
+    p1 = team_profile(event["p1"], profiles, event["tour"]) if is_team else (profiles.get(event["p1"]["key"]) or limited_profile(event["p1"]["name"], event["tour"]))
+    p2 = team_profile(event["p2"], profiles, event["tour"]) if is_team else (profiles.get(event["p2"]["key"]) or limited_profile(event["p2"]["name"], event["tour"]))
     surface = event["surface"]
 
     def rating(profile):
@@ -377,14 +429,20 @@ def attach_analysis(event, profiles):
     form_edge = ((form1 - form2) * 0.10) if form1 is not None and form2 is not None else 0
     p1_prob = min(0.92, max(0.08, base + form_edge))
     samples = min(s1.get("matches", 0), s2.get("matches", 0)) if surface != "Unknown" else 0
-    has_both = event["p1"]["key"] in profiles and event["p2"]["key"] in profiles
+    if is_team:
+        known_profiles = p1.get("profileCoverage", 0) + p2.get("profileCoverage", 0)
+        expected_profiles = p1.get("teamSize", 2) + p2.get("teamSize", 2)
+        has_both = known_profiles == expected_profiles
+    else:
+        has_both = event["p1"]["key"] in profiles and event["p2"]["key"] in profiles
     confidence = "high" if has_both and samples >= 15 else ("medium" if has_both else "limited")
 
     h2h1 = [match for match in p1.get("recent", []) if match.get("opponentKey") == event["p2"]["key"]]
     h2h_wins = sum(match["result"] == "W" for match in h2h1)
     h2h_total = len(h2h1)
     event["analysis"] = {
-        "model": "AokBet Elo v1",
+        "model": "AokBet Elo équipes v1" if is_team else "AokBet Elo v1",
+        "teamMode": is_team,
         "generatedAt": NOW.isoformat(),
         "dataQuality": confidence,
         "surface": surface,
@@ -419,8 +477,7 @@ def build_scores():
         profiles = history.get("profiles", {})
         history_generated = history.get("generatedAt")
     for event in events:
-        if event["eventType"] == "singles":
-            attach_analysis(event, profiles)
+        attach_analysis(event, profiles)
     output = {
         "schemaVersion": 2,
         "generatedAt": NOW.isoformat(),
