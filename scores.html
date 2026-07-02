@@ -971,7 +971,10 @@ function formHtml(profile,right=false){
 }
 function qualityText(q){return q==='high'?'Données solides':q==='medium'?'Données partielles':'Estimation limitée';}
 function styleLabel(profile){return profile?.style?.label||'Profil à confirmer';}
-function playerRank(profile){return profile?.rank?`Classement connu : n°${profile.rank}`:'Classement non disponible';}
+function playerRank(profile){
+  if(profile?.teamSize)return `${profile.profileCoverage||0}/${profile.teamSize} profils historiques trouvés`;
+  return profile?.rank?`Classement connu : n°${profile.rank}`:'Classement non disponible';
+}
 function factorValue(factor,side){
   const value=factor?.[side];
   if(value==null)return '—';
@@ -1019,8 +1022,8 @@ function openAnalysis(id){
         <div class="analysis-title">Comparaison du matchup</div>
         <div class="factor-table">
           ${(analysis.factors||[]).map(f=>`<div class="factor-row"><div class="factor-value ${f.leader==='p1'?'leader':''}">${factorValue(f,'p1')}</div><div class="factor-label">${esc(f.label)}</div><div class="factor-value right ${f.leader==='p2'?'leader':''}">${factorValue(f,'p2')}</div></div>`).join('')}
-          <div class="factor-row"><div>${formHtml(a1)}</div><div class="factor-label">5 derniers matchs</div><div>${formHtml(a2,true)}</div></div>
-          <div class="factor-row"><div class="factor-value">${h2h.matches?h2h.p1Wins:'—'}</div><div class="factor-label">Face-à-face récent*</div><div class="factor-value right">${h2h.matches?h2h.p2Wins:'—'}</div></div>
+          <div class="factor-row"><div>${formHtml(a1)}</div><div class="factor-label">${analysis.teamMode?'Forme cumulée':'5 derniers matchs'}</div><div>${formHtml(a2,true)}</div></div>
+          <div class="factor-row"><div class="factor-value">${h2h.matches?h2h.p1Wins:'—'}</div><div class="factor-label">${analysis.teamMode?'H2H des équipes':'Face-à-face récent*'}</div><div class="factor-value right">${h2h.matches?h2h.p2Wins:'—'}</div></div>
           <div class="factor-row"><div class="factor-value">${a1.serve?.acesPerMatch??'—'}</div><div class="factor-label">Aces / match</div><div class="factor-value right">${a2.serve?.acesPerMatch??'—'}</div></div>
         </div>
         <div class="analysis-title">Lecture des deux profils</div>
@@ -1028,7 +1031,7 @@ function openAnalysis(id){
           <article class="insight-card"><h3>${esc(match.p1.name)}</h3><p>${esc(playerInsight(a1,match.p2,'p1',analysis))}</p></article>
           <article class="insight-card"><h3>${esc(match.p2.name)}</h3><p>${esc(playerInsight(a2,match.p1,'p2',analysis))}</p></article>
         </div>
-        <div class="analysis-method"><strong>Méthode :</strong> Elo général et Elo par surface calculés sur cinq saisons, puis ajustement léger par la forme des 10 derniers matchs. Le style est une estimation issue des statistiques de service, pas une classification officielle. *Le H2H est limité aux 15 derniers matchs conservés par joueur. Données historiques : <a href="https://github.com/Aneeshers/tennis-sackmann-archive" target="_blank" rel="noopener">Jeff Sackmann / Tennis Abstract — CC BY-NC-SA 4.0</a>. ${esc(analysis.notice||'')}</div>
+        <div class="analysis-method"><strong>Méthode :</strong> Elo général et Elo par surface calculés sur cinq saisons, puis ajustement léger par la forme des 10 derniers matchs. ${analysis.teamMode?'Pour le double, les indicateurs des deux partenaires sont agrégés en un profil d’équipe. ':''}Le style est une estimation issue des statistiques de service, pas une classification officielle. *Le H2H est limité aux 15 derniers matchs conservés par joueur. Données historiques : <a href="https://github.com/Aneeshers/tennis-sackmann-archive" target="_blank" rel="noopener">Jeff Sackmann / Tennis Abstract — CC BY-NC-SA 4.0</a>. ${esc(analysis.notice||'')}</div>
       </section>`;
   }
   modal.classList.add('open');
