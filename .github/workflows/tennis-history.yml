@@ -1,8 +1,8 @@
-name: Update Tennis Scores
+name: Update Tennis History
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '17 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -21,18 +21,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Installer les dépendances
-        run: pip install beautifulsoup4 lxml requests --break-system-packages -q
+        run: pip install requests --break-system-packages -q
 
-      - name: Mettre à jour les scores et les analyses
-        run: python scripts/update_tennis_data.py scores
+      - name: Reconstruire les profils statistiques
+        run: python scripts/update_tennis_data.py history
 
       - name: Vérifier le JSON
-        run: python scripts/validate_tennis_data.py tennis-live.json
+        run: python scripts/validate_tennis_data.py tennis-history.json
 
       - name: Publier si les données ont changé
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add tennis-live.json
-          git diff --staged --quiet || git commit -m "🎾 Scores $(date -u +'%H:%M UTC')"
+          git add tennis-history.json
+          git diff --staged --quiet || git commit -m "📊 Historique tennis $(date -u +'%Y-%m-%d')"
           git push
