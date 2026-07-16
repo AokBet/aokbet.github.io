@@ -198,6 +198,11 @@ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap
 section{padding:60px 0;}
 h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin-bottom:10px;font-weight:900;}
 .section-sub{color:var(--muted);font-size:.95rem;margin-bottom:28px;line-height:1.6;}
+/* ── MONTH SELECTOR ── */
+.month-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.month-pill{padding:9px 18px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);font-weight:800;font-size:.85rem;cursor:pointer;transition:.2s;font-family:Inter,sans-serif;}
+.month-pill:hover{background:rgba(255,255,255,.09);color:#fff;}
+.month-pill.active{background:linear-gradient(135deg,var(--green),#96ffd0);color:#04110a;border-color:transparent;}
 .perf-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
 @media(min-width:560px){.perf-stats{grid-template-columns:repeat(4,1fr);}}
 .perf-stat{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:16px 12px;text-align:center;}
@@ -220,6 +225,7 @@ h2{font-size:clamp(1.8rem,5vw,3.5rem);line-height:1;letter-spacing:-.05em;margin
 .pbadge-l{background:rgba(248,113,113,.15);color:var(--red);}
 .pbadge-p{background:rgba(255,255,255,.08);color:#ccc;}
 .perf-loading{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;}
+.perf-empty{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;}
 .perf-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 /* ── SCREENS ── */
@@ -403,7 +409,8 @@ Offre Velobet — accès VIP gratuit
 <section id="performances">
 <div class="container">
 <h2>📈 Performances en direct</h2>
-<p class="section-sub">Mises à jour après chaque pari — rien n'est modifiable a posteriori.</p>
+<p class="section-sub">Mises à jour après chaque pari — rien n'est modifiable a posteriori. Sélectionne un mois pour consulter l'historique.</p>
+<div class="month-selector" id="month-selector" role="tablist" aria-label="Sélection du mois"></div>
 <div class="perf-stats">
 <div class="perf-stat"><div class="plabel">Tickets</div><div class="pvalue gold" id="p-tickets">—</div></div>
 <div class="perf-stat"><div class="plabel">Win Rate</div><div class="pvalue" id="p-winrate">—</div></div>
@@ -417,6 +424,7 @@ Offre Velobet — accès VIP gratuit
 <div class="perf-table-card">
 <div class="card-title">Historique des tickets</div>
 <div class="perf-loading" id="p-loading"><div class="perf-spinner"></div><br>Chargement…</div>
+<div class="perf-empty" id="p-empty" style="display:none">Aucun ticket pour ce mois.</div>
 <div style="overflow-x:auto">
 <table class="perf-table" id="p-table" style="display:none">
 <thead><tr><th>Date</th><th>Match</th><th>Prono</th><th>Cote</th><th>Résultat</th></tr></thead>
@@ -617,12 +625,25 @@ AokBet est un service de pronostics sportifs VIP basé sur Telegram. Notre tipst
 <a href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank" class="btn btn-primary float-cta">💬 Rejoindre le VIP</a>
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLH1BmpsGieaDY6nzfD-Ut0U6RL_ybpi_px6nn2vbESpgSnXkWmod5yxjxtWzOZOt6eOV3E8Co2mXJ/pub?gid=1836212572&single=true&output=csv";
+const MONTH_NAMES = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+
 function parseCSV(text) {
   return text.trim().split("\n").slice(1).map(line => {
     const cols = line.split(",").map(c => c.trim().replace(/^"|"$/g,""));
-    return { date:cols[0]||"", match:cols[1]||"", prono:cols[2]||"", cote:parseFloat(cols[3])||0, resultat:(cols[4]||"").toUpperCase() };
+    const date = cols[0]||"";
+    const parts = date.split("/");
+    // Date attendue au format JJ/MM/AAAA -> clé de mois "AAAA-MM"
+    const monthKey = parts.length===3 ? `${parts[2]}-${parts[1].padStart(2,"0")}` : "";
+    return { date, match:cols[1]||"", prono:cols[2]||"", cote:parseFloat(cols[3])||0, resultat:(cols[4]||"").toUpperCase(), monthKey };
   }).filter(r => r.match && r.cote > 0);
 }
+
+function monthLabel(key) {
+  const [y,m] = key.split("-");
+  const idx = parseInt(m,10)-1;
+  return `${MONTH_NAMES[idx] || m} ${y}`;
+}
+
 function getStreak(rows) {
   if (!rows.length) return "—";
   let count = 1, last = rows[rows.length-1].resultat;
@@ -630,6 +651,7 @@ function getStreak(rows) {
   for (let i=rows.length-2;i>=0;i--) { if(rows[i].resultat===last) count++; else break; }
   return last==="W" ? `🔥 ${count} victoire${count>1?"s":""}` : `❌ ${count} défaite${count>1?"s":""}`;
 }
+
 function updateHeroStats(rows) {
   const wins = rows.filter(r=>r.resultat==="W");
   const losses = rows.filter(r=>r.resultat==="L");
@@ -647,8 +669,30 @@ function updateHeroStats(rows) {
     document.getElementById("last-win").style.display = "flex";
   }
 }
+
 let chartInstance = null;
 function renderPerf(rows) {
+  const loadingEl = document.getElementById("p-loading");
+  const emptyEl = document.getElementById("p-empty");
+  const tableEl = document.getElementById("p-table");
+  loadingEl.style.display = "none";
+
+  if (!rows.length) {
+    tableEl.style.display = "none";
+    emptyEl.style.display = "block";
+    document.getElementById("p-tickets").textContent = "0";
+    const wrEl = document.getElementById("p-winrate");
+    wrEl.textContent = "—"; wrEl.className = "pvalue";
+    document.getElementById("p-avgcote").textContent = "—";
+    const strEl = document.getElementById("p-streak");
+    strEl.textContent = "—"; strEl.className = "pvalue";
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    document.getElementById("p-body").innerHTML = "";
+    return;
+  }
+  emptyEl.style.display = "none";
+  tableEl.style.display = "table";
+
   const wins = rows.filter(r=>r.resultat==="W");
   const losses = rows.filter(r=>r.resultat==="L");
   const wr = (wins.length+losses.length)>0 ? ((wins.length/(wins.length+losses.length))*100).toFixed(0) : 0;
@@ -694,21 +738,57 @@ function renderPerf(rows) {
     tr.innerHTML=`<td>${r.date}</td><td>${r.match}</td><td style="color:var(--muted)">${r.prono}</td><td>@${r.cote.toFixed(2)}</td><td><span class="pbadge ${bc}">${bt}</span></td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById("p-loading").style.display="none";
-  document.getElementById("p-table").style.display="table";
 }
+
+// ── SÉLECTEUR DE MOIS ─────────────────────────────
+let allRows = [];
+
+function buildMonthSelector(rows) {
+  const keys = [...new Set(rows.map(r=>r.monthKey).filter(Boolean))].sort();
+  const wrap = document.getElementById("month-selector");
+  wrap.innerHTML = "";
+  const now = new Date();
+  const nowKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const defaultKey = keys.includes(nowKey) ? nowKey : (keys[keys.length-1] || nowKey);
+  keys.forEach(k => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "month-pill" + (k===defaultKey ? " active" : "");
+    btn.textContent = monthLabel(k);
+    btn.dataset.key = k;
+    btn.setAttribute("role","tab");
+    btn.setAttribute("aria-selected", k===defaultKey ? "true" : "false");
+    btn.onclick = () => selectMonth(k);
+    wrap.appendChild(btn);
+  });
+  return defaultKey;
+}
+
+function selectMonth(key) {
+  document.querySelectorAll(".month-pill").forEach(b => {
+    const active = b.dataset.key === key;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  const filtered = allRows.filter(r => r.monthKey === key);
+  renderPerf(filtered);
+}
+
 async function loadPerf() {
   try {
     const res = await fetch(SHEET_URL);
     if(!res.ok) throw new Error("HTTP "+res.status);
     const rows = parseCSV(await res.text());
     if(!rows.length) throw new Error("Feuille vide");
+    allRows = rows;
     updateHeroStats(rows);
-    renderPerf(rows);
+    const defaultKey = buildMonthSelector(rows);
+    selectMonth(defaultKey);
   } catch(e) {
     document.getElementById("p-loading").innerHTML=`<span style="color:#f87171">❌ ${e.message}</span>`;
   }
 }
+
 function toggleFaq(btn) {
   const a = btn.nextElementSibling, open = btn.classList.contains("open");
   document.querySelectorAll(".faq-q").forEach(b=>{ b.classList.remove("open"); b.nextElementSibling.classList.remove("show"); });
