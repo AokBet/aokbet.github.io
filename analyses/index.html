@@ -143,7 +143,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 .legal{margin-top:20px;color:var(--muted);line-height:1.7;font-size:.82rem;}
 
 /* ── FLOAT CTA ── */
-.float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
+@keyframes ctapulse{0%,100%{box-shadow:0 0 25px rgba(39,242,138,.3);}50%{box-shadow:0 0 55px rgba(39,242,138,.75);}}.cta-pulse{animation:ctapulse 2.4s ease-in-out infinite;border-color:rgba(39,242,138,.5) !important;border-width:2px;}.float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
 
 /* ── MOBILE ── */
 @media(max-width:860px){
@@ -234,7 +234,7 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   </div>
 
   <!-- CTA Telegram -->
-  <div class="cta-box">
+  <div class="cta-box cta-pulse">
     <div>
       <h3>Rejoins AokBet sur Telegram</h3>
       <p>2 analyses par jour, foot &amp; tennis, avec le pari exact (cote + mise) et le suivi des résultats en temps réel. Dès 7€ / 7 jours.</p>
