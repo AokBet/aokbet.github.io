@@ -21,7 +21,6 @@
 <meta name="twitter:title" content="Analyses & pronostics du jour — AokBet">
 <meta name="twitter:image" content="https://aokbet.github.io/logo.png">
 
-<!-- Google Analytics 4 — remplace par ton vrai ID -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S3SJGWGWT"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
@@ -71,7 +70,6 @@ a{text-decoration:none;color:inherit;}
 img{max-width:100%;display:block;}
 .container{width:min(860px,calc(100% - 28px));margin:auto;}
 
-/* ── NAV ── */
 .topbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(5,7,13,.88);border-bottom:1px solid var(--line);}
 .nav{max-width:1120px;width:calc(100% - 28px);margin:auto;height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.35rem;flex-shrink:0;}
@@ -87,7 +85,6 @@ img{max-width:100%;display:block;}
 .btn-outline{background:transparent;border:2px solid var(--green);color:var(--green);}
 .btn-lg{padding:15px 30px;font-size:1rem;}
 
-/* ── HAMBURGER ── */
 .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0;}
 .hamburger span{display:block;height:2px;background:var(--text);border-radius:2px;transition:.3s;}
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
@@ -100,17 +97,18 @@ img{max-width:100%;display:block;}
 .mobile-menu a:hover,.mobile-menu a:active{color:#fff;background:rgba(255,255,255,.04);}
 .mobile-menu a.active,.mobile-menu a.live-link{color:var(--green);}
 
-/* ── PAGE HEADER ── */
 .page-header{padding:44px 0 20px;}
 .eyebrow{display:inline-flex;padding:6px 13px;border-radius:999px;background:rgba(39,242,138,.08);border:1px solid rgba(39,242,138,.22);color:#c9ffe5;font-weight:800;font-size:.75rem;margin-bottom:16px;letter-spacing:.3px;}
 .page-header h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:900;letter-spacing:-.05em;line-height:1.02;}
 .page-header p{color:var(--muted);margin-top:12px;font-size:1rem;line-height:1.65;max-width:640px;}
 
-/* ── SECTION TITLE ── */
 .sec-title{font-size:1.3rem;font-weight:900;letter-spacing:-.03em;margin:20px 0 14px;}
+.sec-sub{font-size:.78rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:800;margin:26px 0 12px;}
 
-/* ── ARTICLE CARDS (mises en avant, dorées) ── */
-.analyses-grid{display:grid;gap:12px;margin-bottom:20px;}
+/* ── ARTICLE CARDS ── */
+.analyses-grid{display:grid;gap:10px;margin-bottom:20px;}
+
+/* Carte "Analyse du jour" (première carte — dorée, mise en avant) */
 .a-card{display:block;background:linear-gradient(135deg,rgba(255,213,74,.10),rgba(255,255,255,.04));border:2px solid rgba(255,213,74,.45);border-radius:18px;padding:24px 26px;transition:.2s;box-shadow:0 8px 24px rgba(255,213,74,.08);position:relative;}
 .a-card::before{content:"👉 Lire l'analyse";position:absolute;top:14px;right:16px;background:var(--gold);color:#04110a;font-size:.68rem;font-weight:900;padding:5px 11px;border-radius:999px;text-transform:uppercase;letter-spacing:.5px;}
 .a-card:hover{border-color:var(--gold);background:linear-gradient(135deg,rgba(255,213,74,.18),rgba(255,255,255,.06));transform:translateY(-2px);box-shadow:0 12px 32px rgba(255,213,74,.18);}
@@ -118,11 +116,17 @@ img{max-width:100%;display:block;}
 .a-card .title{font-size:1.15rem;font-weight:800;margin-top:8px;line-height:1.3;padding-right:110px;}
 .a-card .meta{font-size:.78rem;color:var(--muted);margin-top:6px;}
 
-/* ── EMPTY STATE ── */
+/* Cartes "Analyses passées" (plus sobres, sans badge) */
+.a-card.past{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:16px 20px;box-shadow:none;}
+.a-card.past::before{display:none;}
+.a-card.past:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.05);transform:translateY(-1px);box-shadow:none;}
+.a-card.past .tag{color:var(--muted);font-size:.66rem;letter-spacing:.6px;}
+.a-card.past .title{font-size:.98rem;font-weight:700;margin-top:5px;padding-right:0;color:#d4d9e2;}
+.a-card.past .meta{font-size:.74rem;margin-top:4px;}
+
 .empty{background:rgba(255,255,255,.04);border:1px dashed var(--line);border-radius:16px;padding:28px 24px;text-align:center;color:var(--muted);font-size:.92rem;line-height:1.6;}
 .empty strong{color:var(--text);}
 
-/* ── CTA BOX (encart Telegram — pulse adoucie) ── */
 .cta-box{background:linear-gradient(135deg,rgba(39,242,138,.13),rgba(69,163,255,.07));border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:26px 28px;margin:26px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
 .cta-box h3{font-size:1.2rem;font-weight:900;margin-bottom:6px;line-height:1.25;}
 .cta-box p{color:var(--muted);font-size:.9rem;line-height:1.6;max-width:440px;}
@@ -133,19 +137,15 @@ img{max-width:100%;display:block;}
 }
 .cta-pulse{animation:ctapulse 3.2s ease-in-out infinite;}
 
-/* ── JEU RESPONSABLE ── */
 .rg-box{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:20px 0;font-size:.82rem;line-height:1.65;color:var(--muted);}
 .rg-box strong{color:var(--text);}
 
-/* ── FOOTER ── */
 footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2);margin-top:20px;}
 .footer-grid{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
 .legal{margin-top:20px;color:var(--muted);line-height:1.7;font-size:.82rem;}
 
-/* ── FLOAT CTA ── */
 .float-cta{position:fixed;right:16px;bottom:16px;z-index:50;box-shadow:0 8px 30px rgba(39,242,138,.3);}
 
-/* ── MOBILE ── */
 @media(max-width:860px){
   .navlinks{display:none;}
   .hamburger{display:flex;}
@@ -159,7 +159,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
 </head>
 <body>
 
-<!-- ── NAV (identique au site — "Analyses" est actif) ── -->
 <header class="topbar">
   <div class="nav">
     <a class="brand" href="../index.html">
@@ -167,8 +166,10 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
       <span>AokBet</span>
     </a>
     <nav class="navlinks">
-      <a href="../index.html">Accueil</a>
-      <a href="../index.html#performances">Performances</a><a href="../index.html#abonnements">Abonnements</a><a href="../index.html#telegram">Telegram</a>
+      <a href="../index.html">🏠 Accueil</a>
+      <a href="../index.html#performances">📈 Performances</a>
+      <a href="../index.html#abonnements">💎 Abonnements</a>
+      <a href="../index.html#telegram">💬 Telegram</a>
       <a href="index.html" class="active">📊 Analyses</a>
       <a href="../scores.html" class="live-link">🎾 Scores Live</a>
       <a href="../pronos.html">🎯 Pronostics</a>
@@ -181,8 +182,10 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
   </div>
 </header>
 <div class="mobile-menu" id="mobile-menu">
-  <a href="../index.html" onclick="closeMenu()">Accueil</a>
-  <a href="../index.html#performances" onclick="closeMenu()">Performances</a><a href="../index.html#abonnements" onclick="closeMenu()">Abonnements</a><a href="../index.html#telegram" onclick="closeMenu()">Telegram</a>
+  <a href="../index.html" onclick="closeMenu()">🏠 Accueil</a>
+  <a href="../index.html#performances" onclick="closeMenu()">📈 Performances</a>
+  <a href="../index.html#abonnements" onclick="closeMenu()">💎 Abonnements</a>
+  <a href="../index.html#telegram" onclick="closeMenu()">💬 Telegram</a>
   <a href="index.html" class="active" onclick="closeMenu()">📊 Analyses</a>
   <a href="../scores.html" class="live-link" onclick="closeMenu()">🎾 Scores Live</a>
   <a href="../pronos.html" onclick="closeMenu()">🎯 Pronostics</a>
@@ -198,21 +201,26 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <p>Chaque jour, on décortique les matchs foot et tennis : forme, compos probables, face-à-face et notre lecture. L'analyse est gratuite — le <strong style="color:var(--text)">pick exact (cote + mise)</strong> est réservé au groupe Telegram.</p>
   </div>
 
-  <!-- ═══════════ LISTE DES ANALYSES ═══════════ -->
-  <div class="sec-title">🗞️ Dernières analyses</div>
-  <div class="analyses-grid" id="analyses-grid">
-    
-    <a class="a-card" href="rublev-baez-bastad-pronostic.html">
+  <!-- ═══════════ ANALYSE DU JOUR ═══════════ -->
+  <div class="sec-title">🗞️ Analyse du jour</div>
+  <div class="analyses-grid">
+    <a class="a-card" href="darderi-faria-estoril-pronostic.html">
+      <div class="tag">🎾 ATP Estoril</div>
+      <div class="title">Darderi – Faria : pronostic et analyse du quart de finale</div>
+      <div class="meta">Publié le 23 juillet</div>
+    </a>
+  </div>
+
+  <!-- ═══════════ ANALYSES PRÉCÉDENTES ═══════════ -->
+  <div class="sec-sub">📚 Analyses précédentes</div>
+  <div class="analyses-grid">
+    <a class="a-card past" href="rublev-baez-bastad-pronostic.html">
       <div class="tag">🎾 ATP Bastad</div>
       <div class="title">Rublev – Baez : pronostic et analyse du quart de finale</div>
       <div class="meta">Publié le 17 juillet</div>
     </a>
   </div>
-<a class="a-card" href="darderi-faria-estoril-pronostic.html">
-      <div class="tag">🎾 ATP Estoril</div>
-      <div class="title">Darderi – Faria : pronostic et analyse du quart de finale</div>
-      <div class="meta">Publié le 23 juillet</div>
-    </a>
+
   <!-- CTA Telegram avec pulse adoucie -->
   <div class="cta-box cta-pulse">
     <div>
@@ -222,7 +230,6 @@ footer{padding:36px 0;border-top:1px solid var(--line);background:rgba(0,0,0,.2)
     <a class="btn btn-primary btn-lg" href="https://t.me/+y59WqNcs4bVjZTI0" target="_blank">Ouvrir Telegram →</a>
   </div>
 
-  <!-- Jeu responsable -->
   <div class="rg-box">
     <strong>Jouer comporte des risques :</strong> endettement, isolement, dépendance. Réservé aux personnes majeures (18+). Aucun gain n'est garanti. Pour être aidé, appelez le <strong>09 74 75 13 13</strong> (appel non surtaxé).
   </div>
